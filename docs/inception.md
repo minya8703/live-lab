@@ -125,6 +125,8 @@ U11이 U8 앞에 오는 이유 — AWS 배포 전에 통합 테스트가 갖춰�
 | 2026-05-24 | U8 호스팅 전략: **AWS Phase 1 단독** (6개월 크레딧 $100~200 활용) | AWS Free Tier 정책 변경(2025-07-15) 반영. EC2/Lightsail + S3 + CloudFront + Lambda + CloudWatch 직접 사용으로 채용 공고의 AWS 키워드 직접 충족. 6개월 후 Phase 2(NAS 이전 또는 다른 옵션)는 별도 결정. |
 | 2026-05-24 | NAS(DS725+) Phase 2 옵션은 현재 보류, 추후 재검토 | 사용자 결정. AWS 6개월 운영 후 시점에 NAS·Oracle·AWS 유지 중 선택. 현재는 단순화 우선. |
 | 2026-05-24 | 도메인: **minya.life** 확정 (한국 레지스트라 첫 해 3,000원 프로모션) | 사용자 결정. `.life`가 "기술 인생 기록" Knowledge Garden 컨셉과 정합. 단, 갱신 시 연 25,000~35,000원으로 점프 — 11개월 시점에 Cloudflare Registrar(도매 약 13,500원/년)로 이전 권장. 캘린더 알림 필요. |
+| 2026-06-04 | U8 완료 — https://minya.life 외부 노출 + Budget 알람 등록 | EC2 t4g.small (Sydney ap-southeast-2) + Docker Compose (Spring·Postgres·Redis·Kafka 5컨테이너) + Cloudflare Proxy (Flexible SSL) + AWS Budget $15/mo 50%·90%·예측 100% 3단 알람. 챗봇이 라이브에서 "AWS 운영 중" 답변 정상 — gaps-and-direction.md 의 핵심 자산 활성화. Phase 2(NAS 이전 등)는 별도 결정. |
+| 2026-06-04 | U8 디버깅에서 회수할 회고 8건 (U10 콘텐츠 + 별도 devlog) | (1) SSH key 권한 함정: 이름이 같은 사용자/머신(minya/MINYA) 에서 icacls 가 머신 SID 로 grant. SID 직접 지정으로 해결. (2) Cloudflare nameserver 한 제공자로 통일 규칙. (3) Cloudflare SSL Full 모드 → 521. Flexible 로 변경. (4) Docker buildx 0.17+ 별도 설치. (5) EC2 포트 80 매핑은 .env 의 APP_HOST_PORT 로 외부화. (6) AWS Free Tier 변경(2025-07): 12개월 무료 → 6개월 크레딧. (7) SSH 키는 로컬 생성 + AWS 에 Import (AWS-side 생성 시 .pem 분실 위험). (8) 보안 그룹 Source 가 My IP 면 Cloudflare 차단 — 0.0.0.0/0 으로. |
 
 ---
 

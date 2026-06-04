@@ -308,28 +308,227 @@ docker compose ps   # 모든 컨테이너 healthy 확인
 docker compose logs -f app   # 부팅 로그 (Tomcat started on port 8089 확인 후 Ctrl+C)
 ```
 
-### 3.4 로컬 테스트
+### 3.4 EC2 안에서 로컬 테스트 (5분)
+
+`docker compose logs -f app` 에서 `Tomcat started on port 8089` 확인되면 Ctrl+C 로 빠져나온 다음, 같은 EC2 안에서 (Cloudflare 거치지 않고) 직접 호출:
+
 ```bash
+# 1. 헬스 체크 — Spring Boot Actuator
+curl -i http://localhost:8089/actuator/health
+# 기대 출력:
+#   HTTP/1.1 200
+#   Content-Type: application/vnd.spring-boot.actuator.v3+json
+#   {"status":"UP"}
+
+# 2. 우리 API
 curl -i http://localhost:8089/api/status
-# 200 + JSON 응답이면 OK
+# 기대 출력:
+#   HTTP/1.1 200
+#   Content-Type: application/json;charset=UTF-8
+#   {"currentUnit":8,"totalUnits":11,"currentLabel":"U8 ...","units":{...}}
+
+# 3. 랜딩 페이지 (HTML)
+curl -i http://localhost:8089/ | head -20
+# 기대: HTML 시작 `<!doctype html>` ...
+
+# 4. 챗봇·Redis·Kafka 데모 페이지 존재 확인 (상태 200 만 보면 됨)
+for path in / /lab/chat.html /lab/redis.html /lab/kafka.html /lab/grafana.html /lab/devlog.html; do
+  echo -n "$path → "
+  curl -o /dev/null -s -w "%{http_code}\n" http://localhost:8089$path
+done
+# 6개 모두 200 이면 정상
 ```
+
+#### 흔한 에러와 해결
+
+| 증상 | 원인 | 해결 |
+|---|---|---|
+| `curl: (7) Failed to connect to localhost port 8089: Connection refused` | Spring 앱이 아직 부팅 안 됨 / 종료됨 | `docker compose ps` → `app` 상태 확인. `Exited` 이면 `docker compose logs app` 으로 원인 |
+| `200` 인데 응답이 빈 HTML | 정적 파일이 컨테이너에 안 들어감 | `Dockerfile` 의 `COPY` 라인 점검 → 이미지 재빌드 (`docker compose build app && docker compose up -d app`) |
+| `503 Service Unavailable` | DB 또는 Redis 미기동 | `docker compose ps` 에서 postgres/redis healthy 확인. 시간 더 필요할 수 있음 (Kafka 30초 정도) |
+| `502 Bad Gateway` | Spring 부팅 중 OOM 으로 죽었다 살아남 | `docker compose logs app --tail 100` 에서 `OutOfMemoryError` 검색. t4g.small 2GB 빡빡 — JVM 옵션 조정 또는 Grafana 일시 제외 |
+
+### 3.5 PC 에서 Public IP 로 한 번 더 (선택)
+
+EC2 보안 그룹의 80/443 이 일시적으로 `0.0.0.0/0` 열려있는 동안이라면, PC 브라우저에서도 확인 가능:
+
+```
+http://<EC2_PUBLIC_IP>:8089/api/status
+```
+
+8089 가 보안 그룹에서 비공개라면 이 단계는 건너뛰고 바로 Step 4 (Cloudflare) 로. Cloudflare 연결 후엔 도메인으로만 접근하면 됩니다.
 
 ---
 
-## Step 4 — Cloudflare DNS + HTTPS 연결 (10분)
+## Step 4 — Cloudflare DNS + HTTPS 연결 (15~20분)
 
-Cloudflare 대시보드 → `minya.life` → DNS:
+Cloudflare 가 사용자 ↔ EC2 사이에서 HTTPS·CDN·DDoS 보호를 무료로 처리합니다. 사용자는 `https://minya.life` 만 보고, EC2 는 그대로 HTTP 8089 만 노출하면 됩니다.
 
-| Type | Name | Content | Proxy |
+### 4.0 사전 — Cloudflare nameserver 가 이미 적용됐는지 확인
+
+Step 1 에서 도메인 nameserver 를 Cloudflare 로 옮기셨죠. 적용 됐는지:
+
+```bash
+# EC2 안에서 또는 PowerShell 에서
+nslookup -type=ns minya.life
+# 출력에 *.ns.cloudflare.com 두 개가 보여야 정상
+# 아직 옛 레지스트라 nameserver 가 나오면 1~24시간 더 대기
+```
+
+전파 끝나지 않은 상태에서 다음 단계 진행해도 Cloudflare 측 설정은 미리 다 해둘 수 있고, 전파 완료 즉시 자동 활성화됩니다.
+
+### 4.1 DNS 레코드 추가 (5분)
+
+1. **Cloudflare 대시보드 로그인** → 좌측 사이트 목록에서 `minya.life` 클릭
+2. 좌측 메뉴 **DNS** → **Records**
+3. 기본으로 들어가있는 레코드(예: `parking` MX 등)가 있으면 **Edit → Delete** 로 정리
+4. **+ Add record** 클릭
+
+#### 첫 번째 레코드 — 루트 도메인
+
+| 필드 | 값 | 설명 |
+|---|---|---|
+| Type | `A` | IPv4 주소 매핑 |
+| Name | `@` | `@` 는 *루트 도메인* 즉 `minya.life` 자체. Cloudflare 가 입력 후 알아서 표시 |
+| IPv4 address | `<EC2 Public IP>` | 예: `15.134.131.69`. **Elastic IP 안 붙이면 인스턴스 재시작 시마다 바뀜** |
+| Proxy status | **🟠 Proxied** (구름 아이콘 주황색) | 핵심 — 회색은 DNS 만, 주황색은 Cloudflare 경유 (HTTPS·CDN 활성화) |
+| TTL | **Auto** | Proxied 면 자동 |
+
+→ **Save**
+
+#### 두 번째 레코드 — www 서브도메인
+
+같은 방식으로 한 번 더:
+
+| 필드 | 값 |
+|---|---|
+| Type | `A` |
+| Name | `www` |
+| IPv4 address | `<EC2 Public IP>` (위와 동일) |
+| Proxy status | 🟠 Proxied |
+| TTL | Auto |
+
+→ **Save**
+
+이제 `minya.life` 와 `www.minya.life` 둘 다 EC2 로 향함.
+
+#### 결과 확인
+
+```bash
+# 1~5분 대기 후
+nslookup minya.life
+# 출력에 Cloudflare IP (104.x.x.x 또는 172.67.x.x) 가 보이면 정상
+# 직접 EC2 IP 가 보이면 Proxy 가 회색(off) 상태 — Cloudflare 보호 안 받음
+```
+
+### 4.2 SSL/TLS 모드 설정 (3분)
+
+좌측 메뉴 **SSL/TLS** → **Overview**:
+
+표시되는 4가지 옵션:
+
+| 모드 | 사용자 ↔ Cloudflare | Cloudflare ↔ EC2 | 권장 |
 |---|---|---|---|
-| A | `@` | EC2 Public IP | ✅ Proxied |
-| A | `www` | EC2 Public IP | ✅ Proxied |
+| Off | HTTP | HTTP | ❌ 절대 X |
+| **Flexible** | HTTPS | HTTP | ✅ **첫 셋업 권장** — EC2 에 인증서 불필요 |
+| Full | HTTPS | HTTPS (자체 서명도 OK) | 한 단계 강화 시 |
+| Full (strict) | HTTPS | HTTPS (신뢰 가능 CA 인증서 필수) | 운영 안정 후 |
 
-SSL/TLS → **Full (strict)** 또는 **Flexible** (간단)
-- Flexible: 사용자 ↔ Cloudflare 만 HTTPS. Cloudflare ↔ EC2 는 HTTP. 가장 빠르게 동작.
-- Full: 양쪽 다 HTTPS. EC2 에 자체 인증서 필요. 보안 ↑.
+→ **Flexible** 선택 (라디오 버튼 클릭, 자동 저장)
 
-Flexible 로 먼저 → 동작 확인 후 Full 로 업그레이드.
+⚠ Full (strict) 로 하려면 EC2 에 Let's Encrypt 등 인증서를 따로 깔아야 합니다. 우리는 EC2 가 HTTP 8089 그대로라서 Flexible 이 가장 자연스러움.
+
+### 4.3 강제 HTTPS + 추가 설정 (5분)
+
+#### Edge Certificates 자동 발급 확인
+
+좌측 **SSL/TLS → Edge Certificates** 페이지에서:
+
+- **Universal SSL** 섹션 → Status: **Active** 보여야 함 (보통 자동 발급, 15분~24시간 걸릴 수 있음)
+- 발급 끝나기 전엔 https://minya.life 가 인증서 에러로 보임 — 기다림
+
+#### Always Use HTTPS 활성화
+
+같은 페이지 **Edge Certificates** 하단:
+
+- **Always Use HTTPS** 토글 → **On**
+- 효과: `http://minya.life` 접근 시 자동으로 `https://minya.life` 로 리디렉트
+
+#### Automatic HTTPS Rewrites (선택)
+
+- 효과: HTML 안의 `http://` 링크를 자동으로 `https://` 로 다시 씀 (혼합 콘텐츠 경고 회피)
+- 토글 **On** 권장
+
+#### Minimum TLS Version
+
+- **TLS 1.2** 이상 권장 (구식 클라이언트 차단)
+- **SSL/TLS → Edge Certificates → Minimum TLS Version → 1.2** 선택
+
+### 4.4 EC2 보안 그룹 좁히기 (5분, 선택이지만 권장)
+
+이제 Cloudflare 가 80/443 을 받으니, EC2 의 보안 그룹 인바운드를 **Cloudflare IP 만** 으로 좁혀 직접 접근을 차단:
+
+1. AWS 콘솔 **EC2 → Security Groups → `livelab-sg`** 클릭
+2. **Inbound rules → Edit inbound rules**
+3. 기존 HTTP/HTTPS 규칙 (Source `0.0.0.0/0`) 삭제 후 다시 추가:
+
+| Type | Port | Source |
+|---|---|---|
+| HTTP | 80 | `173.245.48.0/20` (Cloudflare) |
+| HTTP | 80 | `103.21.244.0/22` |
+| HTTP | 80 | `103.22.200.0/22` |
+| HTTP | 80 | `103.31.4.0/22` |
+| HTTP | 80 | `141.101.64.0/18` |
+| HTTP | 80 | `108.162.192.0/18` |
+| HTTP | 80 | `190.93.240.0/20` |
+| HTTP | 80 | `188.114.96.0/20` |
+| HTTP | 80 | `197.234.240.0/22` |
+| HTTP | 80 | `198.41.128.0/17` |
+| HTTP | 80 | `162.158.0.0/15` |
+| HTTP | 80 | `104.16.0.0/13` |
+| HTTP | 80 | `104.24.0.0/14` |
+| HTTP | 80 | `172.64.0.0/13` |
+| HTTP | 80 | `131.0.72.0/22` |
+| HTTPS | 443 | (HTTP 80 과 동일한 15개 범위) |
+
+전체 최신 목록: <https://www.cloudflare.com/ips-v4>
+
+⚠ 30개 규칙 직접 입력은 부담스러우니 초기엔 `0.0.0.0/0` 그대로 두고, 사이트 안정화 후 좁혀도 OK. Cloudflare 통과 정책은 Cloudflare WAF 가 1차 방어.
+
+### 4.5 동작 검증 (3분)
+
+```bash
+# DNS 가 Cloudflare 로 가는지
+curl -I https://minya.life
+# 기대 출력:
+#   HTTP/2 200
+#   server: cloudflare              ← 핵심: Cloudflare 거쳐서 옴
+#   cf-cache-status: DYNAMIC
+#   content-type: text/html;charset=UTF-8
+
+# API 도 확인
+curl https://minya.life/api/status | head
+# JSON 응답 보이면 끝
+```
+
+브라우저에서도 <https://minya.life> 열어보고:
+- 자물쇠 아이콘이 보여야 함
+- 인증서 → 발급자: **Cloudflare** 또는 **Google Trust Services** 등 (Universal SSL 발급자)
+- 페이지 정상 로드, 한글 깨짐 없음
+
+### 4.6 자주 막히는 곳
+
+| 증상 | 원인 | 해결 |
+|---|---|---|
+| 브라우저: "이 사이트에 연결할 수 없음" | Cloudflare nameserver 전파 미완 | `nslookup -type=ns minya.life` 가 `*.ns.cloudflare.com` 보일 때까지 대기 |
+| Error 1016 / Origin DNS error | DNS A 레코드 IP 오타 | DNS Records 에서 IP 다시 확인 |
+| Error 521 (Web server is down) | EC2 가 80 port 닫힘 또는 앱 꺼짐 | EC2 안에서 `curl localhost:8089` 부터 통과하는지. 보안 그룹 80 인바운드 열림 확인 |
+| Error 522 (Connection timed out) | 보안 그룹이 Cloudflare IP 차단 | 임시로 80/443 Source 를 `0.0.0.0/0` 으로 다시 열고 4.4 좁히기는 나중에 |
+| Error 525 (SSL handshake failed) | SSL/TLS 모드 Full 인데 EC2 에 인증서 없음 | **Flexible** 로 변경 |
+| `http://` 가 `https://` 로 리디렉트 안 됨 | Always Use HTTPS 꺼져있음 | 4.3 의 토글 켜기 |
+| 한글이 mojibake | Cloudflare 가 charset 안 넘김 (드물) | Page Rules 에서 해당 도메인 *"Disable Performance"* 또는 Workers 캐시 우회 |
+
+여기까지 완료되면 사이트가 외부에서 정상 접속 가능 — Step 5 (비용 가드레일) 로 진행.
 
 테스트:
 ```bash
