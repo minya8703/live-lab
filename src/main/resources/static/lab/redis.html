@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redis 캐시 라이브 데모 · 민야령 Live Lab</title>
+  <meta name="description" content="DB 직접 조회 vs Redis 캐시 응답 시간을 실시간 측정. CacheErrorHandler fallback 패턴 그대로 재현." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="stylesheet" href="/lab/redis.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">민야령 <span class="brand-sub">Backend Live Lab</span></a>
+    <nav class="nav">
+      <a href="/#lab">← Live Lab</a>
+      <a href="https://minya8703.github.io/" target="_blank" rel="noopener">전체 이력 ↗</a>
+    </nav>
+  </header>
+
+  <main class="redis-main">
+    <section class="redis-intro">
+      <p class="tag-line">U4 · Redis 캐시 라이브 데모</p>
+      <h1 class="redis-title">"Redis 32메서드 캐시 + Fallback"을 라이브로 증명</h1>
+      <p class="redis-sub">
+        Postgres 100,000건에 대해 카테고리별 집계 쿼리 (GROUP BY · 인덱스 의도적으로 미사용)를
+        <strong>캐시 없음 vs Redis 캐시</strong>로 같은 환경에서 실측합니다.
+        Redis 장애 시에는 CacheErrorHandler로 DB 직접 조회 자동 fallback — 기존 Betax SaaS 운영 패턴 그대로.
+      </p>
+    </section>
+
+    <section class="controls" aria-label="실행 컨트롤">
+      <div class="control">
+        <label for="category">카테고리</label>
+        <select id="category" disabled></select>
+      </div>
+      <div class="control">
+        <label for="iterations">반복 횟수 (1~200)</label>
+        <input id="iterations" type="number" min="1" max="200" value="20" />
+      </div>
+      <div class="control-buttons">
+        <button id="runNoCache" class="btn btn-ghost" type="button">캐시 없음 실행</button>
+        <button id="runCached" class="btn btn-primary" type="button">캐시 사용 실행</button>
+        <button id="evict" class="btn-link" type="button">Redis 캐시 비우기</button>
+      </div>
+      <p class="control-hint">
+        첫 캐시 실행은 미스라 DB로 떨어집니다(첫 막대만 길어요). 두 번째부터 전부 히트.
+        "캐시 비우기"로 다시 콜드 상태에서 시작할 수 있습니다.
+      </p>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <article class="result-card" id="resultNoCache">
+        <header>
+          <h3>캐시 없음 (DB 직접 조회)</h3>
+          <span class="result-status" data-empty>실행 전</span>
+        </header>
+        <div class="chart" data-chart></div>
+        <dl class="stats" data-stats hidden>
+          <div><dt>실행</dt><dd data-stat="iterations">-</dd></div>
+          <div><dt>평균</dt><dd data-stat="avg">- ms</dd></div>
+          <div><dt>최소</dt><dd data-stat="min">- ms</dd></div>
+          <div><dt>최대</dt><dd data-stat="max">- ms</dd></div>
+        </dl>
+      </article>
+
+      <article class="result-card" id="resultCached">
+        <header>
+          <h3>캐시 사용 (Redis)</h3>
+          <span class="result-status" data-empty>실행 전</span>
+        </header>
+        <div class="chart" data-chart></div>
+        <dl class="stats" data-stats hidden>
+          <div><dt>실행</dt><dd data-stat="iterations">-</dd></div>
+          <div><dt>평균</dt><dd data-stat="avg">- ms</dd></div>
+          <div><dt>최소</dt><dd data-stat="min">- ms</dd></div>
+          <div><dt>최대</dt><dd data-stat="max">- ms</dd></div>
+        </dl>
+      </article>
+    </section>
+
+    <section class="comparison" id="comparison" hidden>
+      <p class="comparison-text" data-comparison></p>
+    </section>
+
+    <section class="redis-meta">
+      <h3>이 데모가 실제로 무엇을 측정하나요?</h3>
+      <ul>
+        <li><code>SELECT sub_category, count, avg(price), min, max FROM product WHERE category = ? GROUP BY sub_category</code> — Postgres 16에서 인덱스 없이 풀스캔.</li>
+        <li>응답 시간(ns) → ms 변환 후 통계: 평균·최소·최대.</li>
+        <li>캐시 키: <code>category-stats::&lt;카테고리명&gt;</code> · TTL 60s · 직렬화 GenericJackson2JsonRedisSerializer.</li>
+        <li>Redis 장애 시 CacheErrorHandler가 예외를 삼키고 @Cacheable이 캐시 미스로 처리 → DB 직접 조회로 자동 fallback.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-line">
+      <span>민야령 · Backend Live Lab</span>
+      <span class="dim">Spring Boot 3.4 · Spring Cache · Redis 7 · Postgres 16</span>
+    </p>
+  </footer>
+
+  <script src="/lab/redis.js" defer></script>
+</body>
+</html>

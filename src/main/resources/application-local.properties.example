@@ -1,0 +1,11 @@
+# 주 권장 패턴은 프로젝트 루트의 `.env` 파일이다 (.env.example 참조).
+# 이 파일은 Spring Boot profile 방식이 더 익숙한 경우의 대안. 둘 중 하나만 사용.
+#
+# 사용법:
+#   1. 이 파일을 application-local.properties 로 복사
+#   2. 본인 키 채우기
+#   3. 실행: mvn spring-boot:run "-Dspring-boot.run.profiles=local"
+#
+# application-local.properties 는 .gitignore에 등록되어 절대 커밋되지 않는다.
+
+spring.ai.openai.api-key=여기에-실제-Google-AI-Studio-키-입력

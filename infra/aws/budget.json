@@ -1,0 +1,23 @@
+{
+  "BudgetName": "livelab-monthly-15usd",
+  "BudgetLimit": {
+    "Amount": "15",
+    "Unit": "USD"
+  },
+  "TimeUnit": "MONTHLY",
+  "BudgetType": "COST",
+  "CostFilters": {},
+  "CostTypes": {
+    "IncludeCredit": false,
+    "IncludeDiscount": true,
+    "IncludeOtherSubscription": true,
+    "IncludeRecurring": true,
+    "IncludeRefund": false,
+    "IncludeSubscription": true,
+    "IncludeSupport": true,
+    "IncludeTax": true,
+    "IncludeUpfront": true,
+    "UseAmortized": false,
+    "UseBlended": false
+  }
+}

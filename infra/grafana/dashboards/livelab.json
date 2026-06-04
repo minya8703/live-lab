@@ -1,0 +1,146 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "id": 1,
+      "title": "JVM Heap Used",
+      "type": "timeseries",
+      "gridPos": {"h": 7, "w": 12, "x": 0, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "prometheus-livelab"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {"drawStyle": "line", "fillOpacity": 10, "lineWidth": 2}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "jvm_memory_used_bytes{area=\"heap\",application=\"live-lab\"}",
+          "legendFormat": "{{id}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "HTTP Request Rate (per URI)",
+      "type": "timeseries",
+      "gridPos": {"h": 7, "w": 12, "x": 12, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "prometheus-livelab"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {"drawStyle": "line", "fillOpacity": 5, "lineWidth": 2}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(uri) (rate(http_server_requests_seconds_count{application=\"live-lab\",uri!~\"/actuator.*\"}[1m]))",
+          "legendFormat": "{{uri}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "HikariCP Connections",
+      "type": "timeseries",
+      "gridPos": {"h": 7, "w": 12, "x": 0, "y": 7},
+      "datasource": {"type": "prometheus", "uid": "prometheus-livelab"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {"drawStyle": "line", "fillOpacity": 10, "lineWidth": 2}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}},
+      "targets": [
+        {"refId": "A", "expr": "hikaricp_connections_active{application=\"live-lab\"}", "legendFormat": "active"},
+        {"refId": "B", "expr": "hikaricp_connections_idle{application=\"live-lab\"}", "legendFormat": "idle"},
+        {"refId": "C", "expr": "hikaricp_connections_pending{application=\"live-lab\"}", "legendFormat": "pending"}
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Spring Cache — Hits vs Misses",
+      "type": "timeseries",
+      "gridPos": {"h": 7, "w": 12, "x": 12, "y": 7},
+      "datasource": {"type": "prometheus", "uid": "prometheus-livelab"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {"drawStyle": "line", "fillOpacity": 10, "lineWidth": 2}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(cache,result) (rate(cache_gets_total{application=\"live-lab\"}[1m]))",
+          "legendFormat": "{{cache}} {{result}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Kafka Consumer Records",
+      "type": "timeseries",
+      "gridPos": {"h": 7, "w": 12, "x": 0, "y": 14},
+      "datasource": {"type": "prometheus", "uid": "prometheus-livelab"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {"drawStyle": "line", "fillOpacity": 10, "lineWidth": 2}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(client_id) (rate(kafka_consumer_fetch_manager_records_consumed_total{application=\"live-lab\"}[1m]))",
+          "legendFormat": "{{client_id}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "HTTP Response Max (per URI)",
+      "type": "timeseries",
+      "gridPos": {"h": 7, "w": 12, "x": 12, "y": 14},
+      "datasource": {"type": "prometheus", "uid": "prometheus-livelab"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {"drawStyle": "line", "fillOpacity": 5, "lineWidth": 2}
+        }
+      },
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max by(uri) (http_server_requests_seconds_max{application=\"live-lab\",uri!~\"/actuator.*\"})",
+          "legendFormat": "{{uri}}"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["livelab"],
+  "templating": {"list": []},
+  "time": {"from": "now-15m", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Live Lab — Spring Boot Metrics",
+  "uid": "livelab",
+  "version": 1,
+  "weekStart": ""
+}

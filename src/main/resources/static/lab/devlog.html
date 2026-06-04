@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI-DLC 개발 일지 · 민야령 Live Lab</title>
+  <meta name="description" content="이 사이트가 만들어지는 과정 — 의사결정, 디버깅, 회고. AI-DLC 사이클의 진짜 기록." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="stylesheet" href="/lab/redis.css" />
+  <link rel="stylesheet" href="/lab/devlog.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">민야령 <span class="brand-sub">Backend Live Lab</span></a>
+    <nav class="nav">
+      <a href="/#lab">← Live Lab</a>
+      <a href="https://minya8703.github.io/" target="_blank" rel="noopener">전체 이력 ↗</a>
+    </nav>
+  </header>
+
+  <main class="redis-main">
+    <section class="redis-intro">
+      <p class="tag-line">U7 · AI-DLC 개발 일지</p>
+      <h1 class="redis-title">이 사이트가 만들어지는 과정</h1>
+      <p class="redis-sub">
+        결정·시도·실패·교훈의 실시간 기록. 각 Unit 진행 중 부딪힌 실제 문제와 해결 과정을
+        남깁니다 — 산출물보다 *과정*이 차별 콘텐츠라는 판단입니다.
+        새 회고는 <code>data/devlog/*.md</code>에 파일 추가만 하면 자동 노출됩니다.
+      </p>
+    </section>
+
+    <nav class="devlog-toc" id="toc" aria-label="목차">
+      <p class="toc-label">목차</p>
+      <ol class="toc-list" data-toc></ol>
+    </nav>
+
+    <section class="devlog-entries" data-entries aria-live="polite">
+      <p class="devlog-loading">불러오는 중…</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-line">
+      <span>민야령 · Backend Live Lab</span>
+      <span class="dim">commonmark-java · Spring Boot · 각 회고는 마크다운 파일로 git 관리</span>
+    </p>
+  </footer>
+
+  <script src="/lab/devlog.js" defer></script>
+</body>
+</html>

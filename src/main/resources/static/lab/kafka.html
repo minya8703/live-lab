@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kafka 처리량 라이브 데모 · 민야령 Live Lab</title>
+  <meta name="description" content="Kafka 발행/소비 throughput · DLT 라우팅 · FixedBackOff 재시도 라이브 측정." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="stylesheet" href="/lab/redis.css" />
+  <link rel="stylesheet" href="/lab/kafka.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">민야령 <span class="brand-sub">Backend Live Lab</span></a>
+    <nav class="nav">
+      <a href="/#lab">← Live Lab</a>
+      <a href="https://minya8703.github.io/" target="_blank" rel="noopener">전체 이력 ↗</a>
+    </nav>
+  </header>
+
+  <main class="redis-main">
+    <section class="redis-intro">
+      <p class="tag-line">U5 · Kafka 처리량 라이브 데모</p>
+      <h1 class="redis-title">"Kafka 7토픽 · DLT · FixedBackOff 재시도"를 라이브로 증명</h1>
+      <p class="redis-sub">
+        Kafka 3.7 KRaft 모드 · 3 파티션. Producer가 주문 이벤트를 발행하면 Consumer가 소비하고,
+        <strong>17의 배수 orderId</strong>는 의도적으로 실패시켜 <strong>FixedBackOff 500ms × 3회 재시도 → DLT 라우팅</strong>까지 흐름을 그대로 봅니다.
+        사용자 Betax SaaS 운영 패턴 동일.
+      </p>
+    </section>
+
+    <section class="controls" aria-label="실행 컨트롤">
+      <div class="control">
+        <label for="count">발행 메시지 수 (1~10000)</label>
+        <input id="count" type="number" min="1" max="10000" value="1000" />
+      </div>
+      <div class="control">
+        <label>처리 진행률</label>
+        <div class="progress" id="progress">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+      </div>
+      <div class="control-buttons">
+        <button id="publish" class="btn btn-primary" type="button">발행 시작</button>
+        <button id="reset" class="btn-link" type="button">카운터 리셋</button>
+      </div>
+      <p class="control-hint">
+        발행 후 약 500ms 간격으로 상태를 폴링합니다. 17의 배수인 orderId(약 5.9%)가 의도적 실패 → 재시도 → DLT로 흐릅니다.
+      </p>
+    </section>
+
+    <section class="kafka-stats" aria-live="polite">
+      <div class="kafka-stat">
+        <p class="kafka-stat-label">발행</p>
+        <p class="kafka-stat-value" data-stat="produced">0</p>
+      </div>
+      <div class="kafka-stat">
+        <p class="kafka-stat-label">성공 소비</p>
+        <p class="kafka-stat-value emerald" data-stat="success">0</p>
+      </div>
+      <div class="kafka-stat">
+        <p class="kafka-stat-label">DLT 라우팅</p>
+        <p class="kafka-stat-value amber" data-stat="dlt">0</p>
+      </div>
+      <div class="kafka-stat">
+        <p class="kafka-stat-label">처리량 (msgs/sec)</p>
+        <p class="kafka-stat-value" data-stat="throughput">-</p>
+      </div>
+      <div class="kafka-stat">
+        <p class="kafka-stat-label">경과 시간</p>
+        <p class="kafka-stat-value" data-stat="elapsed">-</p>
+      </div>
+    </section>
+
+    <section class="result-card">
+      <header>
+        <h3>Throughput 추이 (틱당 msgs/sec)</h3>
+        <span class="result-status" data-throughput-status>실행 전</span>
+      </header>
+      <div class="chart" id="throughputChart"></div>
+    </section>
+
+    <section class="redis-meta">
+      <h3>이 데모가 측정하는 것</h3>
+      <ul>
+        <li>Producer가 <code>livelab.orders</code> 토픽(3 파티션)으로 OrderEvent를 발행. JsonSerializer + acks=all.</li>
+        <li>Consumer가 메시지를 소비. <code>orderId % 17 == 0</code>이면 <code>IllegalStateException</code>으로 실패 시뮬레이션.</li>
+        <li>실패 시 <code>DefaultErrorHandler</code> + <code>FixedBackOff(500ms, 3)</code>가 재시도, 한계 초과 시 <code>DeadLetterPublishingRecoverer</code>가 <code>livelab.orders.DLT</code>로 라우팅.</li>
+        <li>DLT 옵저버 컨슈머가 별도 그룹(<code>livelab-orders-dlt-observer</code>)으로 DLT를 카운트.</li>
+        <li>UI는 500ms 간격으로 <code>/api/kafka-demo/status</code>를 폴링해 진행 상태 라이브 갱신.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-line">
+      <span>민야령 · Backend Live Lab</span>
+      <span class="dim">Spring Boot 3.4 · Spring Kafka · Kafka 3.7 KRaft</span>
+    </p>
+  </footer>
+
+  <script src="/lab/kafka.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+.progress {
+  width: 100%;
+  height: 12px;
+  background: var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.kafka-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.kafka-stat {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: var(--bg);
+  text-align: center;
+}
+
+.kafka-stat-label {
+  margin: 0 0 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kafka-stat-value {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.02em;
+}
+
+.kafka-stat-value.emerald {
+  color: var(--accent);
+}
+
+.kafka-stat-value.amber {
+  color: #b45309;
+}
+
+@media (max-width: 720px) {
+  .kafka-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

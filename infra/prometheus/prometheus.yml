@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  # Spring Boot 애플리케이션은 호스트에서 mvn spring-boot:run 으로 돌아가므로
+  # Prometheus 컨테이너에서는 host.docker.internal 로 접근한다 (Windows/Mac Docker Desktop).
+  - job_name: livelab-spring
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8089']
+        labels:
+          application: live-lab
+
+  # Prometheus 자기 메트릭 (헬스 체크용)
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']

@@ -1,0 +1,250 @@
+.devlog-toc {
+  margin-bottom: 32px;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--border-soft);
+}
+
+.toc-label {
+  margin: 0 0 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.toc-list {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--fg-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toc-list a {
+  border: none;
+  color: var(--fg);
+  font-size: 14px;
+}
+
+.toc-list a:hover {
+  color: var(--accent);
+}
+
+.toc-unit {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--fg-dim);
+  margin-right: 8px;
+}
+
+.devlog-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.devlog-loading {
+  font-family: var(--mono);
+  color: var(--fg-dim);
+  text-align: center;
+  padding: 40px;
+  margin: 0;
+}
+
+.devlog-entry {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 28px;
+  scroll-margin-top: 80px;
+}
+
+.devlog-entry-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.devlog-entry-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+  flex: 1 1 100%;
+}
+
+.devlog-unit-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--fg);
+  color: var(--bg);
+  letter-spacing: 0.05em;
+}
+
+.devlog-date {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+
+.devlog-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.devlog-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  padding: 2px 8px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: var(--accent-soft);
+}
+
+/* 렌더된 마크다운 본문 */
+.devlog-content {
+  color: var(--fg);
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.devlog-content h2 {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 28px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-soft);
+  letter-spacing: -0.005em;
+}
+
+.devlog-content h2:first-child {
+  margin-top: 0;
+}
+
+.devlog-content h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 20px 0 8px;
+}
+
+.devlog-content p {
+  margin: 0 0 12px;
+}
+
+.devlog-content ul,
+.devlog-content ol {
+  margin: 0 0 12px;
+  padding-left: 24px;
+}
+
+.devlog-content li {
+  margin-bottom: 4px;
+}
+
+.devlog-content strong {
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.devlog-content em {
+  font-style: italic;
+  color: var(--fg);
+}
+
+.devlog-content a {
+  color: var(--accent);
+  border-bottom: 1px solid var(--accent);
+}
+
+.devlog-content code {
+  font-family: var(--mono);
+  font-size: 13px;
+  background: var(--border-soft);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--fg);
+}
+
+.devlog-content pre {
+  background: #0f1419;
+  color: #e5e7eb;
+  padding: 14px 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 12px 0;
+}
+
+.devlog-content pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+.devlog-content blockquote {
+  margin: 12px 0;
+  padding: 10px 16px;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  color: #064e3b;
+  font-style: normal;
+}
+
+.devlog-content blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.devlog-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+  font-size: 13px;
+}
+
+.devlog-content th,
+.devlog-content td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.devlog-content th {
+  background: var(--border-soft);
+  font-weight: 600;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.devlog-content tr:nth-child(even) td {
+  background: var(--border-soft);
+}
+
+.devlog-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 24px 0;
+}
+
+@media (max-width: 720px) {
+  .devlog-entry {
+    padding: 20px;
+  }
+  .devlog-entry-title {
+    font-size: 17px;
+  }
+}

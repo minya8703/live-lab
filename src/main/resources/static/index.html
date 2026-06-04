@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>민야령 · Backend Live Lab</title>
+  <meta name="description" content="Kafka·Redis·MSA를 라이브로 증명하는 백엔드 엔지니어 민야령의 작업실. AI-DLC로 만들어지는 중." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">민야령 <span class="brand-sub">Backend Live Lab</span></a>
+    <nav class="nav">
+      <a href="#lab">Live Lab</a>
+      <a href="#proof">Proof</a>
+      <a href="https://minya8703.github.io/" target="_blank" rel="noopener">전체 이력 ↗</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="status" data-status>
+        <span class="dot" aria-hidden="true"></span>
+        <!-- 정적 fallback은 의도적으로 ASCII만 사용 — 파일 인코딩 사고에 영향받지 않게.
+             실제 한국어 라벨은 /api/status (또는 app.js 의 FALLBACK)에서 textContent 로 주입. -->
+        <span class="status-label">Loading status&hellip;</span>
+        <span class="status-detail">AI-DLC Construction</span>
+      </p>
+      <h1 class="hero-title">
+        엔터프라이즈 시스템을<br />
+        <em>연결하고 안정화하는</em> 백엔드 엔지니어.
+      </h1>
+      <p class="hero-sub">
+        Kafka · Redis · MSA를 실제로 돌려보고, AI-DLC로 만들어가는 백엔드 진열대.
+      </p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#lab">Live Lab 보기</a>
+        <a class="btn btn-ghost" href="https://minya8703.github.io/" target="_blank" rel="noopener">전체 이력 ↗</a>
+      </div>
+    </section>
+
+    <section id="proof" class="proof" aria-labelledby="proof-h">
+      <h2 id="proof-h" class="section-title">증명 가능한 3가지</h2>
+      <div class="proof-grid">
+        <article class="proof-card">
+          <p class="big-number">9<span class="unit">년</span></p>
+          <p class="proof-label">백엔드 운영 경력</p>
+          <p class="proof-detail">일본 10년 + 한국 3년 · EAI · MSA · 데이터 파이프라인</p>
+        </article>
+        <article class="proof-card">
+          <p class="big-number">50<span class="unit">+</span></p>
+          <p class="proof-label">표준화한 인터페이스</p>
+          <p class="proof-detail">webMethods · SAP JCo · 무중단 무장애 운영</p>
+        </article>
+        <article class="proof-card">
+          <p class="big-number">70<span class="unit">%</span></p>
+          <p class="proof-label">처리시간 단축</p>
+          <p class="proof-detail">MSA 세금계산서 솔루션 · 5분 → 1.5분 · 중복 발행 0건</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="lab" class="lab" aria-labelledby="lab-h">
+      <h2 id="lab-h" class="section-title">Live Lab</h2>
+      <p class="section-sub">
+        이력서의 숫자가 사실인지, 직접 눌러서 확인하세요. 각 데모는 Unit 단위로 차례차례 공개됩니다.
+      </p>
+      <div class="lab-grid" data-units>
+        <article class="lab-card" data-unit="3" data-link="/lab/chat.html">
+          <header>
+            <span class="tag">U3</span>
+            <span class="tag-status" data-tag-status>예정</span>
+          </header>
+          <h3>AI 경력 Q&amp;A</h3>
+          <p>면접관처럼 질문해 보세요. Claude API + Spring AI로 경력 데이터를 직접 참조합니다. 없는 경험은 솔직히 "없다"고 답합니다.</p>
+        </article>
+        <article class="lab-card" data-unit="4" data-link="/lab/redis.html">
+          <header>
+            <span class="tag">U4</span>
+            <span class="tag-status" data-tag-status>예정</span>
+          </header>
+          <h3>Redis 캐시 라이브 비교</h3>
+          <p>Postgres 100k건에 대해 캐시 없음 vs Redis 응답 시간 실측. CacheErrorHandler fallback 패턴 그대로 재현.</p>
+        </article>
+        <article class="lab-card" data-unit="5" data-link="/lab/kafka.html">
+          <header>
+            <span class="tag">U5</span>
+            <span class="tag-status" data-tag-status>예정</span>
+          </header>
+          <h3>Kafka 처리량 + DLT 라이브</h3>
+          <p>발행 → 소비 throughput 실시간 측정 + 의도적 실패 메시지의 재시도/DLT 라우팅까지. Betax 운영 패턴 그대로.</p>
+        </article>
+        <article class="lab-card" data-unit="6" data-link="/lab/grafana.html">
+          <header>
+            <span class="tag">U6</span>
+            <span class="tag-status" data-tag-status>예정</span>
+          </header>
+          <h3>Grafana 라이브 대시보드</h3>
+          <p>Prometheus + Grafana로 JVM · HTTP · Hikari · Cache · Kafka 메트릭을 사이트에 그대로 임베드.</p>
+        </article>
+        <article class="lab-card" data-unit="7" data-link="/lab/devlog.html">
+          <header>
+            <span class="tag">U7</span>
+            <span class="tag-status" data-tag-status>예정</span>
+          </header>
+          <h3>AI-DLC 개발 일지</h3>
+          <p>실제로 부딪힌 문제와 해결 과정을 마크다운으로 누적. 포트 충돌·인코딩·벤더 이미지 사라짐 등 실전 사례.</p>
+        </article>
+        <article class="lab-card" data-unit="11">
+          <header>
+            <span class="tag">U11</span>
+            <span class="tag-status" data-tag-status>예정</span>
+          </header>
+          <h3>Test Automation</h3>
+          <p>Testcontainers로 진짜 Postgres/Redis/Kafka에 통합 테스트. GitHub Actions로 push마다 자동 실행. 코드는 저장소에서 확인 가능.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="bridge">
+      <h2 class="section-title">전체 경력 상세는</h2>
+      <p class="section-sub">
+        이 사이트는 라이브 데모와 개발 과정에 집중합니다.<br />
+        프로젝트 8개의 시간순 상세 이력은 기존 포트폴리오에서 보실 수 있습니다.
+      </p>
+      <a class="btn btn-primary" href="https://minya8703.github.io/" target="_blank" rel="noopener">
+        minya8703.github.io 이동 ↗
+      </a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-line">
+      <span>민야령 · Backend Live Lab</span>
+      <span class="dim">Built with AI-DLC · Vanilla JS · Spring Boot (TBD)</span>
+    </p>
+    <p class="footer-line">
+      <a href="mailto:minya8703@gmail.com">minya8703@gmail.com</a>
+      <a href="https://minya8703.github.io/" target="_blank" rel="noopener">기존 포트폴리오 ↗</a>
+    </p>
+  </footer>
+
+  <script src="/assets/js/app.js" defer></script>
+</body>
+</html>

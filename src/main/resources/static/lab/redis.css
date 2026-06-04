@@ -1,0 +1,280 @@
+.redis-main {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.redis-intro {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 28px;
+}
+
+.redis-title {
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 8px 0 12px;
+}
+
+.redis-sub {
+  color: var(--fg-soft);
+  margin: 0;
+  max-width: 720px;
+  line-height: 1.7;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 20px;
+  margin-bottom: 28px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--border-soft);
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control label {
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--fg-soft);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.control select,
+.control input {
+  font-family: var(--sans);
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.control select:focus,
+.control input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.control-buttons {
+  grid-column: span 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--fg-soft);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0 8px;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.btn-link:hover {
+  color: var(--accent);
+}
+
+.control-hint {
+  grid-column: span 2;
+  margin: 0;
+  font-size: 12px;
+  color: var(--fg-dim);
+  font-family: var(--mono);
+  line-height: 1.6;
+}
+
+.results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.result-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.result-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.result-status {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--border-soft);
+  color: var(--fg-dim);
+}
+
+.result-status.running {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.result-status.done {
+  background: var(--accent-soft);
+  color: #047857;
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 160px;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart:empty::before {
+  content: "결과가 여기 표시됩니다";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+
+.bar {
+  flex: 1;
+  background: var(--accent);
+  min-height: 1px;
+  border-radius: 2px 2px 0 0;
+  transition: height 0.3s ease;
+  min-width: 4px;
+}
+
+.bar.cold {
+  background: #b45309;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 0;
+  font-family: var(--mono);
+}
+
+.stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  background: var(--border-soft);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.stats dt {
+  font-size: 10px;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stats dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.comparison {
+  padding: 16px 20px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--accent-soft);
+  margin-bottom: 28px;
+}
+
+.comparison-text {
+  margin: 0;
+  font-size: 15px;
+  color: #047857;
+  font-weight: 600;
+}
+
+.comparison-text strong {
+  font-size: 18px;
+  color: #064e3b;
+}
+
+.redis-meta {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.redis-meta h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.redis-meta ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--fg-soft);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.redis-meta code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--border-soft);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+@media (max-width: 720px) {
+  .controls {
+    grid-template-columns: 1fr;
+  }
+  .control-buttons,
+  .control-hint {
+    grid-column: span 1;
+  }
+  .results {
+    grid-template-columns: 1fr;
+  }
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
