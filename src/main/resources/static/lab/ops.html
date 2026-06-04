@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AWS 개발/운영/배포 · 민야령 Live Lab</title>
+  <meta name="description" content="혼자 운영해본 경험을 콘텐츠로 — CI/CD 런북 + 장애 대응 플레이북. 실전 디버깅 사례 기록." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="stylesheet" href="/lab/redis.css" />
+  <link rel="stylesheet" href="/lab/devlog.css" />
+  <link rel="stylesheet" href="/lab/ops.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">민야령 <span class="brand-sub">Backend Live Lab</span></a>
+    <nav class="nav">
+      <a href="/#lab">← Live Lab</a>
+      <a href="https://minya8703.github.io/" target="_blank" rel="noopener">전체 이력 ↗</a>
+    </nav>
+  </header>
+
+  <main class="redis-main">
+    <section class="redis-intro">
+      <p class="tag-line">U10 · AWS 개발/운영/배포</p>
+      <h1 class="redis-title">"혼자 운영해본 경험"을 콘텐츠로</h1>
+      <p class="redis-sub">
+        AWS Phase 1 배포의 런북과 실제로 마주친 장애 사례를 분리해 기록합니다.
+        "Cloudflare 521 떴을 때 어디부터 보세요?" 같은 면접 질문에 대한 답이 카드 한 장 단위로 정리됩니다.
+        새 사건은 <code>data/ops/incident/*.md</code> 파일 추가만 하면 자동 노출.
+      </p>
+    </section>
+
+    <section class="ops-section">
+      <header class="ops-section-head">
+        <span class="ops-cat-badge runbook">Runbook</span>
+        <h2>따라하기 가능한 배포 런북</h2>
+      </header>
+      <div class="devlog-entries" data-cat="runbook">
+        <p class="devlog-loading">불러오는 중…</p>
+      </div>
+    </section>
+
+    <section class="ops-section">
+      <header class="ops-section-head">
+        <span class="ops-cat-badge incident">Incident</span>
+        <h2>장애 시나리오 + 대응 플레이북</h2>
+      </header>
+      <div class="devlog-entries" data-cat="incident">
+        <p class="devlog-loading">불러오는 중…</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-line">
+      <span>민야령 · Backend Live Lab</span>
+      <span class="dim">commonmark-java · 각 사건은 마크다운 파일로 git 관리 · 사용자 PR 환영</span>
+    </p>
+  </footer>
+
+  <script src="/lab/ops.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+.ops-section {
+  margin-top: 32px;
+}
+
+.ops-section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ops-section-head h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.ops-cat-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ops-cat-badge.runbook {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.ops-cat-badge.incident {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+/* 카드 안에서도 카테고리 표시 */
+.devlog-entry .devlog-cat-pill {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.devlog-entry .devlog-cat-pill.runbook {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.devlog-entry .devlog-cat-pill.incident {
+  background: #fef3c7;
+  color: #b45309;
+}

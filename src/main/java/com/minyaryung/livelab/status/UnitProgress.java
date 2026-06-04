@@ -5,10 +5,10 @@ import java.util.Map;
 
 // 각 Unit 진행 상태 + 현재 상태 라벨의 단일 진실원.
 // 한국어는 codepoint 배열로 빌드 — 소스 파일이 어떤 인코딩으로 저장되든 javac 가 동일하게 해석.
-// 평문(참고용): "U8 AWS Phase 1 배포 구축 중 · AI-DLC Construction"
+// 평문(참고용): "U10 AWS 운영 페이지 구축 중 · AI-DLC Construction"
 final class UnitProgress {
 
-    static final int CURRENT_UNIT = 8;
+    static final int CURRENT_UNIT = 10;
     static final int TOTAL_UNITS = 11;
     static final String CURRENT_LABEL = buildCurrentLabel();
 
@@ -16,10 +16,10 @@ final class UnitProgress {
 
     private static String buildCurrentLabel() {
         int[] cp = {
-                'U', '8', ' ',
+                'U', '1', '0', ' ',
                 'A', 'W', 'S', ' ',
-                'P', 'h', 'a', 's', 'e', ' ', '1', ' ',
-                0xBC30, 0xD3EC, ' ',                       // 배포
+                0xC6B4, 0xC601, ' ',                       // 운영
+                0xD398, 0xC774, 0xC9C0, ' ',               // 페이지
                 0xAD6C, 0xCD95, ' ',                       // 구축
                 0xC911, ' ',                               // 중
                 0x00B7, ' ',                               // ·
@@ -37,8 +37,9 @@ final class UnitProgress {
         units.put("5", "live");
         units.put("6", "live");
         units.put("7", "live");
+        units.put("8", "live");
         units.put("11", "live");
-        units.put("8", "in-progress");
+        units.put("10", "in-progress");
         return units;
     }
 }
