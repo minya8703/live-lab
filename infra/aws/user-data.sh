@@ -26,6 +26,13 @@ curl -fsSL "https://github.com/docker/compose/releases/latest/download/docker-co
   -o /usr/local/lib/docker/cli-plugins/docker-compose
 chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
+# 4.5) Docker Buildx 0.17+ — AL2023 의 dnf 패키지가 옛 버전이라 'docker compose build' 가 실패한다.
+#      버전은 명시 고정 — 'latest' 를 grep/jq 로 파싱하면 빈 변수로 404 나는 함정이 있다.
+BUILDX_VERSION=v0.17.1
+curl -fsSL "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-arm64" \
+  -o /usr/local/lib/docker/cli-plugins/docker-buildx
+chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
+
 # 5) Cloudflare Tunnel 클라이언트 (선택 — 포트 노출 우회 옵션)
 # curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64.rpm \
 #   -o /tmp/cloudflared.rpm && dnf install -y /tmp/cloudflared.rpm

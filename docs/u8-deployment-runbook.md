@@ -44,9 +44,27 @@ ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\livelab -C "livelab@minya.life"
 ```
 
 권한 설정:
+
+⚠ **머신 SID 함정 — 컴퓨터명 == 사용자명 이면 아래 `icacls` 명령은 실패합니다.**
+`${env:USERNAME}` 이 `MINYA` 일 때 컴퓨터명도 `MINYA` 면, Windows 가 *머신 계정* 으로 먼저 해석해 키에 *머신 SID* 가 붙습니다. OpenSSH 가 *"Bad permissions"* 로 거부하고 들어가지 못함. 회고: [data/ops/incident/01-ssh-key-machine-sid.md](../data/ops/incident/01-ssh-key-machine-sid.md).
+
+**안전한 길 — .NET ACL API 로 본인 SID 직접 grant** (어떤 환경에서도 동일하게 동작):
+
 ```powershell
-icacls $env:USERPROFILE\.ssh\livelab /inheritance:r /grant:r "${env:USERNAME}:R"
+$path = "$env:USERPROFILE\.ssh\livelab"
+$user = [System.Security.Principal.WindowsIdentity]::GetCurrent().User
+$acl  = Get-Acl $path
+$acl.SetAccessRuleProtection($true, $false)              # inheritance 끔
+$acl.Access | ForEach-Object { [void]$acl.RemoveAccessRule($_) }   # 모든 기존 ACE 제거
+$rule = New-Object System.Security.AccessControl.FileSystemAccessRule($user, "Read", "Allow")
+$acl.SetAccessRule($rule)
+Set-Acl -Path $path -AclObject $acl
+
+# 확인: 본인 SID 한 줄만 보이고 'MINYA\MINYA' 같은 머신 계정 표시 없어야 함
+icacls $path
 ```
+
+(`icacls /grant:r "${env:USERNAME}:R"` 도 컴퓨터명과 사용자명이 다르면 동작합니다. 이름이 같은 환경에서만 위 .NET 방식이 필수.)
 
 public key 내용 확인 — Step 2.4 에서 사용:
 ```powershell
@@ -283,9 +301,16 @@ docker ps   # 이번엔 OK
 ## Step 3 — 첫 배포 (30분)
 
 ### 3.1 SSH 접속
-```bash
-ssh -i ~/.ssh/livelab.pem ec2-user@<EC2_PUBLIC_IP>
+
+```powershell
+# Windows PowerShell
+ssh -i $env:USERPROFILE\.ssh\livelab ec2-user@<EC2_PUBLIC_IP>
+
+# macOS / Linux 면 ~ 경로 그대로
+# ssh -i ~/.ssh/livelab ec2-user@<EC2_PUBLIC_IP>
 ```
+
+⚠ **키 파일명 일관성** — Step 2.0 에서 `ssh-keygen` 으로 만들었으면 확장자 없는 `livelab`. AWS 콘솔에서 키페어를 *다운로드*받으면 `.pem` 확장자가 붙어 `livelab.pem` 이 됩니다. 본인 환경에 맞는 파일명으로 `-i` 인자 조정.
 
 `/etc/motd` 에 다음 단계 안내가 보이면 user-data 정상 실행 완료.
 
@@ -343,10 +368,22 @@ done
 
 | 증상 | 원인 | 해결 |
 |---|---|---|
+| `docker compose build` 가 *"buildx component ... version 0.17 required"* 로 거부 | AL2023 의 `dnf install docker` 가 깔아주는 buildx 가 0.17 미만 | EC2 안에서 buildx 0.17.1 수동 설치 (아래 박스). user-data.sh 4.5 단계가 이미 처리하지만 옛 인스턴스 / user-data 미실행 환경 대비 |
 | `curl: (7) Failed to connect to localhost port 8089: Connection refused` | Spring 앱이 아직 부팅 안 됨 / 종료됨 | `docker compose ps` → `app` 상태 확인. `Exited` 이면 `docker compose logs app` 으로 원인 |
 | `200` 인데 응답이 빈 HTML | 정적 파일이 컨테이너에 안 들어감 | `Dockerfile` 의 `COPY` 라인 점검 → 이미지 재빌드 (`docker compose build app && docker compose up -d app`) |
 | `503 Service Unavailable` | DB 또는 Redis 미기동 | `docker compose ps` 에서 postgres/redis healthy 확인. 시간 더 필요할 수 있음 (Kafka 30초 정도) |
 | `502 Bad Gateway` | Spring 부팅 중 OOM 으로 죽었다 살아남 | `docker compose logs app --tail 100` 에서 `OutOfMemoryError` 검색. t4g.small 2GB 빡빡 — JVM 옵션 조정 또는 Grafana 일시 제외 |
+
+**buildx 0.17.1 수동 설치 (EC2 안):**
+
+```bash
+BUILDX_VERSION=v0.17.1   # 명시 고정 — 'latest' 를 grep 으로 파싱하면 빈 변수로 404 나는 함정
+sudo mkdir -p /usr/local/lib/docker/cli-plugins
+sudo curl -fsSL "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-arm64" \
+  -o /usr/local/lib/docker/cli-plugins/docker-buildx
+sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
+docker buildx version   # v0.17.1 보여야 성공
+```
 
 ### 3.5 PC 에서 Public IP 로 한 번 더 (선택)
 
