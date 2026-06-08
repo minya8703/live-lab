@@ -2,8 +2,7 @@
 # Summary — 한 페이지 요약
 
 ## 한 문장
-9년차 백엔드 엔지니어. 일본에서 10년간 엔터프라이즈 EAI·MSA·데이터 통합을 다뤘고, 한국 복귀 후 Spring Boot 3·Kafka·Redis·K8s 스택으로 재정비해 현재 Integration Architect로 활동.
-
+9년 6개월 경력 백엔드 엔지니어. 일본 SI 6년 6개월(Credit Saison · MONEX · ANA 등)과 한국 2년 6개월(한샘 EAI · MSA · 자체 SaaS BeTAX) 경험. 현재는 라이브 작업실 minya.life에서 Kafka·Redis 운영 패턴을 공개 검증 중.
 ## 강점 3개
 
 1. **무중단 무장애 운영**
