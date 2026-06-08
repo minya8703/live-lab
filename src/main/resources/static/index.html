@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>민야령 · Backend Live Lab</title>
-  <meta name="description" content="Kafka·Redis·MSA를 라이브로 증명하는 백엔드 엔지니어 민야령의 작업실. AI-DLC로 만들어지는 중." />
+  <meta name="description" content="Kafka·Redis·MSA를 t4g.small 2GB 안에서 다루고 trade-off 와 다음 방향까지 가감없이 노출하는 백엔드 엔지니어 민야령의 작업실. AI-DLC로 만들어지는 중." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
@@ -32,7 +32,7 @@
         <em>연결하고 안정화하는</em> 백엔드 엔지니어.
       </h1>
       <p class="hero-sub">
-        Kafka · Redis · MSA를 실제로 돌려보고, AI-DLC로 만들어가는 백엔드 진열대.
+        Kafka · Redis · MSA 를 t4g.small 2GB 안에서 다루고, 그 환경의 trade-off 와 다음 방향까지 가감없이 노출합니다.
       </p>
       <div class="hero-cta">
         <a class="btn btn-primary" href="#lab">Live Lab 보기</a>
@@ -64,7 +64,7 @@
     <section id="lab" class="lab" aria-labelledby="lab-h">
       <h2 id="lab-h" class="section-title">Live Lab</h2>
       <p class="section-sub">
-        이력서의 숫자가 사실인지, 직접 눌러서 확인하세요. 각 데모는 Unit 단위로 차례차례 공개됩니다.
+        각 데모마다 <strong>현재 구현 · 한계 · 엔터프라이즈급으로 가려면</strong> 의 trade-off 박스가 함께 박혀 있습니다. 라이브 동작보다 의사결정의 노출이 메시지입니다.
       </p>
       <div class="lab-grid" data-units>
         <article class="lab-card" data-unit="3" data-link="/lab/chat.html">
@@ -73,7 +73,7 @@
             <span class="tag-status" data-tag-status>예정</span>
           </header>
           <h3>AI 경력 Q&amp;A</h3>
-          <p>면접관처럼 질문해 보세요. Claude API + Spring AI로 경력 데이터를 직접 참조합니다. 없는 경험은 솔직히 "없다"고 답합니다.</p>
+          <p>면접관처럼 질문해 보세요. Spring AI + Gemini 2.5 Flash 가 경력 마크다운을 직접 참조합니다. 없는 경험은 솔직히 "없다"고 답합니다.</p>
         </article>
         <article class="lab-card" data-unit="4" data-link="/lab/redis.html">
           <header>
@@ -89,15 +89,15 @@
             <span class="tag-status" data-tag-status>예정</span>
           </header>
           <h3>Kafka 처리량 + DLT 라이브</h3>
-          <p>발행 → 소비 throughput 실시간 측정 + 의도적 실패 메시지의 재시도/DLT 라우팅까지. Betax 운영 패턴 그대로.</p>
+          <p>발행 → 소비 throughput 실시간 측정 + 의도적 실패 메시지의 FixedBackOff 재시도/DLT 라우팅. 블로킹 재시도의 throughput 영향까지 trade-off 박스로 같이 노출.</p>
         </article>
-        <article class="lab-card" data-unit="6" data-link="/lab/grafana.html">
+        <article class="lab-card" data-unit="6" data-link="/lab/ops.html">
           <header>
             <span class="tag">U6</span>
-            <span class="tag-status" data-tag-status>예정</span>
+            <span class="tag-status" data-tag-status>trade-off 회고로 이전</span>
           </header>
-          <h3>Grafana 라이브 대시보드</h3>
-          <p>Prometheus + Grafana로 JVM · HTTP · Hikari · Cache · Kafka 메트릭을 사이트에 그대로 임베드.</p>
+          <h3>Prometheus + Grafana — 왜 prod 에서 뺐는가</h3>
+          <p>t4g.small 2GB 환경에서 모니터링 스택을 의도적으로 분리한 의사결정. OOM 사고 + 메모리 가계부 + 다음 방향성. 운영 회고로 노출.</p>
         </article>
         <article class="lab-card" data-unit="7" data-link="/lab/devlog.html">
           <header>

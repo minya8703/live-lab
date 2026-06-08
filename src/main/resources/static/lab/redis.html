@@ -21,12 +21,21 @@
   <main class="redis-main">
     <section class="redis-intro">
       <p class="tag-line">U4 · Redis 캐시 라이브 데모</p>
-      <h1 class="redis-title">"Redis 32메서드 캐시 + Fallback"을 라이브로 증명</h1>
+      <h1 class="redis-title">Redis 캐시 + Fallback — 캐시 인프라가 죽어도 시스템은 안 죽는 패턴</h1>
       <p class="redis-sub">
         Postgres 100,000건에 대해 카테고리별 집계 쿼리 (GROUP BY · 인덱스 의도적으로 미사용)를
         <strong>캐시 없음 vs Redis 캐시</strong>로 같은 환경에서 실측합니다.
-        Redis 장애 시에는 CacheErrorHandler로 DB 직접 조회 자동 fallback — 기존 Betax SaaS 운영 패턴 그대로.
+        Redis 장애 시에는 <code>CacheErrorHandler</code>로 DB 직접 조회 자동 fallback.
       </p>
+
+      <aside class="tradeoff-box" aria-label="trade-off">
+        <h4>⚖ 이 데모의 trade-off (의식적 선택)</h4>
+        <p><span class="tradeoff-label">현재</span><code>GenericJackson2JsonRedisSerializer</code> + 단일 Redis 인스턴스 + TTL 60초.</p>
+        <p><span class="tradeoff-label">한계 1</span>JSON 안에 <code>@class</code> 패키지 경로가 함께 저장됨 → MSA 전환 시 다른 서비스에서 역직렬화하면 <code>ClassCastException</code> 위험.</p>
+        <p><span class="tradeoff-label">한계 2</span><strong>Cache Stampede</strong> 미대응 — Redis 가 진짜 다운되면 동시 요청 수천 개가 Postgres 로 한 번에 쏟아져 DB 자체가 도미노로 무너질 수 있음.</p>
+        <p><span class="tradeoff-label">엔터프라이즈급</span>(1) <code>Jackson2JsonRedisSerializer&lt;DTO&gt;</code> 로 타입 명시 → 패키지 의존성 끊기. (2) Resilience4j <strong>Circuit Breaker + Bulkhead</strong> 로 Fallback 구간 보호 — 일정 비율 실패 시 고정 응답 (Static Fallback) 반환. (3) Redis Sentinel/Cluster 로 고가용성.</p>
+        <p><span class="tradeoff-label">현 사이트가 안 가는 이유</span>(1)(2) 는 즉시 적용 가능 — 별도 Unit 의 *개선 비교 회고* 로 분리 예정. (3) Cluster 는 메모리 4 노드 필요해 t4g.small 무리.</p>
+      </aside>
     </section>
 
     <section class="controls" aria-label="실행 컨트롤">

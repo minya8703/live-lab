@@ -23,9 +23,18 @@
       <p class="tag-line">U3 · AI 경력 Q&amp;A</p>
       <h1 class="chat-title">민야령의 경력에 직접 물어보세요</h1>
       <p class="chat-sub">
-        Claude API + Spring AI로 구축. 경력 데이터에 없는 영역은 <strong>"없다"</strong>고 답하고,
+        Spring AI 추상화 위 Google Gemini 2.5 Flash. 경력 데이터에 없는 영역은 <strong>"없다"</strong>고 답하고,
         대신 인접 경험과 현재 방향성을 함께 안내합니다.
       </p>
+
+      <aside class="tradeoff-box" aria-label="trade-off">
+        <h4>⚖ 이 챗봇의 trade-off (의식적 선택)</h4>
+        <p><span class="tradeoff-label">현재</span>단일 LLM (Gemini 2.5 Flash) · 시스템 프롬프트에 경력 마크다운 전체 주입 · 환각 차단은 *없는 경험은 "없다"* 룰로.</p>
+        <p><span class="tradeoff-label">한계 1</span>토큰 사용량/비용이 외부에 노출 안 됨 — abuse 또는 트래픽 spike 시 비용 가시화 부재.</p>
+        <p><span class="tradeoff-label">한계 2</span>단일 모델 의존 — Gemini API 장애 시 fallback 없음.</p>
+        <p><span class="tradeoff-label">엔터프라이즈급</span>(1) 다중 모델 fallback (Gemini → Haiku 같은 chain) — Spring AI 의 추상화로 swap 자유. (2) 토큰 사용량 Prometheus 메트릭 + 일일 비용 대시보드. (3) IP 단위 rate limit + Cloudflare WAF 로 abuse 차단. (4) 프롬프트 캐싱으로 같은 컨텍스트 반복 호출 시 비용 90% 절감.</p>
+        <p><span class="tradeoff-label">현 사이트가 안 가는 이유</span>학습용 단일 모델이 단순함. 다중 모델·메트릭·rate limit 은 *코드 늘리지 않는 패턴 검증* 목적의 별도 Unit 으로.</p>
+      </aside>
     </section>
 
     <section class="conversation" id="conversation" aria-live="polite">
