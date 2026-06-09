@@ -1,9 +1,9 @@
 <!-- DRAFT: needs user review -->
 # Betax — 회계·세무 SaaS
 
-- 기간: NARINER 자체 개발 (운영 중)
+- 기간: NARINER 자체 개발 (재직 시점 2023.06 ~ 2026.03)
 - 소속: NARINER
-- 도메인: 회계·세무 SaaS · 고객사 3곳 운영 중
+- 도메인: 회계·세무 SaaS · 고객사 3곳 운영 (재직 시점)
 
 ## 기술 스택
 Spring Boot 3.x, Kafka (7토픽 · DLT · FixedBackOff), Redis (32메서드 캐시 · CacheErrorHandler), Kubernetes, Prometheus, Grafana
@@ -16,4 +16,4 @@ Spring Boot 3.x, Kafka (7토픽 · DLT · FixedBackOff), Redis (32메서드 캐�
 
 ## 결과
 - 고객사 3곳 동시 운영
-- 캐시·메시징·관측성을 갖춘 SaaS 아키텍처 안정 운영 중
+- 캐시·메시징·관측성을 갖춘 SaaS 아키텍처 안정 운영 (재직 시점 기준)

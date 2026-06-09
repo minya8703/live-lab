@@ -1,7 +1,7 @@
 <!-- DRAFT: needs user review -->
 # NARINER — Integration Architect
 
-- 기간: 2023 ~ 현재
+- 기간: 2023.06 ~ 2026.03
 - 국가: 한국
 - 역할: Integration Architect / 백엔드 시니어
 - 핵심 도메인: EAI · MSA · SaaS · 데이터 통합

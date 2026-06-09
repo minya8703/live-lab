@@ -20,7 +20,7 @@
    - Appium 자동화 자습 → JASSO 멀티디바이스 20개+ 자동화
    - Spring Boot 3·Kafka·Redis·K8s 재정비 → Betax SaaS 현장 적용
 
-## 현재 다루는 스택 (NARINER · 2023~현재)
+## 직전 다룬 스택 (NARINER · 2023.06 ~ 2026.03)
 Java 17/21, Spring Boot 3.x, Kafka(7토픽·DLT), Redis(32메서드 캐시·Fallback),
 Kubernetes, Prometheus+Grafana, webMethods EAI, SAP JCo
 
