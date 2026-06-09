@@ -76,7 +76,11 @@ services:
       KAFKA_PROCESS_ROLES: "broker,controller"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093"
       KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://localhost:9092"
+      # ADVERTISED_LISTENERS 는 broker 가 metadata 응답으로 client 에게 알려주는 주소.
+      # 'localhost' 로 광고하면 client 컨테이너가 자기 자신을 찾아가 무한 retry 함정에 빠진다.
+      # docker network 안에서는 서비스 이름이 hostname → 'kafka:9092' 가 정답.
+      # 회고: data/ops/incident/09-kafka-advertised-listener-trap.md
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
