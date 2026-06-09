@@ -4,6 +4,7 @@
 - 기간: NARINER 자체 개발 (재직 시점 2023.06 ~ 2026.03)
 - 소속: NARINER
 - 도메인: 회계·세무 SaaS · 고객사 3곳 운영 (재직 시점)
+- **시스템 관계**: [03 SAP↔Betax MSA 통합 솔루션](03-msa-tax.md)의 종단(SaaS 레이어). SAP과는 03의 JCo Server·중계서버를 거쳐 연동된다.
 
 ## 기술 스택
 Spring Boot 3.x, Kafka (7토픽 · DLT · FixedBackOff), Redis (32메서드 캐시 · CacheErrorHandler), Kubernetes, Prometheus, Grafana

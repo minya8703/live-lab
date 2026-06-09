@@ -2,7 +2,7 @@
 # Summary — 한 페이지 요약
 
 ## 한 문장
-9년 6개월 경력 백엔드 엔지니어. 일본 SI 6년 6개월(Credit Saison · MONEX · ANA 등)과 한국 2년 6개월(한샘 EAI · MSA · 자체 SaaS BeTAX) 경험. 현재는 라이브 작업실 minya.life에서 Kafka·Redis 운영 패턴을 공개 검증 중.
+9년 6개월 경력 Backend / EAI Engineer. 일본 SI 6년 6개월(Credit Saison · MONEX · ANA 등)과 한국 2년 9개월(한샘 EAI · SAP↔Betax MSA 통합 솔루션 · Invoice OCR) 경험. 현재는 라이브 작업실 minya.life에서 Kafka·Redis 운영 패턴을 공개 검증 중.
 ## 강점 3개
 
 1. **무중단 무장애 운영**
@@ -11,7 +11,7 @@
    - Credit Saison 신용카드 데이터 통합 2,500만 건: 정합성 이슈 0건
 
 2. **측정 가능한 성과**
-   - MSA 세금계산서: 처리시간 70% 단축 (5분→1.5분), 중복 발행 0건
+   - SAP↔Betax MSA 통합 솔루션: 처리시간 70% 단축 (5분→1.5분), 중복 발행 0건
    - JASSO 장학금: 테스트 속도 2배 향상, 접속자 170% 증가 대응
    - ANA 신 발권: 진행률 20% → 2개월 내 100% 완료, 단위 테스트 358개·커버리지 80%+
 

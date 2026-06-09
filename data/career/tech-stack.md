@@ -39,4 +39,4 @@
 
 ## 클라우드 / AI
 - AWS 🔵 (이 Live Lab을 통해 첫 운영 도전 — [gaps-and-direction.md](gaps-and-direction.md) 참조)
-- Anthropic Claude API · Spring AI 🔵 (현재 학습·적용 중)
+- Google Gemini 2.5 Flash · Spring AI 🔵 (현재 학습·적용 중 — 이 사이트의 챗봇이 첫 실습)
