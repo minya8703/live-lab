@@ -33,8 +33,8 @@ public class RedisCacheConfig implements CachingConfigurer {
                 .serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(config)
-                // 시작 시점에 캐시를 명시적으로 선언 — Micrometer가 메트릭 바인딩 가능하게.
-                // lazy 생성에 맡기면 Grafana에 "No data" 로 뜸.
+                // 시작 시점에 캐시를 명시적으로 선언 — Micrometer 가 메트릭 바인딩 가능하게.
+                // lazy 생성에 맡기면 메트릭이 조용히 빠짐 (CacheManager 가 시작 시점에 아는 캐시만 등록).
                 .initialCacheNames(Set.of(ProductService.CACHE_NAME))
                 .enableStatistics()
                 .build();

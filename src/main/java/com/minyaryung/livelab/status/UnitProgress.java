@@ -35,9 +35,6 @@ final class UnitProgress {
         units.put("3", "live");
         units.put("4", "live");
         units.put("5", "live");
-        // U6 (Grafana 임베드) 는 t4g.small 2GB OOM 사고 후 prod 에서 의도적으로 분리.
-        // 카드는 trade-off 회고로 이전 — /lab/ops.html 로 link.
-        units.put("6", "retro");
         units.put("7", "live");
         units.put("8", "live");
         units.put("11", "live");

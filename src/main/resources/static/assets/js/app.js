@@ -26,8 +26,6 @@
       3: "live",
       4: "live",
       5: "live",
-      // U6 는 OOM 후 prod 분리 — trade-off 회고로 이전. 카드의 정적 텍스트가 진실원.
-      6: "retro",
       7: "live",
       8: "live",
       11: "live",
@@ -39,8 +37,6 @@
     planned: KO_PLANNED,
     "in-progress": KO_IN_PROGRESS,
     live: "Live",
-    // retro 는 카드 HTML 의 정적 텍스트 ("trade-off 회고로 이전") 를 그대로 두므로 키만 등록.
-    retro: null,
   };
 
   function applyStatus(status) {
@@ -60,16 +56,12 @@
       const state = status.units[unitId] || "planned";
       const tag = card.querySelector("[data-tag-status]");
       if (tag) {
-        tag.classList.remove("live", "in-progress", "retro");
+        tag.classList.remove("live", "in-progress");
         if (state === "live") tag.classList.add("live");
         if (state === "in-progress") tag.classList.add("in-progress");
-        if (state === "retro") tag.classList.add("retro");
-        // retro 는 HTML 정적 텍스트가 진실원이라 덮어쓰기 skip. 그 외엔 표준 라벨.
-        if (state !== "retro") {
-          tag.textContent = STATUS_TEXT[state] || STATUS_TEXT.planned;
-        }
+        tag.textContent = STATUS_TEXT[state] || STATUS_TEXT.planned;
       }
-      // 진행 중·라이브·retro 모두 클릭 가능 (link 가 있으면).
+      // 진행 중이거나 라이브이면 카드를 클릭 가능하게 만든다.
       const link = card.getAttribute("data-link");
       if (link && state !== "planned" && !card.dataset.linked) {
         card.dataset.linked = "1";

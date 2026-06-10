@@ -364,14 +364,6 @@ main {
   background: #fef3c7;
 }
 
-/* trade-off 회고로 이전된 unit — Grafana 처럼 prod 분리 결정한 경우 */
-.tag-status.retro {
-  color: #6b21a8;
-  background: #f3e8ff;
-  font-size: 10px;
-  letter-spacing: 0.02em;
-}
-
 .lab-card h3 {
   font-size: 17px;
   font-weight: 600;

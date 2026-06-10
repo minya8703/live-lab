@@ -357,7 +357,7 @@ curl -i http://localhost:8089/ | head -20
 # 기대: HTML 시작 `<!doctype html>` ...
 
 # 4. 챗봇·Redis·Kafka 데모 페이지 존재 확인 (상태 200 만 보면 됨)
-for path in / /lab/chat.html /lab/redis.html /lab/kafka.html /lab/grafana.html /lab/devlog.html; do
+for path in / /lab/chat.html /lab/redis.html /lab/kafka.html /lab/devlog.html /lab/ops.html; do
   echo -n "$path → "
   curl -o /dev/null -s -w "%{http_code}\n" http://localhost:8089$path
 done
@@ -372,7 +372,7 @@ done
 | `curl: (7) Failed to connect to localhost port 8089: Connection refused` | Spring 앱이 아직 부팅 안 됨 / 종료됨 | `docker compose ps` → `app` 상태 확인. `Exited` 이면 `docker compose logs app` 으로 원인 |
 | `200` 인데 응답이 빈 HTML | 정적 파일이 컨테이너에 안 들어감 | `Dockerfile` 의 `COPY` 라인 점검 → 이미지 재빌드 (`docker compose build app && docker compose up -d app`) |
 | `503 Service Unavailable` | DB 또는 Redis 미기동 | `docker compose ps` 에서 postgres/redis healthy 확인. 시간 더 필요할 수 있음 (Kafka 30초 정도) |
-| `502 Bad Gateway` | Spring 부팅 중 OOM 으로 죽었다 살아남 | `docker compose logs app --tail 100` 에서 `OutOfMemoryError` 검색. t4g.small 2GB 빡빡 — JVM 옵션 조정 또는 Grafana 일시 제외 |
+| `502 Bad Gateway` | Spring 부팅 중 OOM 으로 죽었다 살아남 | `docker compose logs app --tail 100` 에서 `OutOfMemoryError` 검색. t4g.small 2GB 빡빡 — JVM heap (`MaxRAMPercentage`) + Kafka heap 축소 |
 
 **buildx 0.17.1 수동 설치 (EC2 안):**
 
@@ -618,11 +618,12 @@ aws ce get-cost-and-usage \
 ## 트러블슈팅
 
 ### 컨테이너 OOM 으로 죽음
-t4g.small 은 2GB RAM. Spring + Postgres + Redis + Kafka + Grafana 동시 실행이 빡빡.
+t4g.small 은 2GB RAM. Spring + Postgres + Redis + Kafka 동시 실행이 빡빡.
 
 대응:
-- Grafana/Prometheus 를 prod 에서 제외 (별도 profile 분리)
-- Kafka heap 줄임: `KAFKA_HEAP_OPTS=-Xmx512m -Xms256m`
+- Spring JVM heap 명시: `-XX:MaxRAMPercentage=50.0` + `mem_limit: 700m`
+- Kafka heap 줄임: `KAFKA_HEAP_OPTS=-Xmx384m -Xms256m`
+- swap 2GB 추가 (응급 보험)
 - 그래도 부족하면 t4g.medium 으로 (월 ~$24)
 
 ### Cloudflare 가 503 반환
@@ -643,7 +644,7 @@ aws ec2 associate-address --instance-id <INSTANCE_ID> --allocation-id <ALLOC_ID>
 ## 완료 기준
 
 - [ ] https://minya.life 로 사이트 접속 가능
-- [ ] /lab/chat · /lab/redis · /lab/kafka · /lab/grafana · /lab/devlog 모두 동작
+- [ ] /lab/chat · /lab/redis · /lab/kafka · /lab/devlog · /lab/ops 모두 동작
 - [ ] AWS Budget 알람 활성화
 - [ ] data/devlog/ 에 "AWS Phase 1 배포 회고" 항목 추가
 

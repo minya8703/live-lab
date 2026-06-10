@@ -79,8 +79,7 @@ P1을 통과시키지 못하면 P2·P3까지 갈 일이 없으므로 **P1 최우
 | **U3** | AI 경력 Q&A 챗봇 (Claude API + RAG) | **P1·P2 동시 어필의 최강 단일 기능** | U2 |
 | **U4** | Redis 캐시 라이브 데모 (실시간 실행) | 가벼운 첫 데모 | U2 |
 | **U5** | Kafka 처리량 데모 (사전 측정 결과 + 재실행) | 대용량 어필 | U4 |
-| **U6** | Grafana 공개 대시보드 + Prometheus 메트릭 | 관측 어필 | U5 |
-| **U7** | AI-DLC 개발 일지 페이지 (이 사이트 자체의 메타) | 차별점의 핵심 콘텐츠 | U2~U6 진행 중 누적 |
+| **U7** | AI-DLC 개발 일지 페이지 (이 사이트 자체의 메타) | 차별점의 핵심 콘텐츠 | U2~U5 진행 중 누적 |
 | **U11** | Test Automation — Testcontainers 통합 테스트 + GitHub Actions CI | 백엔드/테스트 포지셔닝 공백 보완. 진짜 인프라로 검증 + 자동 실행 | U7 |
 | **U8** | AWS 배포 자동화(IaC) + 비용 가드레일 | 운영 어필, Operations 단계 진입 | U11 |
 | **U10** | AWS 개발/운영/배포 페이지 (`/lab/ops`) | "혼자 운영해본 경험" 콘텐츠화 — CI/CD 런북 + 장애 플레이북 | U8 |
@@ -128,7 +127,7 @@ U11이 U8 앞에 오는 이유 — AWS 배포 전에 통합 테스트가 갖춰�
 | 2026-06-04 | U8 완료 — https://minya.life 외부 노출 + Budget 알람 등록 | EC2 t4g.small (Sydney ap-southeast-2) + Docker Compose (Spring·Postgres·Redis·Kafka 5컨테이너) + Cloudflare Proxy (Flexible SSL) + AWS Budget $15/mo 50%·90%·예측 100% 3단 알람. 챗봇이 라이브에서 "AWS 운영 중" 답변 정상 — gaps-and-direction.md 의 핵심 자산 활성화. Phase 2(NAS 이전 등)는 별도 결정. |
 | 2026-06-04 | U8 디버깅에서 회수할 회고 8건 (U10 콘텐츠 + 별도 devlog) | (1) SSH key 권한 함정: 이름이 같은 사용자/머신(minya/MINYA) 에서 icacls 가 머신 SID 로 grant. SID 직접 지정으로 해결. (2) Cloudflare nameserver 한 제공자로 통일 규칙. (3) Cloudflare SSL Full 모드 → 521. Flexible 로 변경. (4) Docker buildx 0.17+ 별도 설치. (5) EC2 포트 80 매핑은 .env 의 APP_HOST_PORT 로 외부화. (6) AWS Free Tier 변경(2025-07): 12개월 무료 → 6개월 크레딧. (7) SSH 키는 로컬 생성 + AWS 에 Import (AWS-side 생성 시 .pem 분실 위험). (8) 보안 그룹 Source 가 My IP 면 Cloudflare 차단 — 0.0.0.0/0 으로. |
 | 2026-06-05 | 카드 만료 → EC2 자동 terminate 사건 + 재배포 60분 복구 + EIP 영구 적용 | 6개월 크레딧 모드 비용 $0 였는데 등록 카드 만료로 grace 7~14일 후 인스턴스 자동 terminated. 결정적 단서는 Billing 콘솔의 "권장 조치(3)" 빨간 배너 "만료된 결제 방법". 코드/회고 모두 git 자산이라 데이터 손실 0. 재배포 중 회고 #01(SSH SID) + #04(buildx) 가 새 환경에서 완전 재현 — 회고 따라 두 함정 합쳐 약 2시간 디버깅을 15분으로 단축 (ROI 약 3.8배). 회고 카드 3장 추가: 05-aws-payment-method-trap, 06-elastic-ip-2024-pricing, 07-incident-cards-validated-on-rebuild. user-data.sh 의 4.5 단계에 buildx v0.17.1 명시 설치 영구 추가 → 3차 셋업부터는 함정 자체 소멸. 재발 방지: EIP 영구 attach, 카드 만료 90일 전 알람, AMI 스냅샷 주기 권장. |
-| 2026-06-09 | 외부 평가 받고 사이트 톤을 'live 증명' → 'trade-off 인지' 로 재포지셔닝 | 다른 LLM 에 Kafka/Redis 데모 평가 요청. Kafka 의 FixedBackOff 블로킹 모순 + 3 파티션 비대칭 + 500ms 풀링 한계, Redis 의 @class 직렬화 + Cache Stampede 미대응 지적 받음. 모두 정확. 비판을 자기 진단으로 흡수 → (1) /lab/grafana.html 통째 제거 (OOM 으로 prod 운영 불가 + localhost iframe 무의미). (2) kafka/redis/chat 페이지 상단에 통일 trade-off 박스 — 현재·한계·엔터프라이즈급·안 가는 이유 4단. (3) 랜딩 카피 "라이브로 증명" → "t4g.small 안에서 다루고 trade-off 노출". (4) UnitProgress 에 retro 상태 추가, U6 카드는 운영 회고로 link. (5) 회고 카드 08-third-party-review-pivot. 결론: 시니어 톤 = 사이트가 자기 약점을 먼저 말함. |
+| 2026-06-09 | 외부 평가 받고 사이트 톤을 'live 증명' → 'trade-off 인지' 로 재포지셔닝 | 다른 LLM 에 Kafka/Redis 데모 평가 요청. Kafka 의 FixedBackOff 블로킹 모순 + 3 파티션 비대칭 + 500ms 풀링 한계, Redis 의 @class 직렬화 + Cache Stampede 미대응 지적 받음. 모두 정확. 비판을 자기 진단으로 흡수 → (1) kafka/redis/chat 페이지 상단에 통일 trade-off 박스 — 현재·한계·엔터프라이즈급·안 가는 이유 4단. (2) 랜딩 카피 "라이브로 증명" → "t4g.small 안에서 다루고 trade-off 노출". (3) 회고 카드 08-third-party-review-pivot. 결론: 시니어 톤 = 사이트가 자기 약점을 먼저 말함. |
 
 ---
 
