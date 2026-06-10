@@ -22,7 +22,7 @@ A. BeTAX SaaS에서 32개 메서드에 캐시를 적용했습니다. 환율 데�
 ## 운영 / 클라우드
 
 **Q. AWS 경험 있으세요?**
-A. 기업 운영 환경에서 AWS를 책임진 경험은 없습니다. 다만 이 라이브 사이트(minya.life)를 AWS EC2(t4g.small, Sydney) + Docker Compose 5컨테이너 + Cloudflare Proxy로 직접 배포·운영하고 있고, AWS Budget $15/mo로 비용 가드레일을 3단 알람(50%·90%·예측 100%)으로 등록해 운영 중입니다. 카드 만료로 인스턴스가 자동 terminate된 장애도 60분 내 복구해 그 회고를 사이트에 공개했습니다.
+A. 기업 운영 환경에서 AWS를 책임진 경험은 없습니다. 다만 이 라이브 사이트(minya.life)를 AWS EC2(t4g.small, Seoul) + Docker Compose 4컨테이너(Spring·Postgres·Redis·Kafka) + Cloudflare Proxy로 직접 배포·운영하고 있고, AWS Budget $15/mo로 비용 가드레일을 3단 알람(50%·90%·예측 100%)으로 등록해 운영 중입니다. 카드 만료로 인스턴스가 자동 terminate된 장애도 60분 내 복구해 그 회고를 사이트에 공개했습니다.
 
 이전 경력에서는 Kubernetes 오케스트레이션(HPA, Rolling Update, Liveness/Readiness Probe)과 폐쇄망 환경 Jenkins 원격 기동 구조 등 온프레미스·하이브리드 인프라 운영 경험이 있습니다.
 
