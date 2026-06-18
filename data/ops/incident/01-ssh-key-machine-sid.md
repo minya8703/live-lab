@@ -56,11 +56,3 @@ icacls $key /grant:r "*${userSid}:F"
 2. Windows 의 *"이름→SID"* 변환은 시스템 컨텍스트에 따라 다르게 매핑
 3. `icacls` 출력의 사용자명 칸이 비어있거나 이상하면 SID 부터 확인
 4. PowerShell 의 `.NET ACL API` (`Get-Acl`/`Set-Acl`) 도 같은 함정에 걸림 — `SetSecurityPrivilege` 에러로 위장
-
-## 추가 메모
-
-OneDrive·기업 보안 정책 폴더 안의 `.ssh/` 는 권한 변경이 자동 되돌려질 수 있음. **`C:\sshkeys` 같은 `%USERPROFILE%` 밖 경로** 사용이 안전.
-
-## 면접 답변용
-
-> *"Windows 에서 컴퓨터명과 사용자명이 같으면(흔한 케이스) icacls 가 사용자가 아니라 머신 SID 에 권한을 grant 하는 경우가 있어요. 그래서 사용자가 자기 파일을 읽지 못하는 역설적 상황이 생기는데, 디버깅의 핵심은 SID 의 RID 부분(끝에 `-1001` 같은 숫자)이 있는지 확인하는 겁니다. 이름 해석 우회로 `icacls /grant:r *<SID>:F` 패턴이 가장 확실합니다."*

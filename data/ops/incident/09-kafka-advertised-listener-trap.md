@@ -103,9 +103,3 @@ KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,
 ```
 
 이 사이트는 *Spring Boot 만 client* 라 단일 listener 로 충분.
-
-## 면접 답변용
-
-> *"Kafka 환경 셋업의 1 등급 함정이 ADVERTISED_LISTENERS 입니다. LISTENERS 는 broker 가 *실제로 bind* 하는 주소이고, ADVERTISED_LISTENERS 는 broker 가 metadata 응답으로 client 에게 *알려주는* 주소 — 이름이 비슷한데 역할이 완전히 다릅니다. 이게 잘못되면 첫 bootstrap 연결은 성공하고, 그 다음 metadata 받은 후부터 잘못된 주소로 무한 retry. 디버깅 신호는 *Spring 설정과 WARN 메시지의 주소가 다르면 broker 가 광고한 주소* 라는 비대칭이고요. Docker compose 네트워크 안에선 서비스 이름이 hostname 으로 resolve 되니까 `kafka:9092` 가 정답이고, `localhost:9092` 는 *client 컨테이너 자기 자신* 을 가리켜서 절대 안 됩니다."*
-
-이 함정은 *Confluent 공식 문서* 와 *Apache Kafka FAQ* 에 단골로 나오는 항목이지만, *"비슷한 이름의 두 변수가 완전히 다른 역할"* 이라는 인지 부담 때문에 처음 만나면 디버깅에 1~2 시간 쓰는 게 흔합니다.

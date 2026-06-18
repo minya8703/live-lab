@@ -50,10 +50,3 @@ Java 소스 파일은 `maven-compiler-plugin` 이 `project.build.sourceEncoding=
 
 properties 는 *경계 자원* — 편집기·터미널·Maven 리소스 필터링 어디서든 한 번이라도
 잘못된 인코딩으로 거치면 깨진다. Java 소스는 컴파일러가 인코딩을 강제 — 격리됨.
-
-## 면접 답변용
-> "한국어 카테고리를 properties에 두지 않고 별도 상수 클래스로 빼는 이유는,
-> 운영 환경에서 한 번이라도 ANSI/CP949 인코딩으로 저장된 properties가 섞이면
-> mangled 데이터가 DB까지 흘러가서 되돌리기 어려워서요. 비용 0의 보험입니다."
-
-— 이 류의 작은 결정 하나가 시니어 면접관에게는 *"이 사람은 실전을 안다"* 신호다.

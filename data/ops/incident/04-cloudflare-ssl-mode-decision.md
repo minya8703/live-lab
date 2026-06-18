@@ -57,7 +57,3 @@ tags: [cloudflare, ssl, architecture]
 > *"오버킬을 피하고 trade-off 를 명시한다."*
 
 이 사이트는 *"AWS·운영 학습 콘텐츠"* 이지 *"민감 데이터 처리 SaaS"* 가 아님. 그 컨텍스트에서 Flexible 이 정답.
-
-## 면접 답변용
-
-> *"Cloudflare SSL 모드는 Flexible 로 했습니다. EC2 에 자체 인증서를 안 까는 게 운영 부담을 줄이는 선택이에요. 다만 Cloudflare ↔ Origin 사이가 평문이라는 trade-off 가 있어서, 사용자 인증이나 민감 데이터가 흐르면 그땐 Full(strict) 로 올리고 Let's Encrypt 자동 갱신을 붙입니다. 지금 사이트는 공개 포트폴리오라서 그 trade-off 가 정당화됐다고 봤어요."*

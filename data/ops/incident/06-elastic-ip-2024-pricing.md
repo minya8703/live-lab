@@ -49,7 +49,3 @@ tags: [aws, ec2, networking, cost]
 - EC2 launch 직후 EIP allocate + associate 를 한 세트로
 - 인스턴스 종료 절차 마지막에 `aws ec2 release-address` 추가
 - 월 1회 `aws ec2 describe-addresses` 로 idle EIP 점검 (청구서 조용한 누수 방지)
-
-## 면접 답변용
-
-> *"EC2 의 public IP 는 stop/start 시 바뀌어서, DNS 가 옛 IP 가리키면 즉시 다운입니다. 처음엔 Elastic IP 가격이 부담될까 봐 안 붙였다가 정확히 그 함정에 빠졌어요. 그런데 알고 보니 2024 년 2 월부터 AWS 가 모든 public IPv4 를 시간당 $0.005 로 과금하기 시작해서 — EIP attach 든 일반 IP 든 비용이 같습니다. *공짜 IPv4 시대가 끝난* 거고, 이제 EIP 안 쓸 이유가 없어요. 월 ~$3.6 의 운영 안전망 비용을 받아들이는 게 정답입니다. 그리고 인스턴스 terminate 시 EIP 도 같이 release 안 하면 조용히 계속 청구되는 함정도 있어서, 정리 명령을 종료 절차의 마지막 단계로 박아두는 게 운영 위생입니다."*

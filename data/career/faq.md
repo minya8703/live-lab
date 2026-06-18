@@ -14,7 +14,7 @@ A. 한샘 webMethods EAI에서 50개 이상의 인터페이스를 11종 패턴�
 ## 기술 깊이
 
 **Q. Kafka 얼마나 다뤄봤나요?**
-A. NarinER 자체 SaaS BeTAX(SAP과의 MSA 통합 솔루션의 SaaS 레이어)에서 7개 토픽(journal-events, budget-alerts, tax-invoice-requests 등)을 설계·운영했습니다. DLT(Dead Letter Topic) 에러 처리와 FixedBackOff 재시도 패턴까지 적용했고, Consumer Lag을 Prometheus + Grafana로 상시 모니터링했습니다. 처리량 측정은 이 사이트의 Unit 5 데모로 라이브 확인 가능하게 만들 예정입니다.
+A. NarinER 자체 SaaS BeTAX(SAP과의 MSA 통합 솔루션의 SaaS 레이어)에서 7개 토픽(journal-events, budget-alerts, tax-invoice-requests 등)을 설계·운영했습니다. DLT(Dead Letter Topic) 에러 처리와 FixedBackOff 재시도 패턴까지 적용했고, Consumer Lag을 Prometheus + Grafana로 상시 모니터링했습니다. 처리량 측정은 이 사이트의 Unit 5 데모로 라이브 확인 가능하게 만들어 공개했습니다.
 
 **Q. Redis는 어디까지 써봤나요?**
 A. BeTAX SaaS에서 32개 메서드에 캐시를 적용했습니다. 환율 데이터 TTL 24시간, 회사·거래처 마스터 TTL 12시간 등 도메인별 TTL을 차등 설계했고, CacheErrorHandler로 Redis 장애 시 DB 직접 조회로 자동 fallback되도록 구성했습니다. 캐시 히트율은 Grafana 대시보드로 가시화했습니다.

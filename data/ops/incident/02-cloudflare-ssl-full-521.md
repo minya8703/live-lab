@@ -66,7 +66,3 @@ SSL/TLS → Overview → Configure → **Flexible** 선택. 30초~1분 안에 �
 2. **Cloudflare DNS A 레코드 IP** 와 Origin IP 비교 → 일치하면 SSL 모드 의심
 3. **SSL/TLS → Overview** 페이지의 *Current encryption mode* 확인
 4. EC2 에 자체 인증서 없으면 → **Flexible** 가 유일한 정답
-
-## 면접 답변용
-
-> *"Cloudflare 521 은 보통 SSL/TLS 모드가 원인입니다. Full 또는 Full(strict) 면 Cloudflare 가 origin 의 443 으로 HTTPS 시도를 하는데, origin 에 인증서 없는 무료 호스팅 환경이라면 거부됩니다. Flexible 로 바꾸면 origin 은 HTTP 80 만 받으면 되니까 EC2 손 안 대고 끝나죠. 보안 그룹·DNS 부터 의심하기 쉬운데, 우선 SSL 모드부터 보는 게 시간 절약입니다."*
