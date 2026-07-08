@@ -49,6 +49,8 @@ db/
 # API Keys & tokens (if accidentally committed to file)
 **/api_keys.json
 **/*token*
+!**/*Token*.java
+!**/*token*.java
 **/*secret*
 **/*password*
 
