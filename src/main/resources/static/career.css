@@ -1,0 +1,115 @@
+/* career.html — index.html 디자인 시스템 기반 */
+
+.career-hero {
+  padding: 60px 0 40px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.career-hero .hero-title {
+  margin-bottom: 16px;
+}
+
+.career-profile .devlog-content {
+  color: var(--fg-soft);
+  font-size: 15px;
+}
+
+.career-profile .devlog-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+
+.career-profile .devlog-content li {
+  font-size: 14px;
+  margin: 0;
+}
+
+.career-proof {
+  padding: 40px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+/* 섹션 */
+.career-section {
+  padding: 48px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.career-section:last-of-type {
+  border-bottom: none;
+}
+
+/* 프로젝트 카드 */
+.career-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.career-project-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 28px;
+}
+
+.career-project-card .devlog-entry-header {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.career-project-card .devlog-entry-title {
+  font-size: 18px;
+  margin: 0;
+}
+
+/* 경력 타임라인 */
+.career-experience {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.career-exp-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  border-left: 3px solid var(--accent);
+}
+
+.career-exp-card .devlog-entry-header {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.career-exp-card .devlog-entry-title {
+  font-size: 17px;
+  margin: 0;
+}
+
+/* 기술 스택 */
+.career-tech {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 28px;
+}
+
+@media (max-width: 640px) {
+  .career-hero {
+    padding: 40px 0 32px;
+  }
+
+  .career-project-card,
+  .career-exp-card {
+    padding: 18px;
+  }
+
+  .career-tech {
+    padding: 18px;
+  }
+}

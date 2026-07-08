@@ -1,0 +1,66 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    timeout-minutes: 10
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd ${{ secrets.EC2_APP_DIR }}
+
+            # 롤백용 현재 커밋 저장
+            PREV_COMMIT=$(git rev-parse HEAD)
+            echo "=== Current commit: $PREV_COMMIT ==="
+
+            echo "=== Pull latest code ==="
+            git pull origin main
+
+            echo "=== Build & restart containers ==="
+            docker compose --profile prod build --no-cache app
+            docker compose --profile prod up -d
+
+            echo "=== Cleanup dangling images ==="
+            docker image prune -f
+
+            echo "=== Health check ==="
+            HEALTHY=false
+            for i in $(seq 1 30); do
+              if curl -sf http://localhost:8089/actuator/health > /dev/null 2>&1; then
+                echo "App is healthy!"
+                HEALTHY=true
+                break
+              fi
+              echo "Waiting for app to start... ($i/30)"
+              sleep 2
+            done
+
+            if [ "$HEALTHY" = "false" ]; then
+              echo "=== Health check failed — rolling back to $PREV_COMMIT ==="
+              docker compose --profile prod logs --tail=50 app
+              git checkout "$PREV_COMMIT"
+              docker compose --profile prod build --no-cache app
+              docker compose --profile prod up -d
+              echo "=== Rollback complete. Deploy FAILED. ==="
+              exit 1
+            fi

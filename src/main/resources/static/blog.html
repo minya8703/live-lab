@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>기술 블로그 · 민야령 Backend Live Lab</title>
+  <meta name="description" content="민야령의 기술 블로그. 백엔드, EAI, MSA, 클라우드 경험과 인사이트." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="stylesheet" href="/blog/blog.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">민야령 <span class="brand-sub">Backend Live Lab</span></a>
+    <nav class="nav">
+      <a href="/#lab">Live Lab</a>
+      <a href="/#proof">Proof</a>
+      <a href="/blog.html">Blog</a>
+      <a href="/career.html">전체 이력</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero blog-hero">
+      <div class="blog-hero-row">
+        <div>
+          <h1 class="hero-title">기술 블로그</h1>
+          <p class="hero-sub">백엔드 개발, 시스템 통합, 운영에서 얻은 경험과 인사이트를 기록합니다.</p>
+        </div>
+        <div class="auth-area" data-auth-area></div>
+      </div>
+    </section>
+
+    <section class="blog-list-section">
+      <div class="blog-grid" data-posts>
+        <p class="blog-loading">불러오는 중...</p>
+      </div>
+      <div class="blog-paging" data-paging></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-line">
+      <span>민야령 · Backend Live Lab</span>
+      <span class="dim">Built with Spring Boot · Vanilla JS · S3</span>
+    </p>
+    <p class="footer-line">
+      <a href="mailto:minya8703@gmail.com">minya8703@gmail.com</a>
+      <a href="https://github.com/minya8703" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </footer>
+
+  <script src="/blog/auth.js" defer></script>
+  <script src="/blog/blog.js" defer></script>
+</body>
+</html>

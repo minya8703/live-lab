@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>글 작성 · 기술 블로그</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="stylesheet" href="/blog/blog.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">민야령 <span class="brand-sub">Backend Live Lab</span></a>
+    <nav class="nav">
+      <a href="/#lab">Live Lab</a>
+      <a href="/#proof">Proof</a>
+      <a href="/blog.html">Blog</a>
+      <a href="/career.html">전체 이력</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="blog-editor">
+      <div class="blog-editor-header">
+        <h1 data-editor-title>새 글 작성</h1>
+        <div class="blog-editor-actions">
+          <div class="auth-area" data-auth-area></div>
+          <button class="btn btn-ghost" data-btn-draft>임시저장</button>
+          <button class="btn btn-primary" data-btn-publish>발행</button>
+        </div>
+      </div>
+
+      <div class="blog-field">
+        <label for="title">TITLE</label>
+        <input type="text" id="title" placeholder="글 제목" data-title />
+      </div>
+
+      <div class="blog-field">
+        <label for="slug">SLUG</label>
+        <input type="text" id="slug" placeholder="자동 생성 (비우면 제목 기반)" data-slug />
+      </div>
+
+      <div class="blog-field">
+        <label for="summary">SUMMARY</label>
+        <input type="text" id="summary" placeholder="한 줄 요약 (목록에 표시)" data-summary />
+      </div>
+
+      <div class="blog-field">
+        <label for="tags">TAGS</label>
+        <input type="text" id="tags" placeholder="Spring Boot, Kafka, Redis (쉼표 구분)" data-tags />
+      </div>
+
+      <div class="blog-field">
+        <label for="thumbnail">THUMBNAIL URL</label>
+        <input type="text" id="thumbnail" placeholder="이미지 업로드 후 URL 붙여넣기" data-thumbnail />
+      </div>
+
+      <p class="blog-upload-hint">이미지를 에디터에 드래그앤드롭하거나 Ctrl+V로 붙여넣으면 자동 업로드됩니다.</p>
+
+      <div class="blog-editor-content">
+        <div class="blog-editor-pane">
+          <label>MARKDOWN</label>
+          <textarea class="blog-editor-textarea" data-content placeholder="마크다운으로 작성하세요..."></textarea>
+        </div>
+        <div class="blog-editor-pane">
+          <label>PREVIEW</label>
+          <div class="blog-preview blog-post-body" data-preview></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/blog/auth.js" defer></script>
+  <script src="/blog/write.js" defer></script>
+</body>
+</html>

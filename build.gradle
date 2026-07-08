@@ -49,6 +49,16 @@ dependencies {
     implementation 'org.commonmark:commonmark:0.22.0'
     implementation 'org.commonmark:commonmark-ext-gfm-tables:0.22.0'
 
+    // Blog: AWS S3 이미지/파일 저장 (NAS MinIO 전환 시 endpoint만 변경)
+    implementation platform('software.amazon.awssdk:bom:2.25.60')
+    implementation 'software.amazon.awssdk:s3'
+
+    // Auth: Google OAuth + JWT
+    implementation 'com.google.api-client:google-api-client:2.7.2'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
     // === Test ===
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'

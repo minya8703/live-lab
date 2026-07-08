@@ -20,6 +20,17 @@ services:
       SPRING_DATA_REDIS_PORT: "6379"
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      # Auth (Google OAuth + JWT)
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      BLOG_MASTER_EMAIL: ${BLOG_MASTER_EMAIL:-}
+      JWT_SECRET: ${JWT_SECRET:-change-me-to-a-random-32-char-string!!}
+      # S3 Storage
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-https://s3.ap-northeast-2.amazonaws.com}
+      STORAGE_REGION: ${STORAGE_REGION:-ap-northeast-2}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY:-}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY:-}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-livelab-blog}
+      STORAGE_PUBLIC_URL: ${STORAGE_PUBLIC_URL:-}
     depends_on:
       postgres:
         condition: service_healthy
