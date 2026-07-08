@@ -41,6 +41,10 @@ class KafkaDemoIntegrationTest {
         registry.add("spring.autoconfigure.exclude",
                 () -> "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration");
         registry.add("livelab.kafka.consumer.retry.interval-ms", () -> "100");
+        // Auth — CI에 .env 없으므로 테스트용 기본값 주입
+        registry.add("livelab.auth.google-client-id", () -> "test-client-id");
+        registry.add("livelab.auth.master-email", () -> "test@test.com");
+        registry.add("livelab.auth.jwt-secret", () -> "test-jwt-secret-must-be-at-least-32chars!!");
     }
 
     @Autowired OrderProducer producer;

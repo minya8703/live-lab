@@ -41,6 +41,10 @@ class ProductServiceIntegrationTest {
         registry.add("spring.data.redis.host", redis::getHost);
         registry.add("spring.data.redis.port", redis::getFirstMappedPort);
         registry.add("livelab.demo.product-count", () -> "0");
+        // Auth — CI에 .env 없으므로 테스트용 기본값 주입
+        registry.add("livelab.auth.google-client-id", () -> "test-client-id");
+        registry.add("livelab.auth.master-email", () -> "test@test.com");
+        registry.add("livelab.auth.jwt-secret", () -> "test-jwt-secret-must-be-at-least-32chars!!");
     }
 
     @Autowired ProductService productService;
