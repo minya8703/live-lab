@@ -32,6 +32,9 @@ jobs:
       - name: Verify Docker
         run: docker version
 
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
       - name: Run tests (unit + Testcontainers integration)
         run: ./gradlew check --no-daemon
 
