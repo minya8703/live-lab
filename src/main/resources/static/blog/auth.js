@@ -107,8 +107,10 @@
 
       container.appendChild(wrap);
 
-      // 마스터이면 글쓰기 버튼
-      if (auth.master) {
+      // 마스터이면 글쓰기 버튼. 페이지가 별도 버튼 자리를 제공하면 중복 생성하지 않는다.
+      if (auth.master
+          && !document.querySelector("[data-blog-write-button]")
+          && window.location.pathname !== "/blog/write.html") {
         var writeBtn = document.createElement("a");
         writeBtn.className = "btn btn-primary auth-write-btn";
         writeBtn.href = "/blog/write.html";

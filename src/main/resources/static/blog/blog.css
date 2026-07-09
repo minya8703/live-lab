@@ -481,6 +481,20 @@
   gap: 20px;
 }
 
+.blog-hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 220px;
+}
+
+.blog-write-button {
+  white-space: nowrap;
+  text-decoration: none;
+}
+
 .auth-area {
   display: flex;
   align-items: center;
@@ -526,6 +540,12 @@
 @media (max-width: 640px) {
   .blog-hero-row {
     flex-direction: column;
+  }
+
+  .blog-hero-actions {
+    justify-content: flex-start;
+    min-width: 0;
+    width: 100%;
   }
 
   .blog-hero {
