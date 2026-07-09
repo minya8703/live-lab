@@ -98,7 +98,6 @@ em {
 .topbar {
   position: sticky;
   top: 0;
-  background: var(--bg);
   border-bottom: 1px solid var(--border);
   padding: 16px 24px;
   display: flex;
@@ -417,6 +416,59 @@ main {
 .footer a {
   border: none;
   color: var(--fg-soft);
+}
+
+/* ===== Background grid pattern ===== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.018) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+main, .topbar, .footer { position: relative; z-index: 1; }
+
+/* ===== Nav blur on scroll ===== */
+.topbar {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.92);
+}
+
+/* ===== Fade-in on scroll ===== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ===== Card hover enhancement ===== */
+.proof-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.proof-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 16px rgba(16,185,129,0.08);
+  transform: translateY(-2px);
+}
+
+.lab-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.lab-card:hover {
+  box-shadow: 0 6px 20px rgba(16,185,129,0.10);
 }
 
 @media (max-width: 640px) {

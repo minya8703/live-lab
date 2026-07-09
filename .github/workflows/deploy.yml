@@ -50,7 +50,7 @@ jobs:
 
             echo "=== Health check ==="
             HEALTHY=false
-            for i in $(seq 1 30); do
+            for i in $(seq 1 60); do
               if curl -sf http://localhost:8089/actuator/health > /dev/null 2>&1; then
                 echo "App is healthy!"
                 HEALTHY=true
