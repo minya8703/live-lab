@@ -32,6 +32,7 @@ jobs:
           debug: true
           script: |
             cd ${{ secrets.EC2_APP_DIR }}
+            set -a && source .env && set +a
 
             echo "=== Pull latest code ==="
             git pull origin main || { echo "git pull failed"; exit 1; }
