@@ -32,7 +32,6 @@ jobs:
           debug: true
           script: |
             cd ${{ secrets.EC2_APP_DIR }}
-            set -a && source .env && set +a
 
             echo "=== Pull latest code ==="
             git pull origin main || { echo "git pull failed"; exit 1; }
@@ -44,20 +43,16 @@ jobs:
             echo "=== Cleanup dangling images ==="
             docker image prune -f || true
 
-            echo "=== Container status ==="
-            docker compose --profile prod ps || true
-
-            echo "=== Health check ==="
+            echo "=== Health check (inside container) ==="
             HEALTHY=false
-            for i in $(seq 1 60); do
-              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${APP_HOST_PORT:-8080}/actuator/health 2>/dev/null || echo "000")
-              if [ "$HTTP_CODE" = "200" ]; then
-                echo "App is healthy! (HTTP $HTTP_CODE)"
+            for i in $(seq 1 40); do
+              if docker exec livelab-app wget -qO- http://localhost:8080/actuator/health 2>/dev/null | grep -q '"status":"UP"'; then
+                echo "App is healthy!"
                 HEALTHY=true
                 break
               fi
-              echo "Waiting... ($i/60) HTTP=$HTTP_CODE"
-              sleep 3
+              echo "Waiting... ($i/40)"
+              sleep 5
             done
 
             if [ "$HEALTHY" = "false" ]; then
