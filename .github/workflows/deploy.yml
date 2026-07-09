@@ -16,7 +16,7 @@ jobs:
     name: Deploy to EC2
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Deploy via SSH
@@ -29,34 +29,24 @@ jobs:
           passphrase: ${{ secrets.EC2_SSH_PASSPHRASE }}
           timeout: 60s
           command_timeout: 10m
-          debug: true
           script: |
             cd ${{ secrets.EC2_APP_DIR }}
-
-            echo "=== Pull latest code ==="
-            git pull origin main || { echo "git pull failed"; exit 1; }
-
-            echo "=== Build & restart containers ==="
-            docker compose --profile prod build --no-cache app || { echo "build failed"; exit 1; }
-            docker compose --profile prod up -d || { echo "up failed"; exit 1; }
-
-            echo "=== Cleanup dangling images ==="
-            docker image prune -f || true
-
-            echo "=== Health check (inside container) ==="
-            HEALTHY=false
-            for i in $(seq 1 40); do
-              if docker exec livelab-app wget -qO- http://localhost:8080/actuator/health 2>/dev/null | grep -q '"status":"UP"'; then
-                echo "App is healthy!"
-                HEALTHY=true
-                break
-              fi
-              echo "Waiting... ($i/40)"
+            echo "=== Pull ==="
+            git pull origin main || { echo "FAIL: git pull"; exit 1; }
+            echo "=== Build ==="
+            docker compose --profile prod build --no-cache app || { echo "FAIL: build"; exit 1; }
+            echo "=== Restart ==="
+            docker compose --profile prod up -d || { echo "FAIL: up"; exit 1; }
+            docker image prune -f > /dev/null 2>&1 || true
+            echo "=== Health check (max 120s) ==="
+            for i in $(seq 1 24); do
               sleep 5
+              if curl -sf --max-time 3 http://localhost:80/actuator/health > /dev/null 2>&1; then
+                echo "OK: App is healthy after $((i*5))s"
+                exit 0
+              fi
+              echo "  waiting... ($((i*5))s)"
             done
-
-            if [ "$HEALTHY" = "false" ]; then
-              echo "=== Health check FAILED ==="
-              docker compose --profile prod logs --tail=80 app || true
-              exit 1
-            fi
+            echo "FAIL: health check timeout"
+            docker logs --tail 50 livelab-app 2>&1 || true
+            exit 1
