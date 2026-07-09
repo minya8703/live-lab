@@ -8,7 +8,7 @@ scrape_configs:
   - job_name: livelab-spring
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets: ['host.docker.internal:8089']
+      - targets: ['host.docker.internal:8080']
         labels:
           application: live-lab
 

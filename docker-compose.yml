@@ -10,7 +10,7 @@ services:
       dockerfile: Dockerfile
     container_name: livelab-app
     ports:
-      - "${APP_HOST_PORT:-8089}:8089"
+      - "${APP_HOST_PORT:-8080}:8080"
     environment:
       # 컨테이너 네트워크 내부 호스트로 오버라이드 (Spring Boot 가 SPRING_DATASOURCE_URL 등을 env 우선)
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-livelab}

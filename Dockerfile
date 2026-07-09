@@ -31,5 +31,5 @@ COPY --from=build /workspace/build/libs/*.jar app.jar
 # 런타임에 data/career/ 와 data/devlog/ 마크다운이 필요하므로 같이 복사
 COPY --from=build /workspace/data data/
 
-EXPOSE 8089
+EXPOSE 8080
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]
