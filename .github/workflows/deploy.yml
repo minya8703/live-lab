@@ -48,24 +48,27 @@ jobs:
             echo "=== Cleanup dangling images ==="
             docker image prune -f
 
+            echo "=== Wait for container to be running ==="
+            sleep 5
+            docker compose --profile prod ps
+            docker compose --profile prod logs --tail=30 app
+
             echo "=== Health check ==="
             HEALTHY=false
             for i in $(seq 1 60); do
-              if curl -sf http://localhost:8089/actuator/health > /dev/null 2>&1; then
-                echo "App is healthy!"
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8089/actuator/health 2>/dev/null || echo "000")
+              if [ "$HTTP_CODE" = "200" ]; then
+                echo "App is healthy! (HTTP $HTTP_CODE)"
                 HEALTHY=true
                 break
               fi
-              echo "Waiting for app to start... ($i/30)"
-              sleep 2
+              echo "Waiting... ($i/60) HTTP=$HTTP_CODE"
+              sleep 3
             done
 
             if [ "$HEALTHY" = "false" ]; then
-              echo "=== Health check failed — rolling back to $PREV_COMMIT ==="
-              docker compose --profile prod logs --tail=50 app
-              git checkout "$PREV_COMMIT"
-              docker compose --profile prod build --no-cache app
-              docker compose --profile prod up -d
-              echo "=== Rollback complete. Deploy FAILED. ==="
+              echo "=== Health check FAILED — dumping logs ==="
+              docker compose --profile prod logs --tail=80 app
+              echo "=== NOT rolling back — leaving current state for debugging ==="
               exit 1
             fi
