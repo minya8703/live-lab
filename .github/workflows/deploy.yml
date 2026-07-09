@@ -31,27 +31,20 @@ jobs:
           command_timeout: 10m
           debug: true
           script: |
-            set -e
             cd ${{ secrets.EC2_APP_DIR }}
 
-            # 롤백용 현재 커밋 저장
-            PREV_COMMIT=$(git rev-parse HEAD)
-            echo "=== Current commit: $PREV_COMMIT ==="
-
             echo "=== Pull latest code ==="
-            git pull origin main
+            git pull origin main || { echo "git pull failed"; exit 1; }
 
             echo "=== Build & restart containers ==="
-            docker compose --profile prod build --no-cache app
-            docker compose --profile prod up -d
+            docker compose --profile prod build --no-cache app || { echo "build failed"; exit 1; }
+            docker compose --profile prod up -d || { echo "up failed"; exit 1; }
 
             echo "=== Cleanup dangling images ==="
-            docker image prune -f
+            docker image prune -f || true
 
-            echo "=== Wait for container to be running ==="
-            sleep 5
-            docker compose --profile prod ps
-            docker compose --profile prod logs --tail=30 app
+            echo "=== Container status ==="
+            docker compose --profile prod ps || true
 
             echo "=== Health check ==="
             HEALTHY=false
@@ -67,8 +60,7 @@ jobs:
             done
 
             if [ "$HEALTHY" = "false" ]; then
-              echo "=== Health check FAILED — dumping logs ==="
-              docker compose --profile prod logs --tail=80 app
-              echo "=== NOT rolling back — leaving current state for debugging ==="
+              echo "=== Health check FAILED ==="
+              docker compose --profile prod logs --tail=80 app || true
               exit 1
             fi
