@@ -3,8 +3,11 @@
 
   var postsEl = document.querySelector("[data-posts]");
   var pagingEl = document.querySelector("[data-paging]");
+  var filterEl = document.querySelector("[data-tag-filter]");
   var currentPage = 0;
-  var PAGE_SIZE = 12;
+  var PAGE_SIZE = 20;
+  var allPosts = [];
+  var activeTag = null;
 
   function el(tag, cls, text) {
     var node = document.createElement(tag);
@@ -18,62 +21,110 @@
     return dateStr.substring(0, 10);
   }
 
-  function renderTags(tagsStr) {
-    if (!tagsStr) return null;
-    var tags = tagsStr.split(",").map(function (t) { return t.trim(); }).filter(Boolean);
-    if (tags.length === 0) return null;
-    var container = el("div", "blog-card-tags");
-    tags.forEach(function (tag) {
-      container.appendChild(el("span", "blog-tag", tag));
-    });
-    return container;
+  function parseTags(tagsStr) {
+    if (!tagsStr) return [];
+    return tagsStr.split(",").map(function (t) { return t.trim(); }).filter(Boolean);
   }
 
-  function renderCard(post) {
-    var card = el("article", "blog-card");
-    var link = document.createElement("a");
-    link.href = "/blog/post.html?slug=" + encodeURIComponent(post.slug);
-    link.style.border = "none";
+  // 태그 필터 렌더링
+  function renderTagFilter(posts) {
+    if (!filterEl) return;
+    filterEl.innerHTML = "";
+    var tagCount = {};
+    posts.forEach(function (p) {
+      parseTags(p.tags).forEach(function (t) {
+        tagCount[t] = (tagCount[t] || 0) + 1;
+      });
+    });
 
-    if (post.thumbnailUrl) {
-      var img = document.createElement("img");
-      img.className = "blog-card-thumb";
-      img.src = post.thumbnailUrl;
-      img.alt = post.title;
-      img.loading = "lazy";
-      link.appendChild(img);
-    } else {
-      link.appendChild(el("div", "blog-card-thumb-placeholder", "BLOG"));
+    var allBtn = el("button", "blog-filter-btn" + (activeTag === null ? " active" : ""), "전체");
+    allBtn.addEventListener("click", function () { activeTag = null; renderFiltered(); });
+    filterEl.appendChild(allBtn);
+
+    Object.keys(tagCount).sort().forEach(function (tag) {
+      var btn = el("button", "blog-filter-btn" + (activeTag === tag ? " active" : ""), tag + " (" + tagCount[tag] + ")");
+      btn.addEventListener("click", function () { activeTag = tag; renderFiltered(); });
+      filterEl.appendChild(btn);
+    });
+  }
+
+  // 리스트 렌더링
+  function renderList(posts) {
+    postsEl.innerHTML = "";
+    if (posts.length === 0) {
+      postsEl.appendChild(el("p", "blog-loading", "아직 작성된 글이 없습니다."));
+      return;
     }
 
-    var body = el("div", "blog-card-body");
-    body.appendChild(el("h3", "blog-card-title", post.title));
-    if (post.summary) {
-      body.appendChild(el("p", "blog-card-summary", post.summary));
-    }
+    var table = document.createElement("table");
+    table.className = "blog-table";
 
-    var meta = el("div", "blog-card-meta");
-    meta.appendChild(el("span", "blog-card-date", formatDate(post.createdAt)));
-    var tags = renderTags(post.tags);
-    if (tags) meta.appendChild(tags);
-    body.appendChild(meta);
+    var thead = document.createElement("thead");
+    var tr = document.createElement("tr");
+    tr.appendChild(el("th", "blog-th-date", "날짜"));
+    tr.appendChild(el("th", "blog-th-title", "제목"));
+    tr.appendChild(el("th", "blog-th-tags", "카테고리"));
+    thead.appendChild(tr);
+    table.appendChild(thead);
 
-    link.appendChild(body);
-    card.appendChild(link);
-    return card;
+    var tbody = document.createElement("tbody");
+    posts.forEach(function (post) {
+      var row = document.createElement("tr");
+      row.className = "blog-row";
+      row.addEventListener("click", function () {
+        window.location.href = "/blog/post.html?slug=" + encodeURIComponent(post.slug);
+      });
+
+      var dateCell = el("td", "blog-cell-date", formatDate(post.createdAt));
+      row.appendChild(dateCell);
+
+      var titleCell = document.createElement("td");
+      titleCell.className = "blog-cell-title";
+      var titleLink = document.createElement("a");
+      titleLink.href = "/blog/post.html?slug=" + encodeURIComponent(post.slug);
+      titleLink.className = "blog-title-link";
+      titleLink.textContent = post.title;
+      titleCell.appendChild(titleLink);
+      if (post.summary) {
+        titleCell.appendChild(el("span", "blog-cell-summary", post.summary));
+      }
+      row.appendChild(titleCell);
+
+      var tagCell = document.createElement("td");
+      tagCell.className = "blog-cell-tags";
+      parseTags(post.tags).forEach(function (tag) {
+        var tagSpan = el("span", "blog-tag", tag);
+        tagSpan.addEventListener("click", function (e) {
+          e.stopPropagation();
+          activeTag = tag;
+          renderFiltered();
+        });
+        tagCell.appendChild(tagSpan);
+      });
+      row.appendChild(tagCell);
+
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    postsEl.appendChild(table);
+  }
+
+  function renderFiltered() {
+    var filtered = activeTag
+      ? allPosts.filter(function (p) { return parseTags(p.tags).indexOf(activeTag) !== -1; })
+      : allPosts;
+    renderTagFilter(allPosts);
+    renderList(filtered);
   }
 
   function renderPaging(data) {
     pagingEl.innerHTML = "";
     if (data.totalPages <= 1) return;
-
     for (var i = 0; i < data.totalPages; i++) {
       var btn = el("button", "blog-page-btn", String(i + 1));
       if (i === data.number) btn.classList.add("active");
       btn.dataset.page = i;
-      btn.addEventListener("click", function () {
-        loadPage(parseInt(this.dataset.page));
-      });
+      btn.addEventListener("click", function () { loadPage(parseInt(this.dataset.page)); });
       pagingEl.appendChild(btn);
     }
   }
@@ -89,14 +140,8 @@
         return res.json();
       })
       .then(function (data) {
-        postsEl.innerHTML = "";
-        if (!data.content || data.content.length === 0) {
-          postsEl.appendChild(el("p", "blog-loading", "아직 작성된 글이 없습니다."));
-          return;
-        }
-        data.content.forEach(function (post) {
-          postsEl.appendChild(renderCard(post));
-        });
+        allPosts = data.content || [];
+        renderFiltered();
         renderPaging(data);
       })
       .catch(function () {
