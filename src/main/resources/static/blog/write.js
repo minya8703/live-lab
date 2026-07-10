@@ -154,9 +154,13 @@
       return res.json();
     })
     .then(function (data) {
-      alert(published ? "발행되었습니다!" : "임시저장되었습니다.");
-      if (!isEdit) {
-        window.location.href = "/blog/write.html?edit=" + encodeURIComponent(data.slug);
+      if (published) {
+        window.location.href = "/blog.html";
+      } else {
+        alert("임시저장되었습니다.");
+        if (!isEdit) {
+          window.location.href = "/blog/write.html?edit=" + encodeURIComponent(data.slug);
+        }
       }
     })
     .catch(function (err) {
