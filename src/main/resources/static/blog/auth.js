@@ -130,11 +130,22 @@
       googleDiv.setAttribute("data-logo_alignment", "left");
       container.appendChild(googleDiv);
 
-      // Google Identity Services가 로드된 후 렌더
       if (window.google && window.google.accounts) {
+        // Google Identity Services가 로드된 후 렌더
         window.google.accounts.id.renderButton(googleDiv, {
           theme: "outline", size: "medium", text: "signin_with"
         });
+      } else {
+        // GIS 미로드 시 폴백 버튼
+        var fallback = document.createElement("button");
+        fallback.className = "btn btn-ghost auth-google-fallback";
+        fallback.textContent = "Google로 로그인";
+        fallback.addEventListener("click", function () {
+          fallback.textContent = "로딩 중...";
+          fallback.disabled = true;
+          boot();
+        });
+        googleDiv.appendChild(fallback);
       }
     }
 

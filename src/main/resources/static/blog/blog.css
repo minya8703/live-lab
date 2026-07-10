@@ -537,6 +537,12 @@
   text-decoration: none;
 }
 
+.auth-google-fallback {
+  font-size: 13px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
 @media (max-width: 640px) {
   .blog-hero-row {
     flex-direction: column;
