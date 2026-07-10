@@ -472,6 +472,34 @@
 }
 .c-fade-in.visible { opacity: 1; transform: none; }
 
+/* ===== COMPACT FOOTER ===== */
+.c-footer-compact {
+  padding: 20px 24px;
+  margin-top: 0;
+  gap: 4px;
+  text-align: center;
+}
+.c-footer-brand {
+  margin: 0;
+  font-size: 11px;
+  color: var(--fg-dim);
+  letter-spacing: 0.03em;
+}
+.c-footer-links {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  font-size: 11px;
+}
+.c-footer-links a {
+  border: none;
+  color: var(--fg-dim);
+}
+.c-footer-links a:hover {
+  color: var(--accent);
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 640px) {
   .c-timeline { display: none; }
