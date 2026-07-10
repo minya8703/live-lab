@@ -125,7 +125,7 @@
       googleDiv.setAttribute("data-type", "standard");
       googleDiv.setAttribute("data-size", "medium");
       googleDiv.setAttribute("data-theme", "outline");
-      googleDiv.setAttribute("data-text", "signin_with");
+      googleDiv.setAttribute("data-text", "signin");
       googleDiv.setAttribute("data-shape", "rectangular");
       googleDiv.setAttribute("data-logo_alignment", "left");
       container.appendChild(googleDiv);
@@ -133,13 +133,13 @@
       if (window.google && window.google.accounts) {
         // Google Identity Services가 로드된 후 렌더
         window.google.accounts.id.renderButton(googleDiv, {
-          theme: "outline", size: "medium", text: "signin_with"
+          theme: "outline", size: "medium", text: "signin"
         });
       } else {
         // GIS 미로드 시 폴백 버튼
         var fallback = document.createElement("button");
         fallback.className = "btn btn-ghost auth-google-fallback";
-        fallback.textContent = "Google로 로그인";
+        fallback.textContent = "관리자";
         fallback.addEventListener("click", function () {
           fallback.textContent = "로딩 중...";
           fallback.disabled = true;
