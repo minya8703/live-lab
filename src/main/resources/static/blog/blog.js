@@ -4,10 +4,12 @@
   var postsEl = document.querySelector("[data-posts]");
   var pagingEl = document.querySelector("[data-paging]");
   var filterEl = document.querySelector("[data-tag-filter]");
+  var searchEl = document.querySelector("[data-search]");
   var currentPage = 0;
   var PAGE_SIZE = 20;
   var allPosts = [];
   var activeTag = null;
+  var searchQuery = "";
 
   function el(tag, cls, text) {
     var node = document.createElement(tag);
@@ -120,11 +122,36 @@
   }
 
   function renderFiltered() {
-    var filtered = activeTag
-      ? allPosts.filter(function (p) { return parseTags(p.tags).indexOf(activeTag) !== -1; })
-      : allPosts;
+    var filtered = allPosts;
+
+    if (activeTag) {
+      filtered = filtered.filter(function (p) { return parseTags(p.tags).indexOf(activeTag) !== -1; });
+    }
+
+    if (searchQuery) {
+      var q = searchQuery.toLowerCase();
+      filtered = filtered.filter(function (p) {
+        return (p.title && p.title.toLowerCase().indexOf(q) !== -1)
+            || (p.summary && p.summary.toLowerCase().indexOf(q) !== -1)
+            || (p.content && p.content.toLowerCase().indexOf(q) !== -1)
+            || (p.tags && p.tags.toLowerCase().indexOf(q) !== -1);
+      });
+    }
+
     renderTagFilter(allPosts);
     renderList(filtered);
+  }
+
+  // 검색 입력 디바운스
+  var searchTimer = null;
+  if (searchEl) {
+    searchEl.addEventListener("input", function () {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function () {
+        searchQuery = searchEl.value.trim();
+        renderFiltered();
+      }, 250);
+    });
   }
 
   function renderPaging(data) {
