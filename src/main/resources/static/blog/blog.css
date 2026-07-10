@@ -549,11 +549,36 @@
   gap: 6px;
 }
 
+.blog-upload-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: var(--border-soft);
+  flex-wrap: wrap;
+}
+
+.blog-upload-btn {
+  white-space: nowrap;
+  font-size: 13px;
+  padding: 6px 14px;
+}
+
 .blog-upload-hint {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--fg-dim);
   margin: 0;
+}
+
+.blog-upload-status {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .blog-drop-overlay {

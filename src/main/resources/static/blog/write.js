@@ -47,10 +47,24 @@
   }
 
   // 이미지 업로드
+  var fileInput = document.querySelector("[data-file-input]");
+  var uploadBtn = document.querySelector("[data-btn-upload]");
+  var uploadStatus = document.querySelector("[data-upload-status]");
+  var uploadCount = 0;
+  var uploadTotal = 0;
+
+  function showUploadStatus(current, total) {
+    if (total === 0) {
+      uploadStatus.textContent = "";
+      return;
+    }
+    uploadStatus.textContent = "업로드 중... (" + current + "/" + total + ")";
+  }
+
   function uploadFile(file) {
     if (!window.BlogAuth || !window.BlogAuth.isMaster()) {
       alert("로그인이 필요합니다.");
-      return;
+      return Promise.reject();
     }
     var formData = new FormData();
     formData.append("file", file);
@@ -67,17 +81,53 @@
     .then(function (data) {
       var pos = contentEl.selectionStart;
       var text = contentEl.value;
-      var imgMd = "![image](" + data.url + ")";
+      var imgMd = "\n![image](" + data.url + ")\n";
       contentEl.value = text.substring(0, pos) + imgMd + text.substring(pos);
       contentEl.focus();
       contentEl.selectionStart = contentEl.selectionEnd = pos + imgMd.length;
       updatePreview();
+
+      // 첫 번째 이미지를 자동 썸네일 설정
+      if (!thumbnailEl.value.trim()) {
+        thumbnailEl.value = data.url;
+      }
+
       return data.url;
     })
     .catch(function (err) {
       alert("이미지 업로드 실패: " + err.message);
     });
   }
+
+  // 다중 이미지 순차 업로드
+  function uploadFiles(files) {
+    var imageFiles = [];
+    for (var i = 0; i < files.length; i++) {
+      if (files[i].type.startsWith("image/")) imageFiles.push(files[i]);
+    }
+    if (imageFiles.length === 0) return;
+
+    uploadTotal = imageFiles.length;
+    uploadCount = 0;
+
+    function next() {
+      if (uploadCount >= imageFiles.length) {
+        showUploadStatus(0, 0);
+        return;
+      }
+      uploadCount++;
+      showUploadStatus(uploadCount, uploadTotal);
+      uploadFile(imageFiles[uploadCount - 1]).then(next);
+    }
+    next();
+  }
+
+  // 버튼 클릭 → 파일 선택
+  uploadBtn.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () {
+    if (fileInput.files.length > 0) uploadFiles(fileInput.files);
+    fileInput.value = "";
+  });
 
   // 드래그앤드롭
   var dropOverlay = null;
@@ -101,12 +151,7 @@
   contentEl.addEventListener("drop", function (e) {
     e.preventDefault();
     if (dropOverlay) { dropOverlay.remove(); dropOverlay = null; }
-    var files = e.dataTransfer.files;
-    for (var i = 0; i < files.length; i++) {
-      if (files[i].type.startsWith("image/")) {
-        uploadFile(files[i]);
-      }
-    }
+    uploadFiles(e.dataTransfer.files);
   });
 
   // Ctrl+V 이미지 붙여넣기
