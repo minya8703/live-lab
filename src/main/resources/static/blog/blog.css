@@ -9,7 +9,7 @@
   color: var(--accent) !important;
 }
 
-/* 목록 */
+/* 목록 — velog 스타일 */
 .blog-list-section {
   padding: 40px 0 60px;
 }
@@ -18,113 +18,161 @@
 .blog-tag-filter {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 24px;
+  gap: 8px;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-soft);
 }
 
-.blog-filter-btn {
-  font-family: var(--mono);
-  font-size: 12px;
-  padding: 4px 12px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--bg);
+.velog-filter-btn {
+  font-size: 14px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 20px;
+  background: var(--border-soft);
   color: var(--fg-soft);
   cursor: pointer;
   transition: all 0.15s ease;
+  font-family: var(--sans);
 }
 
-.blog-filter-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+.velog-filter-btn:hover {
+  color: var(--fg);
+  background: var(--border);
 }
 
-.blog-filter-btn.active {
+.velog-filter-btn.active {
   background: var(--fg);
   color: var(--bg);
-  border-color: var(--fg);
 }
 
-/* 테이블 리스트 */
-.blog-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
+/* velog 카드 */
+.blog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-.blog-table th {
-  text-align: left;
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--fg-dim);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 8px 12px 12px;
-  border-bottom: 2px solid var(--border);
+.velog-card {
+  border-bottom: 1px solid var(--border-soft);
+  padding: 32px 0;
 }
 
-.blog-th-date { width: 100px; }
-.blog-th-title { width: auto; }
-.blog-th-tags { width: 200px; }
-
-.blog-row {
-  cursor: pointer;
-  transition: background 0.12s ease;
+.velog-card:first-child {
+  padding-top: 0;
 }
 
-.blog-row:hover {
+.velog-card-link {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  border: none !important;
+  text-decoration: none;
+  color: inherit;
+}
+
+.velog-card-link:hover {
+  color: inherit;
+  border: none !important;
+}
+
+/* 썸네일 */
+.velog-thumb-wrap {
+  flex-shrink: 0;
+  width: 200px;
+  height: 134px;
+  border-radius: 8px;
+  overflow: hidden;
   background: var(--border-soft);
 }
 
-.blog-row td {
-  padding: 14px 12px;
-  border-bottom: 1px solid var(--border-soft);
-  vertical-align: top;
+.velog-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
 }
 
-.blog-cell-date {
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--fg-dim);
-  white-space: nowrap;
+.velog-card-link:hover .velog-thumb {
+  transform: scale(1.03);
 }
 
-.blog-cell-title {
+/* 본문 */
+.velog-card-body {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
-.blog-title-link {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--fg);
-  border: none !important;
-  text-decoration: none;
+.velog-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
   line-height: 1.4;
-}
-
-.blog-row:hover .blog-title-link {
-  color: var(--accent);
-}
-
-.blog-cell-summary {
-  font-size: 13px;
-  color: var(--fg-dim);
-  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  transition: color 0.15s ease;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.blog-cell-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+.velog-card-link:hover .velog-title {
+  color: var(--accent);
 }
 
+.velog-summary {
+  font-size: 14px;
+  color: var(--fg-soft);
+  margin: 0;
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 태그 */
+.velog-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.velog-tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--sans);
+}
+
+.velog-tag:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* 하단 메타 */
+.velog-card-footer {
+  padding: 8px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.velog-date {
+  font-size: 13px;
+  color: var(--fg-dim);
+}
+
+/* blog-card-tags (상세 페이지용 유지) */
 .blog-card-tags {
   display: flex;
   gap: 6px;
@@ -582,20 +630,23 @@
     padding: 40px 0 32px;
   }
 
-  .blog-th-tags,
-  .blog-cell-tags {
-    display: none;
+  .velog-card-link {
+    flex-direction: column;
+    gap: 12px;
   }
 
-  .blog-th-date { width: 80px; }
-
-  .blog-table th,
-  .blog-row td {
-    padding: 10px 8px;
+  .velog-thumb-wrap {
+    width: 100%;
+    height: 180px;
   }
 
-  .blog-title-link { font-size: 14px; }
-  .blog-cell-date { font-size: 12px; }
+  .velog-title {
+    font-size: 17px;
+  }
+
+  .velog-card {
+    padding: 24px 0;
+  }
 
   .blog-editor-content {
     grid-template-columns: 1fr;

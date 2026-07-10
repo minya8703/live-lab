@@ -18,7 +18,8 @@
 
   function formatDate(dateStr) {
     if (!dateStr) return "";
-    return dateStr.substring(0, 10);
+    var d = dateStr.substring(0, 10).split("-");
+    return d[0] + "년 " + parseInt(d[1]) + "월 " + parseInt(d[2]) + "일";
   }
 
   function parseTags(tagsStr) {
@@ -26,7 +27,7 @@
     return tagsStr.split(",").map(function (t) { return t.trim(); }).filter(Boolean);
   }
 
-  // 태그 필터 렌더링
+  // 태그 필터
   function renderTagFilter(posts) {
     if (!filterEl) return;
     filterEl.innerHTML = "";
@@ -36,77 +37,86 @@
         tagCount[t] = (tagCount[t] || 0) + 1;
       });
     });
+    if (Object.keys(tagCount).length === 0) return;
 
-    var allBtn = el("button", "blog-filter-btn" + (activeTag === null ? " active" : ""), "전체");
+    var allBtn = el("button", "velog-filter-btn" + (activeTag === null ? " active" : ""), "전체");
     allBtn.addEventListener("click", function () { activeTag = null; renderFiltered(); });
     filterEl.appendChild(allBtn);
 
     Object.keys(tagCount).sort().forEach(function (tag) {
-      var btn = el("button", "blog-filter-btn" + (activeTag === tag ? " active" : ""), tag + " (" + tagCount[tag] + ")");
+      var btn = el("button", "velog-filter-btn" + (activeTag === tag ? " active" : ""), tag);
       btn.addEventListener("click", function () { activeTag = tag; renderFiltered(); });
       filterEl.appendChild(btn);
     });
   }
 
-  // 리스트 렌더링
+  // velog 스타일 카드
+  function renderCard(post) {
+    var card = el("article", "velog-card");
+
+    var link = document.createElement("a");
+    link.href = "/blog/post.html?slug=" + encodeURIComponent(post.slug);
+    link.className = "velog-card-link";
+
+    // 썸네일
+    if (post.thumbnailUrl) {
+      var thumbWrap = el("div", "velog-thumb-wrap");
+      var img = document.createElement("img");
+      img.className = "velog-thumb";
+      img.src = post.thumbnailUrl;
+      img.alt = post.title;
+      img.loading = "lazy";
+      thumbWrap.appendChild(img);
+      link.appendChild(thumbWrap);
+    }
+
+    // 본문 영역
+    var body = el("div", "velog-card-body");
+
+    body.appendChild(el("h2", "velog-title", post.title));
+
+    if (post.summary) {
+      body.appendChild(el("p", "velog-summary", post.summary));
+    }
+
+    // 태그
+    var tags = parseTags(post.tags);
+    if (tags.length > 0) {
+      var tagWrap = el("div", "velog-tags");
+      tags.forEach(function (tag) {
+        var tagEl = el("span", "velog-tag", tag);
+        tagEl.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          activeTag = tag;
+          renderFiltered();
+        });
+        tagWrap.appendChild(tagEl);
+      });
+      body.appendChild(tagWrap);
+    }
+
+    link.appendChild(body);
+    card.appendChild(link);
+
+    // 하단 메타
+    var footer = el("div", "velog-card-footer");
+    var dateSpan = el("span", "velog-date", formatDate(post.createdAt));
+    footer.appendChild(dateSpan);
+    card.appendChild(footer);
+
+    return card;
+  }
+
   function renderList(posts) {
     postsEl.innerHTML = "";
     if (posts.length === 0) {
       postsEl.appendChild(el("p", "blog-loading", "아직 작성된 글이 없습니다."));
       return;
     }
-
-    var table = document.createElement("table");
-    table.className = "blog-table";
-
-    var thead = document.createElement("thead");
-    var tr = document.createElement("tr");
-    tr.appendChild(el("th", "blog-th-date", "날짜"));
-    tr.appendChild(el("th", "blog-th-title", "제목"));
-    tr.appendChild(el("th", "blog-th-tags", "카테고리"));
-    thead.appendChild(tr);
-    table.appendChild(thead);
-
-    var tbody = document.createElement("tbody");
     posts.forEach(function (post) {
-      var row = document.createElement("tr");
-      row.className = "blog-row";
-      row.addEventListener("click", function () {
-        window.location.href = "/blog/post.html?slug=" + encodeURIComponent(post.slug);
-      });
-
-      var dateCell = el("td", "blog-cell-date", formatDate(post.createdAt));
-      row.appendChild(dateCell);
-
-      var titleCell = document.createElement("td");
-      titleCell.className = "blog-cell-title";
-      var titleLink = document.createElement("a");
-      titleLink.href = "/blog/post.html?slug=" + encodeURIComponent(post.slug);
-      titleLink.className = "blog-title-link";
-      titleLink.textContent = post.title;
-      titleCell.appendChild(titleLink);
-      if (post.summary) {
-        titleCell.appendChild(el("span", "blog-cell-summary", post.summary));
-      }
-      row.appendChild(titleCell);
-
-      var tagCell = document.createElement("td");
-      tagCell.className = "blog-cell-tags";
-      parseTags(post.tags).forEach(function (tag) {
-        var tagSpan = el("span", "blog-tag", tag);
-        tagSpan.addEventListener("click", function (e) {
-          e.stopPropagation();
-          activeTag = tag;
-          renderFiltered();
-        });
-        tagCell.appendChild(tagSpan);
-      });
-      row.appendChild(tagCell);
-
-      tbody.appendChild(row);
+      postsEl.appendChild(renderCard(post));
     });
-    table.appendChild(tbody);
-    postsEl.appendChild(table);
   }
 
   function renderFiltered() {
