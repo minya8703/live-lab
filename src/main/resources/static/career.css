@@ -1,115 +1,485 @@
-/* career.html — index.html 디자인 시스템 기반 */
+/* career.html — minya8703.github.io 디자인 레이아웃 + live-lab 색감 */
 
+/* ===== Career-specific variables (live-lab 기반) ===== */
+.career-page {
+  --c-bg2: #f9fafb;
+  --c-bg3: #f2f3f5;
+  --c-border: var(--border);
+  --c-border2: #d1d5db;
+  --c-text: var(--fg);
+  --c-text2: var(--fg-soft);
+  --c-text3: var(--fg-dim);
+  --c-accent: var(--accent);
+  --c-accent2: #059669;
+  --c-green: #10b981;
+  --c-blue: #4a9eff;
+}
+
+/* ===== HERO ===== */
 .career-hero {
-  padding: 60px 0 40px;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  padding: 100px 0 80px;
   border-bottom: 1px solid var(--border-soft);
 }
+.career-hero-inner { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
 
-.career-hero .hero-title {
-  margin-bottom: 16px;
-}
-
-.career-profile .devlog-content {
-  color: var(--fg-soft);
-  font-size: 15px;
-}
-
-.career-profile .devlog-content ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.career-hero-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--c-accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
   display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.career-hero-tag::before {
+  content: '';
+  display: inline-block;
+  width: 20px; height: 1px;
+  background: var(--c-accent);
+}
+
+.career-hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  color: var(--c-text);
+}
+.career-hero h1 em {
+  font-style: normal;
+  color: var(--c-accent);
+}
+
+.career-hero-desc {
+  font-size: 16px;
+  color: var(--c-text2);
+  max-width: 600px;
+  line-height: 1.8;
+  margin-bottom: 2.5rem;
+}
+
+.career-hero-stats {
+  display: flex;
+  gap: 3rem;
+  margin-bottom: 2.5rem;
   flex-wrap: wrap;
-  gap: 8px 20px;
 }
+.c-stat-num {
+  font-family: var(--mono);
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--c-accent);
+  line-height: 1;
+}
+.c-stat-unit { font-size: 1.2rem; color: var(--c-text2); }
+.c-stat-label { font-size: 12px; color: var(--c-text3); margin-top: 4px; }
 
-.career-profile .devlog-content li {
-  font-size: 14px;
+.career-hero-links { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 2.5rem; }
+.c-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: none;
+}
+.c-btn-primary { background: var(--c-accent); color: #fff; }
+.c-btn-primary:hover { background: var(--c-accent2); color: #fff; border: none; }
+.c-btn-outline { border: 1px solid var(--c-border2); color: var(--c-text2); }
+.c-btn-outline:hover { border-color: var(--c-accent); color: var(--c-accent); }
+
+/* Timeline */
+.c-timeline {
+  display: flex;
+  gap: 0;
+  position: relative;
+  margin-top: 1rem;
+}
+.c-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 8px;
+  height: 1px;
+  background: var(--c-border2);
+}
+.c-tl-item { flex: 1; padding: 0 8px; text-align: center; }
+.c-tl-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  margin: 0 auto 8px;
+  position: relative; z-index: 1;
+}
+.c-tl-dot-gap { background: var(--c-text3); }
+.c-tl-year {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--c-accent);
+  display: block;
+  margin-bottom: 3px;
+}
+.c-tl-year-gap { color: var(--c-text3); }
+.c-tl-company { font-size: 11px; color: var(--c-text2); }
+.c-tl-role { font-size: 10px; color: var(--c-text3); margin-top: 2px; }
+
+/* ===== CONTAINER ===== */
+.c-container { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+
+/* ===== SECTION COMMON ===== */
+.c-section { position: relative; z-index: 1; }
+.c-section-header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+.c-section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+  margin-bottom: 0.5rem;
+}
+.c-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: -0.02em;
   margin: 0;
 }
+.c-section-sub { font-size: 13px; color: var(--c-text2); margin-top: 6px; }
 
-.career-proof {
-  padding: 40px 0;
-  border-bottom: 1px solid var(--border-soft);
+/* ===== TECH STACK ===== */
+#c-stack { padding: 80px 0; }
+.c-stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1px;
+  background: var(--c-border);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.c-stack-group { background: var(--c-bg2); padding: 1.5rem; }
+.c-stack-group-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--c-accent);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.c-stack-items { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.c-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 3px;
+  background: var(--c-bg3);
+  border: 1px solid var(--c-border);
+  color: var(--c-text2);
+  white-space: nowrap;
+}
+.c-badge-hot {
+  border-color: rgba(16,185,129,0.4);
+  color: var(--c-accent);
+  background: rgba(16,185,129,0.07);
 }
 
-/* 섹션 */
-.career-section {
-  padding: 48px 0;
-  border-bottom: 1px solid var(--border-soft);
-}
-
-.career-section:last-of-type {
-  border-bottom: none;
-}
-
-/* 프로젝트 카드 */
-.career-projects {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.career-project-card {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 24px 28px;
-}
-
-.career-project-card .devlog-entry-header {
+/* ===== PROJECTS ===== */
+#c-projects { padding: 80px 0; }
+.c-project-card {
+  background: var(--c-bg2);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
   margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border-soft);
+  overflow: hidden;
+  transition: border-color 0.2s;
+  cursor: pointer;
 }
-
-.career-project-card .devlog-entry-title {
-  font-size: 18px;
-  margin: 0;
-}
-
-/* 경력 타임라인 */
-.career-experience {
+.c-project-card:hover { border-color: var(--c-border2); }
+.c-project-header {
+  padding: 1.5rem 1.75rem;
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  align-items: flex-start;
+  gap: 1.25rem;
 }
-
-.career-exp-card {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 20px 24px;
-  border-left: 3px solid var(--accent);
+.c-project-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--c-text3);
+  flex-shrink: 0;
+  padding-top: 3px;
+  min-width: 24px;
 }
+.c-project-main { flex: 1; min-width: 0; }
+.c-project-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.c-project-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: -0.01em;
+}
+.c-tag {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+.c-tag-live { background: rgba(16,185,129,0.12); color: var(--c-green); border: 1px solid rgba(16,185,129,0.25); }
+.c-tag-ja { background: rgba(74,158,255,0.12); color: var(--c-blue); border: 1px solid rgba(74,158,255,0.2); }
+.c-tag-solo { background: rgba(16,185,129,0.08); color: var(--c-accent); border: 1px solid rgba(16,185,129,0.2); }
+.c-tag-default { background: var(--c-bg3); color: var(--c-text2); border: 1px solid var(--c-border); }
 
-.career-exp-card .devlog-entry-header {
-  margin-bottom: 10px;
-  padding-bottom: 8px;
+.c-project-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--c-text3);
+  margin-bottom: 8px;
+}
+.c-project-desc { font-size: 13px; color: var(--c-text2); line-height: 1.6; }
+
+.c-project-metrics {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.c-metric { display: flex; align-items: baseline; gap: 4px; }
+.c-metric-val {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--c-accent);
+}
+.c-metric-label { font-size: 11px; color: var(--c-text3); }
+
+.c-project-toggle {
+  flex-shrink: 0;
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--c-text3);
+  font-size: 18px;
+  transition: transform 0.25s;
+}
+.c-project-card.open .c-project-toggle { transform: rotate(45deg); }
+
+.c-project-detail {
+  display: none;
+  padding: 0 1.75rem 1.5rem 4.25rem;
+  border-top: 1px solid var(--border-soft);
+}
+.c-project-card.open .c-project-detail { display: block; padding-top: 1.25rem; }
+
+.c-detail-section { margin-bottom: 1.25rem; }
+.c-detail-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--c-accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.c-detail-list { list-style: none; padding: 0; }
+.c-detail-list li {
+  font-size: 13px;
+  color: var(--c-text2);
+  padding: 3px 0 3px 14px;
+  position: relative;
+  line-height: 1.6;
+}
+.c-detail-list li::before {
+  content: '\2014';
+  position: absolute; left: 0;
+  color: var(--c-text3);
+  font-size: 10px;
+}
+.c-stack-row { display: flex; flex-wrap: wrap; gap: 5px; }
+
+/* ===== CAREER ===== */
+#c-career { padding: 80px 0; }
+.c-career-grid {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 0;
+}
+.c-career-period {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--c-text3);
+  padding: 1.25rem 1.25rem 1.25rem 0;
   border-bottom: 1px solid var(--border-soft);
+  line-height: 1.5;
+}
+.c-career-period-gap { opacity: 0.5; }
+.c-career-content {
+  padding: 1.25rem 0 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-soft);
+  border-left: 1px solid var(--border-soft);
+}
+.c-career-content-gap { opacity: 0.5; }
+.c-career-company { font-size: 14px; font-weight: 700; color: var(--c-text); margin-bottom: 3px; }
+.c-career-gap-text { color: var(--c-text2) !important; font-weight: 400 !important; }
+.c-career-role {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--c-accent);
+  margin-bottom: 6px;
+}
+.c-career-desc { font-size: 13px; color: var(--c-text2); }
+
+/* ===== INDUSTRY ===== */
+#c-industry { padding: 80px 0 120px; }
+.c-industry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px;
+  background: var(--c-border);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.c-industry-item { background: var(--c-bg2); padding: 1.25rem 1.5rem; }
+.c-industry-sector {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--c-accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.c-industry-companies { font-size: 12px; color: var(--c-text2); line-height: 1.6; }
+.c-industry-closing {
+  font-size: 13px;
+  color: var(--c-text3);
+  text-align: center;
 }
 
-.career-exp-card .devlog-entry-title {
-  font-size: 17px;
-  margin: 0;
+/* ===== EVIDENCE ===== */
+.c-evidence-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
+.c-evidence-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 4px;
+  color: var(--c-accent);
+  font-size: 12px;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.c-evidence-btn:hover { background: rgba(16,185,129,0.15); }
+.c-evidence-icon { font-size: 13px; }
+.c-evidence-link {
+  font-size: 12px;
+  color: var(--c-text2);
+  text-decoration: none;
+  border: none;
+  transition: color 0.2s;
+}
+.c-evidence-link:hover { color: var(--c-text); border: none; }
 
-/* 기술 스택 */
-.career-tech {
-  border: 1px solid var(--border);
+/* ===== IMAGE MODAL ===== */
+.c-img-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  overflow-y: auto;
+}
+.c-img-modal-overlay.active {
+  display: flex;
+}
+.c-img-modal-box {
+  position: relative;
+  width: min(936px, 100%);
+  background: #fff;
+  border: 1px solid var(--c-border2);
   border-radius: 10px;
-  padding: 24px 28px;
+  overflow: hidden;
+  animation: cModalIn 0.2s ease;
+  margin: auto;
+}
+@keyframes cModalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.c-img-modal-close {
+  position: sticky;
+  top: 12px;
+  float: right;
+  margin: 12px 14px 0 0;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--c-border2);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1;
+  transition: background 0.2s;
+}
+.c-img-modal-close:hover { background: rgba(0,0,0,0.8); }
+.c-img-modal-img {
+  width: 100%;
+  display: block;
+  clear: both;
+}
+.c-img-modal-caption {
+  font-size: 12px;
+  color: var(--c-text3);
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--border-soft);
+  line-height: 1.5;
 }
 
+/* ===== FADE IN ===== */
+.c-fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.c-fade-in.visible { opacity: 1; transform: none; }
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 640px) {
-  .career-hero {
-    padding: 40px 0 32px;
-  }
-
-  .career-project-card,
-  .career-exp-card {
-    padding: 18px;
-  }
-
-  .career-tech {
-    padding: 18px;
-  }
+  .c-timeline { display: none; }
+  .c-career-grid { grid-template-columns: 1fr; }
+  .c-career-period { border-bottom: none; padding-bottom: 2px; }
+  .c-career-content { border-left: 2px solid var(--border-soft); border-bottom: 1px solid var(--border-soft); }
+  .c-project-detail { padding-left: 1.75rem; }
+  .career-hero h1 { font-size: 2rem; }
+  .career-hero-stats { gap: 1.5rem; }
+  .career-hero { min-height: auto; padding: 60px 0 40px; }
 }
