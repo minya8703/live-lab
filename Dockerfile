@@ -13,9 +13,17 @@ RUN chmod +x gradlew
 # 의존성 다운로드 (소스 변경 없으면 캐시 재사용)
 RUN ./gradlew dependencies --no-daemon || true
 
-# 소스 복사 + 빌드
+# 소스 복사
 COPY src src/
 COPY data data/
+
+# Cache-busting: git hash를 CSS/JS 참조에 쿼리스트링으로 주입
+# → URL이 배포마다 바뀌므로 CDN/브라우저 캐시가 자동 무효화됨
+ARG BUILD_VERSION=dev
+RUN find src/main/resources/static -name '*.html' \
+    -exec sed -i -E "s/\.(css|js)(\")/.\1?v=${BUILD_VERSION}\2/g" {} +
+
+# 빌드
 RUN ./gradlew bootJar --no-daemon -x test
 
 # ===== Stage 2: Runtime =====

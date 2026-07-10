@@ -34,7 +34,9 @@ jobs:
             echo "=== Pull ==="
             git pull origin main || { echo "FAIL: git pull"; exit 1; }
             echo "=== Build ==="
-            docker compose --profile prod build --no-cache app || { echo "FAIL: build"; exit 1; }
+            BUILD_VERSION=$(git rev-parse --short HEAD)
+            echo "BUILD_VERSION=${BUILD_VERSION}"
+            docker compose --profile prod build --no-cache --build-arg BUILD_VERSION="${BUILD_VERSION}" app || { echo "FAIL: build"; exit 1; }
             echo "=== Restart ==="
             docker compose --profile prod up -d || { echo "FAIL: up"; exit 1; }
             docker image prune -f > /dev/null 2>&1 || true
