@@ -1,7 +1,7 @@
 <!-- DRAFT: needs user review -->
 # SAP↔Betax MSA 통합 솔루션
 
-- 기간: 2024.02 ~ 2026.03
+- 기간: 2023.10 ~ 2026.02
 - 소속: NARINER
 - 도메인: 회계·세금계산서 (SAP ERP ↔ 자체 SaaS 통합)
 - **시스템 관계**: SAP RFC와 [02 Betax SaaS](02-betax-saas.md)를 MSA로 연결하는 인프라 레이어 (JCo Server + 중계서버).
