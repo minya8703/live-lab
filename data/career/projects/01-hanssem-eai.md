@@ -1,4 +1,3 @@
-<!-- DRAFT: needs user review -->
 # 한샘 webMethods EAI SAP 연동
 
 - 기간: 2023.06 ~ 2026.03

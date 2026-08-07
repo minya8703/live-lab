@@ -61,8 +61,16 @@
 
     <section class="kafka-stats" aria-live="polite">
       <div class="kafka-stat">
-        <p class="kafka-stat-label">발행</p>
-        <p class="kafka-stat-value" data-stat="produced">0</p>
+        <p class="kafka-stat-label">전송 시도</p>
+        <p class="kafka-stat-value" data-stat="attempted">0</p>
+      </div>
+      <div class="kafka-stat">
+        <p class="kafka-stat-label">브로커 ACK</p>
+        <p class="kafka-stat-value emerald" data-stat="acknowledged">0</p>
+      </div>
+      <div class="kafka-stat">
+        <p class="kafka-stat-label">발행 실패</p>
+        <p class="kafka-stat-value amber" data-stat="publishFailed">0</p>
       </div>
       <div class="kafka-stat">
         <p class="kafka-stat-label">성공 소비</p>
@@ -91,12 +99,25 @@
     </section>
 
     <section class="redis-meta">
+      <h3>아키텍처 결정 — Kafka를 왜, 어떻게 경계로 두는가</h3>
+      <ul>
+        <li><strong>선택 기준:</strong> 즉시 결과가 필요한 단순 조회·명령은 동기 API가 맞다. Kafka는 생산자와 소비자의 처리 시간을 분리하고, 순간 트래픽을 버퍼링하며, 이벤트 재처리가 필요한 업무에 사용한다.</li>
+        <li><strong>토픽 경계:</strong> 토픽은 서비스 이름이 아니라 이벤트의 의미·보존 기간·접근 권한·실패 영향 범위를 기준으로 나눈다. 서로 다른 변경 주기나 장애 정책을 가진 이벤트를 한 토픽에 섞지 않는다.</li>
+        <li><strong>파티션·순서:</strong> 이 데모는 <code>orderId</code>를 메시지 키로 보내 같은 주문의 이벤트가 같은 파티션에 배치되게 한다. 순서는 토픽 전체가 아닌 <strong>파티션 내부</strong>에서만 보장되며, 3개 파티션과 Consumer concurrency 3으로 순서 범위와 병렬 처리량을 맞췄다.</li>
+        <li><strong>전달·중복:</strong> <code>acks=all</code>과 record 단위 ack를 사용하지만 재시도 구조는 같은 이벤트를 다시 전달할 수 있다. 금융·주문 상태를 실제로 변경하는 Consumer라면 <code>eventId</code> 저장이나 업무 키의 유니크 제약으로 <strong>멱등성</strong>을 보장해야 한다.</li>
+        <li><strong>실패 격리:</strong> 일시 오류는 제한 횟수만 재시도하고, 지속 오류는 원본과 동일한 파티션 수의 DLT로 보낸다. DLT는 폐기함이 아니라 원인·헤더를 확인하고 수정 후 재처리하는 운영 큐다.</li>
+        <li><strong>내구성과 가용성:</strong> 현재 <code>acks=all</code>이어도 단일 브로커·복제 계수 1이라 브로커 장애까지 견디는 고가용성은 아니다. 운영 환경에서는 다중 브로커, replication factor 3, <code>min.insync.replicas</code>를 함께 설계해야 의미가 있다.</li>
+        <li><strong>관측 기준:</strong> 요청 수가 아니라 전송 시도·브로커 ACK·발행 실패를 분리하고, Consumer Lag·재시도율·DLT 유입량을 함께 봐야 병목이 Producer, Broker, Consumer 중 어디에 있는지 판단할 수 있다.</li>
+      </ul>
+    </section>
+
+    <section class="redis-meta">
       <h3>이 데모가 측정하는 것</h3>
       <ul>
-        <li>Producer가 <code>livelab.orders</code> 토픽(3 파티션)으로 OrderEvent를 발행. JsonSerializer + acks=all.</li>
+        <li>Producer가 <code>livelab.orders</code> 토픽(3 파티션)으로 전송을 시도하고, <code>KafkaTemplate.send()</code> 완료 결과로 브로커 ACK와 발행 실패를 분리 집계. JsonSerializer + acks=all.</li>
         <li>Consumer가 메시지를 소비. <code>orderId % 17 == 0</code>이면 <code>IllegalStateException</code>으로 실패 시뮬레이션.</li>
         <li>실패 시 <code>DefaultErrorHandler</code> + <code>FixedBackOff(500ms, 3)</code>가 재시도, 한계 초과 시 <code>DeadLetterPublishingRecoverer</code>가 <code>livelab.orders.DLT</code>로 라우팅.</li>
-        <li>DLT 옵저버 컨슈머가 별도 그룹(<code>livelab-orders-dlt-observer</code>)으로 DLT를 카운트.</li>
+        <li>DLT는 원본과 같은 3 파티션으로 구성해 실패 레코드의 원본 파티션을 유지. 현재 화면 카운트는 별도 DLT 컨슈머가 아니라 <code>DeadLetterPublishingRecoverer</code> 호출 시점에 기록.</li>
         <li>UI는 500ms 간격으로 <code>/api/kafka-demo/status</code>를 폴링해 진행 상태 라이브 갱신.</li>
       </ul>
     </section>

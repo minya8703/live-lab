@@ -1,4 +1,3 @@
-<!-- DRAFT: needs user review -->
 # Philosophy — 일하는 방식
 
 ## 한 줄

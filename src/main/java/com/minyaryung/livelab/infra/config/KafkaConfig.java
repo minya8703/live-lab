@@ -16,14 +16,18 @@ import org.springframework.util.backoff.FixedBackOff;
 @Configuration
 public class KafkaConfig {
 
+    static final int ORDER_PARTITIONS = 3;
+
     @Bean
     public NewTopic ordersTopic(@Value("${livelab.kafka.topic.orders}") String name) {
-        return TopicBuilder.name(name).partitions(3).replicas(1).build();
+        return TopicBuilder.name(name).partitions(ORDER_PARTITIONS).replicas(1).build();
     }
 
     @Bean
     public NewTopic ordersDltTopic(@Value("${livelab.kafka.topic.orders-dlt}") String name) {
-        return TopicBuilder.name(name).partitions(1).replicas(1).build();
+        // DeadLetterPublishingRecoverer는 기본적으로 원본 partition을 유지한다.
+        // DLT partition 수가 더 적으면 원본 partition 1, 2의 실패 레코드를 발행할 수 없다.
+        return TopicBuilder.name(name).partitions(ORDER_PARTITIONS).replicas(1).build();
     }
 
     @Bean

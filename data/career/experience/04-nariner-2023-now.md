@@ -1,4 +1,3 @@
-<!-- DRAFT: needs user review -->
 # NARINER — Full-stack Developer · EAI · SAP↔API 회계 솔루션 개발
 
 - 기간: 2023.06 ~ 2026.03
@@ -8,7 +7,7 @@
 
 ## 주력 프로젝트
 - [한샘 webMethods EAI SAP 연동](../projects/01-hanssem-eai.md) (2023.06~2026.03)
-- [Betax 회계·세무 SaaS](../projects/02-betax-saas.md) + [SAP↔Betax MSA 통합 솔루션](../projects/03-msa-tax.md) (자체 SaaS · 3개 고객사 운영 중 · 02·03은 하나의 통합 시스템의 두 레이어)
+- [Betax 회계·세무 SaaS](../projects/02-betax-saas.md) + [SAP↔Betax MSA 통합 솔루션](../projects/03-msa-tax.md) (자체 SaaS · 재직 시점 3개 고객사 운영 · 02·03은 하나의 통합 시스템의 두 레이어)
 - [Invoice OCR 자동 추출 시스템](../projects/04-invoice-ocr.md) (2025.07 ~ 2026.02)
 
 ## 이 시기에 깊어진 스택

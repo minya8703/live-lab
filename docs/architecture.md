@@ -23,7 +23,7 @@ Messaging : Apache Kafka 3.7 (KRaft, Zookeeper-free)
 Storage   : AWS S3 (블로그 이미지)
 AI        : Google Gemini 2.5 Flash (Spring AI, OpenAI 호환 엔드포인트)
 Auth      : Google OAuth 2.0 + JWT (HMAC-SHA256)
-Monitoring: Prometheus + Grafana
+Monitoring: Spring Actuator + Micrometer (Prometheus/Grafana는 로컬 선택 프로필, AWS 운영 제외)
 Infra     : Docker Compose, GitHub Actions CI/CD, AWS EC2 (t4g.small)
 CDN/DNS   : Cloudflare (SSL Full Strict)
 Frontend  : Vanilla JavaScript (React/Vue 의도적 미사용)
@@ -68,12 +68,10 @@ com.minyaryung.livelab
    │   :8080     │ │    :5432    │ │    :6379     │
    └──────┬──────┘ └─────────────┘ └──────────────┘
           │
-   ┌──────┼──────────────────┐
-   │      │                  │
-┌──▼───┐ ┌▼──────────┐ ┌────▼─────┐
-│Kafka │ │ Prometheus │ │ Grafana  │
-│:9092 │ │   :9090    │ │  :3001   │
-└──────┘ └────────────┘ └──────────┘
+   ┌──────▼──────┐
+   │    Kafka    │
+   │    :9092    │
+   └─────────────┘
           │
    ┌──────▼──────┐
    │  AWS S3     │ ← 블로그 이미지 저장
@@ -223,8 +221,8 @@ GET /api/ops     → 운영 기록 (incident / runbook)
 | postgres | postgres:16-alpine | 블로그/상품 데이터 |
 | redis | redis:7-alpine | 캐시 데모 |
 | kafka | apache/kafka:3.7.0 | 메시지 스트리밍 데모 |
-| prometheus | prom/prometheus:v2.51.0 | 메트릭 수집 |
-| grafana | grafana/grafana:10.4.2 | 대시보드 |
+| prometheus | prom/prometheus:v2.51.0 | 로컬 선택 프로필(`monitoring`)의 메트릭 수집 |
+| grafana | grafana/grafana:10.4.2 | 로컬 선택 프로필(`monitoring`)의 대시보드 |
 
 ### 5.2 Dockerfile (멀티스테이지)
 
@@ -242,7 +240,7 @@ GET /api/ops     → 운영 기록 (incident / runbook)
 Push to main
     │
     ▼
-[CI] ./gradlew check (Testcontainers: Postgres, Redis, Kafka)
+[CI] ./gradlew check (현재 단위 테스트, Testcontainers 통합 테스트는 architecture-improvement-roadmap.md의 K-04/R-02 예정)
     │ success
     ▼
 [Deploy] SSH → EC2 → git pull → docker build --no-cache → up -d
@@ -253,10 +251,10 @@ Push to main
 
 ### 5.4 모니터링
 
-- **Prometheus**: `/actuator/prometheus` 메트릭 수집, 7일 보관
-- **Grafana**: 퍼블릭 대시보드 (익명 뷰어), HTTP 응답 히스토그램
-- **커스텀 메트릭**: Kafka 처리량 (발행/성공/DLT/초당 처리)
-- **Spring Actuator**: health, info, prometheus, metrics 엔드포인트
+- **AWS 운영:** t4g.small 2GiB에서 핵심 4개 컨테이너(Spring Boot·Postgres·Redis·Kafka)의 자원을 우선하기 위해 Prometheus/Grafana 컨테이너 제외
+- **유지한 계측:** Spring Actuator의 health/info/prometheus/metrics 엔드포인트와 Micrometer 커스텀 메트릭
+- **로컬 선택 구성:** `docker compose --profile monitoring up -d`로 Prometheus의 7일 보관과 Grafana 대시보드 검증 가능
+- **감수한 trade-off:** 운영 시계열·Consumer Lag·캐시 히트율 대시보드를 상시 보지 못함. 인스턴스 상향 또는 외부 관측 환경 분리 시 재도입
 
 ---
 
@@ -400,7 +398,7 @@ POSTGRES_HOST_PORT=5433
 # Kafka
 KAFKA_HOST_PORT=9092
 
-# Monitoring
+# Monitoring (로컬 선택 프로필)
 PROMETHEUS_HOST_PORT=9090
 GRAFANA_HOST_PORT=3001
 APP_HOST_PORT=80
@@ -427,8 +425,11 @@ STORAGE_PUBLIC_URL=https://livelab-blog-minya.s3.ap-northeast-2.amazonaws.com
 ## 11. 로컬 개발 환경
 
 ```bash
-# 1. 의존 서비스 기동 (Postgres, Redis, Kafka, Prometheus, Grafana)
+# 1. 기본 의존 서비스 기동 (Postgres, Redis, Kafka)
 docker compose up -d
+
+# 선택: Prometheus, Grafana까지 로컬에서 기동
+docker compose --profile monitoring up -d
 
 # 2. .env 파일 준비
 cp .env.example .env

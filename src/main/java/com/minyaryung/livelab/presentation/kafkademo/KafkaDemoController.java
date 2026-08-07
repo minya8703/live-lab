@@ -27,11 +27,19 @@ public class KafkaDemoController {
     public KafkaMetricsService.Snapshot publish(@RequestParam(defaultValue = "1000") int count) {
         if (count < 1 || count > MAX_COUNT)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "count\ub294 1~" + MAX_COUNT + " \uc0ac\uc774\uc5ec\uc57c \ud569\ub2c8\ub2e4.");
-        metrics.reset(); metrics.recordProduced(count);
+        metrics.beginRun(count);
         Random rnd = new Random();
         for (int i = 0; i < count; i++) {
             long orderId = metrics.nextOrderId();
-            producer.send(new OrderEvent(orderId, ITEMS[rnd.nextInt(ITEMS.length)], rnd.nextInt(10) + 1));
+            OrderEvent event = new OrderEvent(orderId, ITEMS[rnd.nextInt(ITEMS.length)], rnd.nextInt(10) + 1);
+            try {
+                producer.send(event).whenComplete((result, error) -> {
+                    if (error == null) metrics.recordAcknowledged();
+                    else metrics.recordPublishFailed();
+                });
+            } catch (RuntimeException ex) {
+                metrics.recordPublishFailed();
+            }
         }
         return metrics.snapshot();
     }

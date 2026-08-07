@@ -33,6 +33,7 @@ public class CareerDataLoader {
         try (Stream<Path> walk = Files.walk(dataDir)) {
             walk.filter(Files::isRegularFile)
                 .filter(MarkdownFileParser::isMdFile)
+                .filter(p -> !p.getFileName().toString().equalsIgnoreCase("README.md"))
                 .sorted(Comparator.naturalOrder())
                 .forEach(p -> appendFile(out, p));
         } catch (IOException e) {

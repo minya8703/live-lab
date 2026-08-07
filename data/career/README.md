@@ -1,6 +1,7 @@
 # Career Data — 챗봇 컨텍스트의 단일 진실원
 
-이 디렉토리의 모든 `.md` 파일이 AI 경력 Q&A 챗봇(U3)의 컨텍스트로 주입된다.
+이 디렉토리의 경력 `.md` 파일이 AI 경력 Q&A 챗봇(U3)의 컨텍스트로 주입된다.
+설명용 `README.md`는 컨텍스트에서 제외된다.
 챗봇은 이 데이터 **밖의 사실을 절대 답하지 않는다**. 데이터에 없으면 "없다"고 답한다.
 
 ## 구조
@@ -26,7 +27,7 @@ data/career/
 4. **부족함도 자산**: 못한 것을 숨기지 않고 [gaps-and-direction.md](gaps-and-direction.md)에 명시.
 5. **변경 이력**: 중요 갱신은 파일 하단에 `<!-- Updated: YYYY-MM-DD -->` 주석.
 
-## DRAFT 표기
+## 검토 상태
 
-초기 파일은 기존 [minya8703.github.io](https://minya8703.github.io/) 데이터를 1회 스크레이핑하여 채워졌다.
-사용자 검토 전 모든 파일 상단에 `<!-- DRAFT: needs user review -->` 가 있다. 검토 후 해당 줄을 제거한다.
+초기 데이터는 기존 [minya8703.github.io](https://minya8703.github.io/)와 이력 이미지에서 정리했다.
+현재 프로젝트 기간·역할·성과는 `career.html`과 일치하도록 검토했으며, 변경 시 양쪽을 함께 갱신한다.

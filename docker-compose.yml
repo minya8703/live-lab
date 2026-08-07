@@ -108,6 +108,9 @@ services:
     restart: unless-stopped
 
   prometheus:
+    # t4g.small 운영에서는 핵심 서비스의 메모리를 확보하기 위해 제외.
+    # 로컬 검증 시에만: docker compose --profile monitoring up -d
+    profiles: ["monitoring"]
     image: prom/prometheus:v2.51.0
     container_name: livelab-prometheus
     ports:
@@ -122,6 +125,7 @@ services:
     restart: unless-stopped
 
   grafana:
+    profiles: ["monitoring"]
     image: grafana/grafana:10.4.2
     container_name: livelab-grafana
     ports:

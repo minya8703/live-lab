@@ -12,7 +12,9 @@
   const throughputStatus = document.querySelector("[data-throughput-status]");
 
   const statEls = {
-    produced: document.querySelector('[data-stat="produced"]'),
+    attempted: document.querySelector('[data-stat="attempted"]'),
+    acknowledged: document.querySelector('[data-stat="acknowledged"]'),
+    publishFailed: document.querySelector('[data-stat="publishFailed"]'),
     success: document.querySelector('[data-stat="success"]'),
     dlt: document.querySelector('[data-stat="dlt"]'),
     throughput: document.querySelector('[data-stat="throughput"]'),
@@ -51,14 +53,16 @@
   }
 
   function renderStats(snap) {
-    statEls.produced.textContent = snap.produced.toLocaleString();
+    statEls.attempted.textContent = snap.attempted.toLocaleString();
+    statEls.acknowledged.textContent = snap.acknowledged.toLocaleString();
+    statEls.publishFailed.textContent = snap.publishFailed.toLocaleString();
     statEls.success.textContent = snap.success.toLocaleString();
     statEls.dlt.textContent = snap.dlt.toLocaleString();
     statEls.throughput.textContent = snap.throughputPerSec > 0 ? snap.throughputPerSec.toFixed(1) : "-";
     statEls.elapsed.textContent = snap.elapsedMs > 0 ? (snap.elapsedMs / 1000).toFixed(2) + "s" : "-";
 
-    const consumed = snap.success + snap.dlt;
-    const pct = snap.produced > 0 ? Math.min(100, (consumed / snap.produced) * 100) : 0;
+    const completed = snap.success + snap.dlt + snap.publishFailed;
+    const pct = snap.attempted > 0 ? Math.min(100, (completed / snap.attempted) * 100) : 0;
     progressBar.style.width = pct + "%";
   }
 
@@ -116,8 +120,8 @@
       pollHandle = setInterval(async function () {
         const snap = await pollOnce();
         if (!snap) return;
-        const consumed = snap.success + snap.dlt;
-        if (snap.produced > 0 && consumed >= snap.produced) {
+        const completed = snap.success + snap.dlt + snap.publishFailed;
+        if (snap.attempted > 0 && completed >= snap.attempted) {
           stableTicks++;
           // 같은 값이 2틱 연속 유지되면 종료
           if (stableTicks >= 2) {
@@ -143,7 +147,7 @@
       await fetch("/api/kafka-demo/reset", { method: "POST" });
       history = [];
       prevSnapshot = { success: 0, dlt: 0 };
-      renderStats({ produced: 0, success: 0, dlt: 0, throughputPerSec: 0, elapsedMs: 0 });
+      renderStats({ attempted: 0, acknowledged: 0, publishFailed: 0, success: 0, dlt: 0, throughputPerSec: 0, elapsedMs: 0 });
       renderChart();
       setStatus("리셋됨", "");
     } catch (e) {

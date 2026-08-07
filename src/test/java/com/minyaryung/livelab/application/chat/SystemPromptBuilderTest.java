@@ -18,6 +18,8 @@ class SystemPromptBuilderTest {
                 "# Profile\n\n- 이름: 민야령\n- 경력: 9년\n");
         Files.writeString(tmp.resolve("gaps-and-direction.md"),
                 "# Gaps\n\nAWS 직접 운영 경험은 없습니다.\n");
+        Files.writeString(tmp.resolve("README.md"),
+                "# Internal instructions\n\n챗봇 사실 데이터가 아님\n");
 
         CareerDataLoader loader = new CareerDataLoader(tmp.toString());
         SystemPromptBuilder builder = new SystemPromptBuilder(loader);
@@ -31,6 +33,8 @@ class SystemPromptBuilderTest {
         assertThat(prompt).contains("FILE:");
         assertThat(prompt).contains("profile.md");
         assertThat(prompt).contains("gaps-and-direction.md");
+        assertThat(prompt).doesNotContain("README.md");
+        assertThat(prompt).doesNotContain("챗봇 사실 데이터가 아님");
     }
 
     @Test

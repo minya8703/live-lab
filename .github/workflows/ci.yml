@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   build-and-test:
-    name: Build & Test (Testcontainers)
+    name: Build & Test
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
@@ -35,7 +35,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Run tests (unit + Testcontainers integration)
+      - name: Run tests
         run: ./gradlew check --no-daemon
 
       - name: Upload test reports

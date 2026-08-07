@@ -95,6 +95,18 @@
     </section>
 
     <section class="redis-meta">
+      <h3>아키텍처 결정 — Redis를 어디에, 어떤 자료구조로 쓰는가</h3>
+      <ul>
+        <li><strong>역할:</strong> Redis는 원본 저장소가 아니라 반복 비용이 큰 조회 결과를 가속하는 계층이다. Postgres를 Source of Truth로 유지하고, 캐시 미스 시 DB 조회 후 채우는 <strong>Cache-Aside</strong> 패턴을 선택했다.</li>
+        <li><strong>현재 자료구조 — String(Key-Value):</strong> <code>category-stats::&lt;카테고리&gt;</code>를 키로, 집계 DTO 전체를 JSON 값으로 저장한다. 한 키로 결과 전체를 함께 읽고 만료시키는 조회 모델이므로 부분 필드 갱신용 Hash보다 단순하고 원자적인 구조가 맞다.</li>
+        <li><strong>다른 자료구조의 선택 기준:</strong> 객체 일부를 자주 갱신하면 <strong>Hash</strong>, 중복 없는 소속·권한 판별이면 <strong>Set</strong>, 점수 기반 순위·시간순 조회면 <strong>Sorted Set</strong>, 소비자 그룹이 필요한 이벤트 처리면 <strong>Stream</strong>을 검토한다. 자료구조는 기술 선호가 아니라 접근 패턴으로 결정한다.</li>
+        <li><strong>키·TTL:</strong> 도메인과 조회 조건이 드러나는 네임스페이스 키를 사용하고 TTL 60초로 성능과 신선도의 경계를 정했다. 실제 업무에서는 환율·마스터 데이터처럼 변경 주기와 stale 허용 시간에 따라 TTL을 다르게 둔다.</li>
+        <li><strong>무효화·일관성:</strong> 쓰기 성공 뒤 관련 캐시를 <code>@CacheEvict</code>한다. 캐시와 DB의 원자적 동시 갱신보다 DB 정합성을 우선하며, 짧은 eventual consistency가 허용되는 조회에만 캐시를 적용한다.</li>
+        <li><strong>장애 경계:</strong> Redis 오류는 <code>CacheErrorHandler</code>에서 격리해 DB로 fallback한다. 다만 대규모 트래픽에서는 fallback 자체가 DB를 압박하므로 Circuit Breaker·Bulkhead·TTL jitter·요청 병합으로 stampede까지 함께 막아야 한다.</li>
+      </ul>
+    </section>
+
+    <section class="redis-meta">
       <h3>이 데모가 실제로 무엇을 측정하나요?</h3>
       <ul>
         <li><code>SELECT sub_category, count, avg(price), min, max FROM product WHERE category = ? GROUP BY sub_category</code> — Postgres 16에서 인덱스 없이 풀스캔.</li>

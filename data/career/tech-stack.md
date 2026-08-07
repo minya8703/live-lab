@@ -1,4 +1,3 @@
-<!-- DRAFT: needs user review -->
 # Tech Stack — 실제 사용한 기술과 깊이
 
 깊이 등급: 🟢 운영 중 / 🟡 프로젝트 경험 / 🔵 학습·소규모 적용
@@ -9,6 +8,7 @@
 - Python 🟡 (Invoice OCR — PyMuPDF, PaddleOCR, EasyOCR)
 - Shell Script 🟢 (모니터링·운영 자동화)
 - SQL 🟢 (Oracle / MariaDB / MySQL / SQL Server)
+- PL/SQL 🟡 (미쓰비시UFJ 금융기관 데이터 통합)
 
 ## 프레임워크 / 서버
 - Spring Boot 3.x 🟢
@@ -17,7 +17,7 @@
 - MyBatis 🟢
 - Spring AI 🔵 (이 사이트의 챗봇이 첫 실습)
 - JSP / Thymeleaf 🟡
-- React / Vue 🟡
+- React 🟡
 
 ## 데이터 / 메시징
 - Kafka 🟢 (7토픽 운영 · DLT · FixedBackOff 재시도)
@@ -38,5 +38,5 @@
 - RESTful API 설계 🟢
 
 ## 클라우드 / AI
-- AWS 🔵 (이 Live Lab을 통해 첫 운영 도전 — [gaps-and-direction.md](gaps-and-direction.md) 참조)
+- AWS 🔵 (Live Lab을 EC2 t4g.small에 직접 배포·운영한 소규모 경험 — 기업 운영 환경 책임 경험은 없음)
 - Google Gemini 2.5 Flash · Spring AI 🔵 (현재 학습·적용 중 — 이 사이트의 챗봇이 첫 실습)

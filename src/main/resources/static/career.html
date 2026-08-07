@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>전체 이력 · 민야령 Backend Live Lab</title>
-  <meta name="description" content="민야령 9년 6개월 백엔드/EAI 엔지니어 전체 경력. 프로젝트 8건, 기술 스택, 경력 타임라인." />
+  <meta name="description" content="민야령 9년 6개월 백엔드/EAI 엔지니어 전체 경력. 대표 프로젝트 10건, 기술 스택, 경력 타임라인." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/assets/css/style.css" />
   <link rel="stylesheet" href="/career.css" />
@@ -66,19 +66,19 @@
       <div class="c-timeline">
         <div class="c-tl-item">
           <div class="c-tl-dot"></div>
-          <span class="c-tl-year">2013~15</span>
+          <span class="c-tl-year">2013~2015</span>
           <div class="c-tl-company">아시아정보시스템</div>
           <div class="c-tl-role">일본</div>
         </div>
         <div class="c-tl-item">
           <div class="c-tl-dot"></div>
-          <span class="c-tl-year">2017~21</span>
+          <span class="c-tl-year">2017~2021</span>
           <div class="c-tl-company">스마트아이엔지</div>
           <div class="c-tl-role">일본</div>
         </div>
         <div class="c-tl-item">
           <div class="c-tl-dot"></div>
-          <span class="c-tl-year">2023~26</span>
+          <span class="c-tl-year">2023~2026</span>
           <div class="c-tl-company">NARINER</div>
           <div class="c-tl-role">한국</div>
         </div>
@@ -113,6 +113,7 @@
             <span class="c-badge c-badge-hot">Redis</span>
             <span class="c-badge">MariaDB / MySQL</span>
             <span class="c-badge">Oracle</span>
+            <span class="c-badge">PL/SQL</span>
             <span class="c-badge">SQL Server</span>
             <span class="c-badge">Informatica PowerCenter</span>
           </div>
@@ -164,7 +165,7 @@
       <div class="c-section-header c-fade-in">
         <div class="c-section-label">대표 프로젝트</div>
         <h2>Project Experience</h2>
-        <p class="c-section-sub">대표 8개 · 총 13개 프로젝트 中 · 클릭하면 상세 내용을 볼 수 있습니다</p>
+        <p class="c-section-sub">대표 10개 · 총 13개 프로젝트 中 · 클릭하면 상세 내용을 볼 수 있습니다</p>
       </div>
 
       <!-- 1. 한샘 EAI -->
@@ -217,10 +218,10 @@
           <div class="c-project-main">
             <div class="c-project-top">
               <span class="c-project-title">Betax 회계·세무 SaaS</span>
-              <span class="c-tag c-tag-default">참여 종료 (2026.03)</span>
+              <span class="c-tag c-tag-default">참여 종료 (2026.02)</span>
               <span class="c-tag c-tag-solo">자사 개발</span>
             </div>
-            <div class="c-project-meta">NARINER 자체 개발 · 2025.10 ~ 2026.02 · 3개 고객사 운영 · 백엔드 담당</div>
+            <div class="c-project-meta">NARINER 자체 개발 · 2023.10 ~ 2026.02 · 3개 고객사 운영 · 백엔드 담당</div>
             <div class="c-project-desc">Kafka 비동기 처리, Redis 캐싱, Kubernetes 오케스트레이션, Prometheus+Grafana 모니터링을 실 서비스에 적용한 회계·세무 웹 SaaS. <strong>03 MSA 세금계산서 솔루션의 종단(SaaS 레이어)</strong>으로, SAP과는 03의 JCo Server·중계서버를 거쳐 연동된다.</div>
             <div class="c-project-metrics">
               <div class="c-metric"><span class="c-metric-val">Kafka</span><span class="c-metric-label">비동기 처리</span></div>
@@ -232,21 +233,23 @@
         </div>
         <div class="c-project-detail">
           <div class="c-detail-section">
-            <div class="c-detail-label">Kafka 적용</div>
+            <div class="c-detail-label">Kafka — 비동기 경계와 실패 격리</div>
             <ul class="c-detail-list">
-              <li>다수 작업자의 동시 세금계산서 발행 요청을 안정적으로 처리하기 위해 Kafka 비동기 구조로 설계·구현</li>
-              <li>전표 저장 이벤트 Producer/Consumer 설계 (journal-events, budget-alerts, tax-invoice-requests 등 7개 토픽)</li>
-              <li>DLT(Dead Letter Topic) 에러 처리 및 FixedBackOff 재시도 로직 구현</li>
-              <li>동기 처리 시 작업자 대기 발생 → 비동기 즉시 응답 구조로 전환, 발행 완료는 이벤트로 처리</li>
+              <li><strong>선택 기준:</strong> 세금계산서 발행처럼 외부 처리 시간이 길고 동시 요청이 몰리는 업무를 동기 API 체인에서 분리해, 요청 스레드 점유와 연쇄 장애를 줄이는 비동기 경계로 Kafka 채택</li>
+              <li><strong>토픽 설계:</strong> journal-events, budget-alerts, tax-invoice-requests 등 업무 이벤트의 변경 주기·실패 영향 범위에 따라 7개 토픽으로 분리하고 Producer/Consumer 책임을 명확히 구분</li>
+              <li><strong>실패 전략:</strong> 일시 오류는 FixedBackOff로 제한 재시도하고, 재시도 한계를 넘은 이벤트는 DLT(Dead Letter Topic)로 격리해 정상 이벤트의 흐름을 보호</li>
+              <li><strong>운영 기준:</strong> Consumer Lag을 Prometheus·Grafana로 관찰해 단순 서버 정상 여부가 아니라 생산 속도와 소비 속도의 불균형을 장애 징후로 관리</li>
+              <li><strong>결과:</strong> 동기 처리 시 작업자 대기가 발생하던 발행 요청을 즉시 응답 구조로 전환하고, 완료 결과는 이벤트 흐름에서 후속 처리</li>
             </ul>
           </div>
           <div class="c-detail-section">
-            <div class="c-detail-label">Redis 캐싱 전략</div>
+            <div class="c-detail-label">Redis — 조회 모델과 일관성 경계</div>
             <ul class="c-detail-list">
-              <li>환율 데이터 TTL 24시간 캐싱 (일 수십~수백 회 반복 조회 → DB 부하 감소)</li>
-              <li>회사·거래처 마스터 TTL 12시간, 분석키 24시간 등 도메인별 TTL 차등 설계</li>
-              <li>CacheErrorHandler로 Redis 장애 시 DB fallback — 서비스 중단 없는 구조</li>
-              <li>@Cacheable / @CacheEvict 기반 캐시 무효화 전략 적용 (32개 메서드)</li>
+              <li><strong>자료구조:</strong> 환율·회사·거래처 마스터처럼 키로 조회하고 결과 전체를 함께 읽는 데이터는 Redis <strong>String 기반 Key-Value 캐시</strong>로 저장. 부분 필드 갱신용 Hash나 순위용 Sorted Set보다 조회 패턴에 맞는 단순 구조 선택</li>
+              <li><strong>TTL 기준:</strong> 환율·분석키는 24시간, 회사·거래처 마스터는 12시간으로 변경 주기와 허용 가능한 데이터 신선도에 따라 만료 시간을 차등 설계</li>
+              <li><strong>일관성:</strong> DB를 원본 데이터(Source of Truth)로 유지하는 Cache-Aside 패턴을 적용하고, 변경 시 @CacheEvict로 무효화해 오래된 캐시 노출 구간을 통제</li>
+              <li><strong>장애 격리:</strong> Redis를 필수 저장소가 아닌 가속 계층으로 두고 CacheErrorHandler로 장애 시 DB fallback — 캐시 장애가 서비스 장애로 전파되지 않는 구조</li>
+              <li><strong>적용 범위:</strong> 반복 조회가 명확한 32개 메서드에만 @Cacheable / @CacheEvict를 적용하고 캐시 히트율을 관찰해 효과를 검증</li>
             </ul>
           </div>
           <div class="c-detail-section">
@@ -489,6 +492,8 @@
             <div class="c-detail-label">핵심 기여</div>
             <ul class="c-detail-list">
               <li>Informatica PowerCenter 매뉴얼 자습으로 실무 즉시 적용</li>
+              <li>1차: CARD 대금 지불 데이터 통합 설계·수정 및 PowerCenter 매핑</li>
+              <li>2차(재투입): CARD 연체자 분류 데이터 통합 설계</li>
               <li>ETL 매핑 과정에서 기본설계·상세설계 불일치 발견 → 매번 조율하며 정합성 확보</li>
               <li>일본어 한자·히라가나 기반 마스킹 테스트 데이터 직접 생성 (실데이터 의존 없이 검증)</li>
               <li>팀 단위 3단계 검증 구조 참여 (레코드 수·체크섬·샘플링)</li>
@@ -559,6 +564,87 @@
         </div>
       </div>
 
+      <!-- 9. 미쓰비시UFJ -->
+      <div class="c-project-card c-fade-in" onclick="careerToggle(this)">
+        <div class="c-project-header">
+          <div class="c-project-num">09</div>
+          <div class="c-project-main">
+            <div class="c-project-top">
+              <span class="c-project-title">미쓰비시UFJ 금융기관 데이터 통합</span>
+              <span class="c-tag c-tag-ja">일본</span>
+            </div>
+            <div class="c-project-meta">아시아정보시스템 → 미쓰비시UFJ · 2013.10 ~ 2013.12 · PL/SQL 데이터 통합 개발</div>
+            <div class="c-project-desc">대형 은행 사내 2개 팀의 통합에 따른 데이터 통합 작업을 PL/SQL로 수행. 이 프로젝트 성과가 Credit Saison 2차 재투입으로 이어짐.</div>
+            <div class="c-project-metrics">
+              <div class="c-metric"><span class="c-metric-val">2개 팀</span><span class="c-metric-label">데이터 통합</span></div>
+              <div class="c-metric"><span class="c-metric-val">PL/SQL</span><span class="c-metric-label">개발</span></div>
+            </div>
+          </div>
+          <div class="c-project-toggle">+</div>
+        </div>
+        <div class="c-project-detail">
+          <div class="c-detail-section">
+            <div class="c-detail-label">핵심 기여</div>
+            <ul class="c-detail-list">
+              <li>은행 사내 2개 팀 통합에 따른 데이터 통합 설계·개발</li>
+              <li>PL/SQL 기반 데이터 통합 로직 개발</li>
+              <li>단위 테스트 수행</li>
+            </ul>
+          </div>
+          <div class="c-detail-section">
+            <div class="c-detail-label">기술 스택</div>
+            <div class="c-stack-row">
+              <span class="c-badge">PL/SQL</span>
+              <span class="c-badge">Oracle 11g</span>
+              <span class="c-badge">SQL Developer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10. Nippon Steel -->
+      <div class="c-project-card c-fade-in" onclick="careerToggle(this)">
+        <div class="c-project-header">
+          <div class="c-project-num">10</div>
+          <div class="c-project-main">
+            <div class="c-project-top">
+              <span class="c-project-title">Nippon Steel 운송관리 시스템 신규 개발</span>
+              <span class="c-tag c-tag-ja">일본</span>
+            </div>
+            <div class="c-project-meta">아시아정보시스템 → 신일본제철(Nippon Steel) · 2015.01 ~ 2015.09 · 수송비 계산 시스템 신규 설계·개발</div>
+            <div class="c-project-desc">기업 합병에 따른 수송비 대응 시스템과 위탁가공 시스템을 신규 설계·개발. 철의 수송비 계산 로직이 핵심.</div>
+            <div class="c-project-metrics">
+              <div class="c-metric"><span class="c-metric-val">신규 개발</span><span class="c-metric-label">수송비 시스템</span></div>
+              <div class="c-metric"><span class="c-metric-val">제조/철강</span><span class="c-metric-label">도메인</span></div>
+            </div>
+          </div>
+          <div class="c-project-toggle">+</div>
+        </div>
+        <div class="c-project-detail">
+          <div class="c-detail-section">
+            <div class="c-detail-label">핵심 기여</div>
+            <ul class="c-detail-list">
+              <li>합병에 따른 수송비 대응 시스템 신규 추가 (설계·개발·테스트)</li>
+              <li>위탁가공 시스템 신규 설계·개발·테스트</li>
+              <li>철의 수송비 계산 시스템으로 금액 계산·위탁 가공 처리·일괄 실비 처리 등 운송관리 기능 구현</li>
+              <li>단위 테스트 + 통합 테스트 수행</li>
+            </ul>
+          </div>
+          <div class="c-detail-section">
+            <div class="c-detail-label">기술 스택</div>
+            <div class="c-stack-row">
+              <span class="c-badge">Java</span>
+              <span class="c-badge">JSP</span>
+              <span class="c-badge">JavaScript</span>
+              <span class="c-badge">Struts2</span>
+              <span class="c-badge">Oracle 11g</span>
+              <span class="c-badge">Eclipse</span>
+              <span class="c-badge">SVN</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -601,7 +687,7 @@
         <div class="c-career-content">
           <div class="c-career-company">아시아정보시스템 (일본)</div>
           <div class="c-career-role">Full-stack Developer / Data Engineer</div>
-          <div class="c-career-desc">Credit Saison 2,500만 건 데이터 이관 (1·2차), 미쓰비시UFJ 금융기관 데이터 통합, 신일본제철 운송관리 시스템 유지보수</div>
+          <div class="c-career-desc">Credit Saison 신용카드 데이터 통합 1·2차 (2013.04~2014.09), 미쓰비시UFJ 금융기관 데이터 통합 (2013.10~2013.12), 신일본제철 운송관리 시스템 신규 개발 (2015.01~2015.09)</div>
         </div>
       </div>
     </div>

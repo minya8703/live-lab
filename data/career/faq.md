@@ -1,4 +1,3 @@
-<!-- DRAFT v4: 한국 경력 2년 9개월 정확화 + U3 모델 Gemini 2.5 Flash 명시 + 옵션 A 반영 -->
 # FAQ — 자주 묻는 질문과 모범 답안
 
 챗봇이 응답할 때 톤·형식·길이의 기준이 된다.
@@ -6,7 +5,7 @@
 ## 자기소개 / 개요
 
 **Q. 자기소개 부탁드립니다.**
-A. 9년 6개월 경력 Backend / EAI Engineer 민야령입니다. 일본 SI에서 6년 6개월간 금융 결제(Credit Saison·MONEX), 항공 발권(ANA), 전력 청구(규슈전력) 등 데이터 정합성이 중요한 시스템을 담당했고, 한국 복귀 후 NarinER에서 2년 9개월간 한샘 EAI 운영과 자체 SaaS BeTAX 백엔드 + SAP↔BeTAX MSA 통합 솔루션을 Spring Boot 3·Kafka·Redis·Kubernetes로 설계·구축했습니다. 무중단·무장애 운영과 자습→실무 즉시 적용이 강점입니다.
+A. 9년 6개월 경력 Backend / EAI Engineer 민야령입니다. 일본 SI에서 6년 6개월간 금융 결제(Credit Saison·MONEX), 항공 발권(ANA), 전력 청구(규슈전력) 등 데이터 정합성이 중요한 시스템을 담당했고, 한국에서는 한샘 EAI 운영과 자체 SaaS BeTAX 백엔드 + SAP↔BeTAX MSA 통합 솔루션을 Spring Boot 3·Kafka·Redis·Kubernetes로 설계·구축했습니다. 무중단·무장애 운영과 자습→실무 즉시 적용이 강점입니다.
 
 **Q. 가장 강한 경험 하나만 꼽아주세요.**
 A. 한샘 webMethods EAI에서 50개 이상의 인터페이스를 11종 패턴으로 표준화하고 3년간 서버 다운 0건으로 운영한 경험입니다. 3개월 주기로 반복되던 장애 리스크를 Shell 기반 JVM 메모리 모니터링(80% 임계값 알람)으로 사전 차단한 게 핵심이었습니다.
