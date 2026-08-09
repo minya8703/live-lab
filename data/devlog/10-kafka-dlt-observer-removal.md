@@ -1,76 +1,55 @@
 ---
 slug: kafka-dlt-observer-removal
 unit: 5
-title: DLT 카운팅을 위해 별도 컨슈머를 띄우는 건 과한 설계였다
+title: DLT 관측용 Consumer 제거 — 측정 목적에 맞춘 자원 축소
 date: 2026-05-24
 tags: [kafka, refactoring, resource]
 ---
 
-## 증상
-앱 종료 시 로그가 시끄러웠다 — 컨슈머 스레드 6개가 graceful shutdown 됨:
+## 변경 전 구조
 
-```
-livelab-orders-consumer: Consumer stopped  (× 3)
-livelab-orders-dlt-observer: Consumer stopped  (× 3)
-```
+초기 구현은 주문 처리 consumer와 DLT 관측 consumer를 각각 `concurrency=3`으로 실행했다.
 
-각 스레드마다 `JmxReporter` + `ClientTelemetryReporter` 정리 로그까지 곱하면 셧다운 한 번에
-수십 줄의 비슷한 로그가 쏟아진다. 운영 시점엔 더 시끄러울 것.
-
-## 원인
-**`@KafkaListener` 가 2개** (orders + DLT observer)
-× **concurrency=3** = 6 컨슈머 스레드.
-
-```
-| Container | Group                          | Partitions | Threads | Utilization |
-| #1 orders | livelab-orders-consumer        | 3          | 3       | 100%        |
-| #0 DLT    | livelab-orders-dlt-observer    | 1          | 3       | 33%         |
+```text
+orders consumer:       3 threads
+DLT observer consumer: 3 threads
 ```
 
-DLT 토픽은 파티션이 1개라 3 스레드 중 2개는 *영원히 idle* 한 상태로 폴링만 한다.
-**1 파티션 토픽에 3 컨슈머를 붙이는 건 정의상 낭비**.
+당시 DLT는 1 partition이었기 때문에 관측 consumer의 두 thread는 partition을 할당받지 못한 채 polling과 group 관리 비용만 발생했다. DLT 메시지를 재처리하지 않고 화면 카운터만 갱신하는 목적에 비해 별도 consumer group의 비용이 컸다.
 
-게다가 DLT observer 가 하는 일은 단순히 *"DLT에 메시지 1건 들어왔다"* 라는 카운터 +1 뿐이었다.
-그걸 위해 별도 컨슈머 그룹을 띄우고, 별도 offset 을 관리하고, 별도 폴링 루프를 도는 건
-구조적으로 과했다.
+현재는 원본 partition을 보존하는 `DeadLetterPublishingRecoverer` 동작에 맞춰 DLT도 3 partitions으로 변경했다. 따라서 “DLT가 1 partition”이라는 설명은 **초기 구조에만 해당**한다.
 
-## 해결
-DLT 카운트를 메시지가 DLT로 발행되는 *바로 그 순간* — 즉 `DeadLetterPublishingRecoverer.accept()` —
-에서 메모리 카운터 +1 하도록 옮겼다.
+## 결정
+
+단순 데모 카운터를 위해 운영하던 DLT observer를 제거하고, recovery handler가 DLT 발행을 처리한 시점에 애플리케이션 메모리 카운터를 갱신하도록 변경했다.
 
 ```java
 DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(template) {
     @Override
-    public void accept(ConsumerRecord<?, ?> record, Exception ex) {
-        super.accept(record, ex);
+    public void accept(ConsumerRecord<?, ?> record, Consumer<?, ?> consumer, Exception ex) {
+        super.accept(record, consumer, ex);
         metrics.recordDlt();
     }
 };
 ```
 
-DLT observer `@KafkaListener` 제거. 결과:
-- 컨슈머 스레드 6개 → 3개 (절반)
-- 폴링/heartbeat 부하 절반
-- 셧다운 로그도 절반
+변경 당시 consumer thread는 6개에서 3개로 줄었고, 별도 group의 polling·heartbeat·offset 관리가 제거됐다.
 
-## 추가 정리
-Kafka 3.7+ 클라이언트가 추가한 `ClientTelemetry` 가 5분마다 브로커로 메트릭 푸시하면서
-로그 노이즈를 키운다. 데모/로컬 환경에서는 필요 없으니 끈다:
+## 지표 의미의 한계
 
-```properties
-spring.kafka.consumer.properties.enable.metrics.push=false
-spring.kafka.producer.properties.enable.metrics.push=false
-logging.level.org.apache.kafka=WARN
-```
+현재 `dlt` 카운터는 **recovery handler가 DLT 발행 절차를 수행한 횟수**다. 브로커에 레코드가 영구 저장됐음을 독립 consumer가 확인한 수치와 동일하다고 보장하지 않는다. 따라서 이 값은 데모 흐름 관찰에는 사용할 수 있지만, 운영 환경의 전달 완료·재처리 가능 건수를 증명하는 지표로 사용하면 안 된다.
 
-## 교훈
-**"메시지가 토픽에 들어왔다는 사실을 알기 위해 컨슈머 그룹을 띄울 필요가 없다."**
-대부분의 경우 *발행 시점의 callback / interceptor* 로 동일 정보를 얻을 수 있고,
-그게 자원도 덜 쓴다.
+운영 수준에서 DLT 도착을 보장하고 측정하려면 다음이 필요하다.
 
-별도 컨슈머 그룹이 정당한 경우:
-- DLT 메시지를 *재처리* 해야 할 때 (수동 또는 자동 replay)
-- DLT 메시지를 *외부 시스템*(예: Slack 알림, 별도 DB)으로 흘릴 때
-- DLT 처리를 *다른 인스턴스*에서 격리할 때
+- producer send result와 실패를 분리해 기록
+- 실제 DLT consumer 기반 전달 통합 테스트
+- retry 횟수와 DLT header 검증
+- replay 처리 상태와 업무 멱등성 관리
 
-단순 카운팅·로깅 용도면 별도 컨슈머는 사치다.
+## 별도 DLT Consumer가 필요한 경우
+
+- 실패 메시지를 수동 또는 자동 replay할 때
+- 알림·DB 저장 등 후속 처리를 수행할 때
+- DLT 처리를 별도 인스턴스와 장애 경계로 분리할 때
+
+이번 제거는 DLT consumer가 불필요하다는 일반 결론이 아니라, **단순 화면 카운팅이라는 현재 요구에 비해 구조가 무거웠다**는 판단이다.

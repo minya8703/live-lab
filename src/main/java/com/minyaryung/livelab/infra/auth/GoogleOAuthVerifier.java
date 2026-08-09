@@ -36,7 +36,8 @@ public class GoogleOAuthVerifier implements OAuthVerifier {
                     (String) payload.get("name"),
                     (String) payload.get("picture"));
         } catch (Exception e) {
-            log.warn("Google token verification failed", e);
+            log.warn("Google credential verification failed errorType={}",
+                    e.getClass().getSimpleName());
             return null;
         }
     }

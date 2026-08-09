@@ -7,12 +7,15 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class S3FileStorage implements FileStorage {
+
+    private static final int SIGNATURE_LENGTH = 12;
 
     private final S3Client s3;
     private final String bucket;
@@ -27,12 +30,23 @@ public class S3FileStorage implements FileStorage {
     @Override
     public String upload(MultipartFile file) throws IOException {
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM"));
-        String filename = UUID.randomUUID().toString().substring(0, 8) + "-" + sanitize(file.getOriginalFilename());
-        String key = "blog/" + date + "/" + filename;
-        s3.putObject(
-                PutObjectRequest.builder().bucket(bucket).key(key).contentType(file.getContentType()).build(),
-                RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
-        return publicUrl + key;
+
+        try (BufferedInputStream input = new BufferedInputStream(file.getInputStream())) {
+            input.mark(SIGNATURE_LENGTH);
+            ImageType imageType = ImageType.detect(input.readNBytes(SIGNATURE_LENGTH));
+            input.reset();
+
+            String filename = UUID.randomUUID().toString().substring(0, 12) + imageType.extension;
+            String key = "blog/" + date + "/" + filename;
+            s3.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(key)
+                            .contentType(imageType.contentType)
+                            .build(),
+                    RequestBody.fromInputStream(input, file.getSize()));
+            return publicUrl + key;
+        }
     }
 
     @Override
@@ -42,8 +56,37 @@ public class S3FileStorage implements FileStorage {
         s3.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
     }
 
-    private String sanitize(String name) {
-        if (name == null) return "file";
-        return name.replaceAll("[^a-zA-Z0-9._-]", "_");
+    private enum ImageType {
+        PNG("image/png", ".png"),
+        JPEG("image/jpeg", ".jpg"),
+        GIF("image/gif", ".gif"),
+        WEBP("image/webp", ".webp");
+
+        private final String contentType;
+        private final String extension;
+
+        ImageType(String contentType, String extension) {
+            this.contentType = contentType;
+            this.extension = extension;
+        }
+
+        private static ImageType detect(byte[] bytes) {
+            if (startsWith(bytes, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)) return PNG;
+            if (startsWith(bytes, 0xFF, 0xD8, 0xFF)) return JPEG;
+            if (startsWith(bytes, 'G', 'I', 'F', '8', '7', 'a')
+                    || startsWith(bytes, 'G', 'I', 'F', '8', '9', 'a')) return GIF;
+            if (startsWith(bytes, 'R', 'I', 'F', 'F')
+                    && bytes.length >= 12
+                    && bytes[8] == 'W' && bytes[9] == 'E' && bytes[10] == 'B' && bytes[11] == 'P') return WEBP;
+            throw new IllegalArgumentException("PNG, JPEG, GIF, WebP 이미지만 업로드할 수 있습니다.");
+        }
+
+        private static boolean startsWith(byte[] bytes, int... signature) {
+            if (bytes.length < signature.length) return false;
+            for (int i = 0; i < signature.length; i++) {
+                if ((bytes[i] & 0xFF) != signature[i]) return false;
+            }
+            return true;
+        }
     }
 }

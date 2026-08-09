@@ -3,6 +3,13 @@
 
   var postEl = document.querySelector("[data-post]");
 
+  function requireOk(res, fallbackMessage) {
+    if (res.ok) return Promise.resolve(res);
+    return res.json().catch(function () { return {}; }).then(function (body) {
+      throw new Error(body.error || fallbackMessage);
+    });
+  }
+
   function el(tag, cls, text) {
     var node = document.createElement(tag);
     if (cls) node.className = cls;
@@ -76,7 +83,9 @@
           headers: window.BlogAuth.authHeaders()
         })
         .then(function (res) {
-          if (!res.ok) throw new Error("Delete failed");
+          return requireOk(res, "삭제 요청이 거부되었습니다.");
+        })
+        .then(function () {
           alert("삭제되었습니다.");
           window.location.href = "/blog.html";
         })

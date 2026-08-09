@@ -102,3 +102,4 @@ pnpm-debug.log*
 # Private — 면접 준비·개인 메모. 절대 git 에 올리지 않음.
 private/
 docs/interview-prep.md
+docs/이력서/

@@ -18,6 +18,6 @@ public class OrderConsumer {
         if (event.orderId() != null && event.orderId() % 17 == 0) {
             throw new IllegalStateException("simulated processing failure orderId=" + event.orderId());
         }
-        metrics.recordSuccess();
+        metrics.recordSuccess(event.runId());
     }
 }

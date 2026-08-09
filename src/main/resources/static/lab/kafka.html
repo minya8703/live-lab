@@ -33,16 +33,18 @@
       <aside class="tradeoff-box" aria-label="trade-off">
         <h4>⚖ 이 데모의 trade-off (의식적 선택)</h4>
         <p><span class="tradeoff-label">현재</span>Spring Kafka 표준 — <code>DefaultErrorHandler</code> + <code>FixedBackOff(500ms × 3)</code> 의 <strong>레코드 단위 블로킹 재시도</strong>.</p>
+        <p><span class="tradeoff-label">실행 격리</span>각 실행에 UUID <code>runId</code>를 부여해 producer callback과 consumer 결과를 구분한다. 제한된 데모 자원을 보호하기 위해 동시에 한 실행만 허용하며, 중복 실행과 실행 중 reset은 <code>409 Conflict</code>로 거부한다.</p>
+        <p><span class="tradeoff-label">자원 보호</span>한 번에 최대 2,000건, 연결 peer 기준 10분에 누적 5,000건으로 제한하며 초과 요청은 <code>429 Too Many Requests</code>로 거부한다. 현재 인메모리 방식이라 다중 인스턴스에서는 Redis 등 공유 저장소가 필요하다.</p>
         <p><span class="tradeoff-label">한계</span>17의 배수 메시지가 걸리면 해당 파티션 컨슈머 스레드가 <strong>1.5초 stall</strong> → throughput 그래프가 계단식으로 낙하. 3 파티션 비대칭으로 성공 카운트는 spike, DLT 는 점진 증가하는 비대칭이 보입니다.</p>
         <p><span class="tradeoff-label">고처리량 운영급</span>메인 토픽을 막지 않는 <strong>Non-blocking Retry Topic</strong> 패턴 — <code>order.retry.500ms</code> → <code>order.retry.5s</code> → <code>order.DLT</code> 의 단계 분리. Spring Kafka 의 <code>@RetryableTopic</code> 또는 <code>RetryTopicConfigurer</code>.</p>
-        <p><span class="tradeoff-label">현 사이트가 안 가는 이유</span>t4g.small 2GB 안에서 토픽 4 개 추가는 메모리 무리. 코드 변경 자체는 가능하나 별도 Unit (U12 후보) 으로 분리해 *개선 비교 회고* 로 노출 예정.</p>
+        <p><span class="tradeoff-label">현 사이트가 안 가는 이유</span>t4g.small 2GB 안에서 토픽 4개 추가는 메모리 부담이 크다. 코드 변경 자체는 가능하나 별도 Unit(U12 후보)으로 분리해 <em>개선 비교 회고</em>로 노출할 예정이다.</p>
       </aside>
     </section>
 
     <section class="controls" aria-label="실행 컨트롤">
       <div class="control">
-        <label for="count">발행 메시지 수 (1~10000)</label>
-        <input id="count" type="number" min="1" max="10000" value="1000" />
+        <label for="count">발행 메시지 수 (1~2000)</label>
+        <input id="count" type="number" min="1" max="2000" value="1000" />
       </div>
       <div class="control">
         <label>처리 진행률</label>
@@ -55,7 +57,7 @@
         <button id="reset" class="btn-link" type="button">카운터 리셋</button>
       </div>
       <p class="control-hint">
-        발행 후 약 500ms 간격으로 상태를 폴링합니다. 17의 배수인 orderId(약 5.9%)가 의도적 실패 → 재시도 → DLT로 흐릅니다.
+        발행 후 약 500ms 간격으로 해당 runId의 상태를 폴링합니다. 17의 배수인 orderId(약 5.9%)가 의도적 실패 → 재시도 → DLT로 흐릅니다. 다른 실행이 진행 중이면 완료 후 다시 시도해 주세요.
       </p>
     </section>
 

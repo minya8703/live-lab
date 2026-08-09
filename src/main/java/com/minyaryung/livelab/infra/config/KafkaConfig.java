@@ -1,6 +1,7 @@
 package com.minyaryung.livelab.infra.config;
 
 import com.minyaryung.livelab.application.kafkademo.KafkaMetricsService;
+import com.minyaryung.livelab.domain.kafkademo.OrderEvent;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -40,7 +41,9 @@ public class KafkaConfig {
             @Override
             public void accept(ConsumerRecord<?, ?> record, Consumer<?, ?> consumer, Exception ex) {
                 super.accept(record, consumer, ex);
-                metrics.recordDlt();
+                if (record.value() instanceof OrderEvent event) {
+                    metrics.recordDlt(event.runId());
+                }
             }
         };
         return new DefaultErrorHandler(recoverer, new FixedBackOff(intervalMs, maxAttempts));

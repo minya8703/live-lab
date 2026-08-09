@@ -236,9 +236,9 @@ https://livelab-blog.s3.us-east-1.amazonaws.com/blog/2026/07/a1b2c3d4-image.png
 ### 7-1. 업로드 테스트 (앱 실행 후)
 
 ```bash
-# Google 로그인 후 받은 JWT 토큰 사용
+# 브라우저 쿠키가 아닌, 환경변수로 관리하는 단기 자동화 JWT 사용
 curl -X POST https://your-domain/api/blog/upload \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Authorization: Bearer YOUR_AUTOMATION_JWT" \
   -F "file=@test-image.png"
 ```
 

@@ -14,17 +14,17 @@ tags: [docker, kafka, vendor-lock]
 docker.io/bitnami/kafka:3.7: not found
 ```
 
-`bitnami/kafka:3.7` 는 흔히 쓰던 태그였는데 사라졌다.
+기존 compose가 참조하던 `bitnami/kafka:3.7` 태그를 더 이상 가져올 수 없었다.
 
-## 배경
-Bitnami는 2025년부터 일부 태그를 **유료 "Bitnami Secure Images"** 로 분리,
-무료 배포에서 점진적으로 제거하는 정책을 시행했다.
-이걸 모르고 `bitnami/kafka:3.7` 를 그대로 쓰던 수많은 docker-compose 가 갑자기 깨졌다.
+## 판단 범위
+
+확인된 사실은 배포 시점에 해당 태그 조회가 실패했다는 것이다. 벤더 정책 전체를 추정하기보다,
+재현 가능한 이미지와 설정을 확보하는 데 초점을 맞췄다.
 
 ## 선택지
-1. **무료로 남은 Bitnami 태그** (예: `latest`, `3.7.0`) — 임시방편. 다음에 또 사라질 수 있음.
-2. **Apache 공식 이미지** — Confluent 없는 순수 Kafka. KRaft 모드를 1급 시민으로 지원.
-3. **Confluent Platform 이미지** — 더 안정적이지만 Kafka 만 쓰기엔 무거움.
+1. **다른 Bitnami 태그 사용** — 변경 범위는 작지만 같은 배포 정책에 계속 의존
+2. **Apache 공식 이미지** — KRaft 단일 broker 데모에 필요한 기능을 제공하고 이미지 출처를 단순화
+3. **Confluent Platform 이미지** — 추가 기능이 있지만 현재 데모 요구와 자원 제약에는 범위가 큼
 
 채택: **Apache 공식** (`apache/kafka:3.7.0`).
 
@@ -42,8 +42,5 @@ Bitnami → Apache 환경 변수 네이밍 차이:
 KRaft 모드는 첫 부팅 시 클러스터에 고정 UUID(`CLUSTER_ID`) 가 필요하다 — 데이터 디렉토리 포맷에 사용.
 
 ## 교훈
-**벤더 락인은 의외의 곳에서 터진다.** 이번엔 코드도 라이선스도 아니고 *Docker 이미지 태그*였다.
-
-이 사건 자체가 면접에서 답하기 좋은 종류다 —
-*"외부 의존성이 사라졌을 때 빠르게 대안을 찾고 마이그레이션할 수 있는가"* 라는 질문에
-구체적 사례로 답할 수 있다.
+외부 의존성은 API뿐 아니라 container image와 tag 정책에도 존재한다.
+재현 가능한 배포를 위해 digest 또는 명시적 버전을 사용하고, 대체 이미지의 환경 변수·볼륨·health check 차이를 배포 전에 검증해야 한다.

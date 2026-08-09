@@ -26,20 +26,30 @@
 |---|---:|---|---|---|
 | K-01 | P0 | 완료 | 원본/DLT partition 정합성 | 두 토픽의 partition 수가 같고 설정 테스트가 이를 검증한다. |
 | K-02 | P0 | 완료 | Producer 발행 지표 정확성 | attempted/acknowledged/failed를 분리하고 Kafka send future 결과로 집계한다. |
-| K-03 | P0 | 대기 | 실행 단위 격리 | runId별 통계를 유지하거나 동시에 하나의 실행만 허용한다. 이전 실행의 소비 결과가 새 실행에 섞이지 않는다. |
+| K-03 | P0 | 완료 | 실행 단위 격리 | runId별 통계를 유지하거나 동시에 하나의 실행만 허용한다. 이전 실행의 소비 결과가 새 실행에 섞이지 않는다. |
 | K-04 | P0 | 대기 | Kafka 통합 테스트 | 세 원본 partition의 실패 레코드가 실제 DLT에 도착하고 retry 횟수와 DLT header를 검증한다. |
-| K-05 | P1 | 대기 | 로컬/컨테이너 listener 분리 | 컨테이너 앱은 `kafka:9092`, 호스트 앱은 `localhost` listener를 사용한다. |
+| K-05 | P1 | 완료 | 로컬/컨테이너 listener 분리 | 컨테이너 앱은 `kafka:9092`, 호스트 앱은 loopback 전용 `localhost:9092` listener를 사용한다. |
 | K-06 | P1 | 대기 | 업무 정합성 시나리오 | Transactional Outbox와 eventId 기반 멱등 consumer를 장애/중복 테스트로 증명한다. |
-| R-01 | P0 | 대기 | CacheErrorHandler 의미 분리 | 읽기 실패는 fail-open, clear/evict 실패는 호출자 또는 메트릭에 실패로 드러난다. |
+| K-07 | P0 | 완료 | 공개 발행 자원 보호 | 요청당 2,000건, 연결 peer당 10분 5,000건의 가중 제한을 두고 초과 시 발행 전에 429를 반환한다. |
+| R-01 | P0 | 완료 | CacheErrorHandler 의미 분리 | 읽기 실패는 fail-open, clear/evict 실패는 호출자 또는 메트릭에 실패로 드러난다. |
 | R-02 | P0 | 대기 | Redis 통합 테스트 | miss→DB→hit, TTL, 직렬화, Redis 중단 시 fallback을 Testcontainers로 검증한다. |
 | R-03 | P1 | 대기 | stampede 및 fallback 보호 | 동시 요청 테스트와 DB bulkhead/rate limit으로 Redis 장애가 DB 장애로 전파되지 않음을 보인다. |
 | R-04 | P1 | 대기 | 쓰기-캐시 정합성 | DB commit 이후 관련 category key를 무효화하며 실패 및 stale 허용 범위를 문서화한다. |
 | R-05 | P2 | 대기 | 측정 품질 | cold miss, hit, DB warm, fallback을 분리하고 p50/p95/p99와 hit ratio를 노출한다. |
+| R-06 | P0 | 완료 | 공개 벤치마크 자원 보호 | 연결 peer당 실행 누적 400회/분, 전체 캐시 초기화 10회/분으로 제한하고 작업 전에 429를 반환한다. |
 | C-01 | P0 | 대기 | 근거가 포함된 응답 계약 | 답변에 사용한 source id를 구조화해 반환하고 존재하지 않는 source를 거부한다. |
 | C-02 | P0 | 대기 | 프롬프트 공격 회귀 테스트 | 규칙 무시, 시스템 프롬프트 유출, 허위 경력 생성, 민감 주제 질문의 기대 결과를 평가한다. |
-| C-03 | P0 | 대기 | 신뢰 가능한 client 식별 | 임의 `X-Forwarded-For`를 신뢰하지 않고 trusted proxy/Cloudflare가 전달한 주소만 사용한다. |
+| C-03 | P0 | 완료 | 신뢰 가능한 요청 주체 식별 | 안전한 기본값으로 TCP peer 주소를 사용해 임의 `X-Forwarded-For` 위조로 rate limit을 우회할 수 없다. |
 | C-04 | P1 | 대기 | 토큰·비용·품질 관측 | latency, 성공/실패, input/output token, rate-limit 차단, grounded/abstain 비율을 Micrometer로 노출한다. |
 | C-05 | P1 | 대기 | 검색 기반 컨텍스트 선택 | 전체 문서를 매번 넣는 대신 질문과 관련된 문서만 선택하고 근거가 없으면 답변을 보류한다. |
+| C-06 | P0 | 완료 | 질문 로그 최소화 | 질문 원문과 provider 오류 body를 로그에 남기지 않고 길이·지연·상태·오류 타입만 기록한다. |
+| C-07 | P1 | 완료 | Rate-limit bucket 수명 관리 | 1시간 이상 사용되지 않은 bucket을 주기적으로 제거하고 fixed-window 경계를 테스트한다. |
+| S-01 | P0 | 완료 | 브라우저 보안 응답 헤더 | CSP, framing·MIME sniffing 차단, Referrer/Permissions Policy를 모든 응답에 적용하고 HTTPS에서 HSTS를 제공한다. |
+| S-02 | P0 | 완료 | 브라우저 JWT 저장 보호 | localStorage JWT를 제거하고 HttpOnly·Secure·SameSite 쿠키와 double-submit CSRF 검증을 적용한다. 자동화 Bearer 인증은 환경변수 사용으로 분리한다. |
+| S-03 | P0 | 완료 | 로그인 남용·감사 로그 최소화 | Google 검증 전 peer당 10회/10분 제한을 적용하고 관리자 성공 작업은 민감 정보 없이 action만 기록한다. |
+| S-04 | P0 | 완료 | 관리 API 입력·자원 경계 | 블로그 필드·slug·URL·페이지 범위와 JSON 파서 상한을 검증하고 이미지 업로드를 peer당 20회/시간으로 제한한다. |
+| S-05 | P0 | 완료 | 블로그 정합성·HTTP 의미 | slug 중복과 동시 race는 DB unique까지 방어해 409로, 없는 수정·삭제는 404로 반환하고 성공 시에만 감사 로그를 남긴다. |
+| S-06 | P0 | 완료 | 데이터 서비스 호스트 노출 차단 | PostgreSQL·Redis·Kafka·Prometheus·Grafana의 publish 주소를 `127.0.0.1`로 제한하고 앱 간 통신은 Docker network로 유지한다. |
 
 ## 4. 개선 기록
 
@@ -77,6 +87,65 @@ DLT도 원본과 같은 3 partitions으로 구성한다. 실패 레코드의 원
 
 현재 통계는 여전히 애플리케이션 메모리에 있는 전역 값이다. 다른 사용자의 실행과 분리하는 작업은 K-03에서 다룬다.
 
+### K-03 — 실행 단위 격리
+
+#### 문제
+
+기존 Kafka 지표는 전역 카운터 하나를 공유했고 publish 요청마다 즉시 reset했다. 여러 사용자가 실행하거나 이전 producer callback이 늦게 끝나면 새 실행의 수치에 섞일 수 있었다.
+
+#### 결정
+
+- publish마다 UUID runId를 생성해 event와 producer callback에 함께 전달한다.
+- consumer 성공과 DLT recovery도 event의 runId가 현재 실행과 일치할 때만 집계한다.
+- 제한된 단일 broker 데모에서는 동시에 한 실행만 허용하고 중복 publish와 실행 중 reset을 409로 거부한다.
+- 완료되지 않은 실행이 서버 장애 등으로 남을 경우 15분 뒤 새 실행이 이를 대체할 수 있다.
+
+#### 검증
+
+- 실행 중 두 번째 publish가 409인지 확인한다.
+- 이전 runId의 늦은 ACK·DLT callback이 새 실행에 반영되지 않는지 확인한다.
+- active 실행은 reset할 수 없고 완료된 동일 runId만 reset되는지 확인한다.
+
+### R-01 — CacheErrorHandler 의미 분리
+
+#### 문제
+
+기존 handler는 cache get·put뿐 아니라 evict·clear 실패도 로그만 남기고 삼켰다.
+조회 실패는 DB 결과를 반환하면 되지만, 무효화 실패를 성공처럼 처리하면 stale cache가 남아도 호출자가 알 수 없다.
+
+#### 결정
+
+- get·put 오류는 fail-open으로 처리해 DB 조회 결과를 반환한다.
+- evict·clear 오류는 기록한 뒤 예외를 다시 전달한다.
+- 공개 화면은 현재 기능을 읽기 전용 Cache-Aside와 실험용 수동 전체 초기화로 설명한다.
+
+#### 검증
+
+- cache get 오류가 호출자 예외로 전파되지 않는지 단위 테스트한다.
+- cache clear 오류가 동일한 예외로 전파되는지 단위 테스트한다.
+- 상품 쓰기와 transaction commit 이후 key 단위 무효화는 R-04 완료 전까지 구현된 기능으로 표시하지 않는다.
+
+### K-05 · S-06 — Kafka listener 분리와 데이터 포트 경계
+
+#### 문제
+
+Kafka가 `kafka:9092` 하나만 광고하면 컨테이너 앱은 정상 동작하지만 호스트에서 실행한 Spring Boot는
+metadata 응답의 `kafka` 주소를 해석할 수 없다. 반대로 `localhost`만 광고하면 컨테이너 앱이 자기 자신을
+찾아가게 된다. 또한 Compose의 짧은 `hostPort:containerPort` 표기는 PostgreSQL·Redis·Kafka와 로컬
+모니터링 포트를 호스트의 모든 인터페이스에 publish한다.
+
+#### 결정
+
+- Kafka 내부 listener는 `kafka:9092`, 호스트 listener는 `localhost:${KAFKA_HOST_PORT}`로 분리한다.
+- 호스트 listener의 컨테이너 포트는 9094로 분리하되 기존 로컬 기본 포트 9092는 유지한다.
+- PostgreSQL·Redis·Kafka·Prometheus·Grafana의 호스트 publish 주소를 `127.0.0.1`로 제한한다.
+- 컨테이너 앱은 Docker network의 서비스 이름과 내부 포트를 사용하므로 loopback 제한의 영향을 받지 않는다.
+
+#### 보안 경계
+
+EC2 보안 그룹은 여전히 필요한 1차 경계다. loopback 바인딩은 보안 그룹이 잘못 열리더라도 인증 없는
+Redis·Kafka와 DB·모니터링 포트가 인터넷에 직접 노출되지 않게 하는 호스트 수준의 이중 방어다.
+
 ## 5. AI 경력 Q&A 분석
 
 ### 현재 구조
@@ -101,10 +170,13 @@ DLT도 원본과 같은 3 partitions으로 구성한다. 실패 레코드의 원
 2. **출처가 선택 사항이다.** 사용자가 답변의 근거를 기계적으로 확인할 수 없다.
 3. **전체 컨텍스트 방식은 확장성이 낮다.** 문서가 늘수록 입력 토큰과 관련 없는 정보가 함께 증가한다.
 4. **평가가 문자열 포함 테스트뿐이다.** 실제 질문에 대한 grounded answer, abstention, prompt injection 저항을 검증하지 않는다.
-5. **`X-Forwarded-For`를 그대로 신뢰한다.** 직접 접근 가능한 환경에서는 헤더 위조로 rate limit을 우회할 수 있다.
-6. **rate-limit bucket이 제거되지 않는다.** 장기간 다양한 IP가 접근하면 map이 계속 증가하며 다중 인스턴스 간 공유되지 않는다.
-7. **질문 원문이 로그에 남는다.** 80자로 줄이지만 이메일·전화번호 같은 개인정보가 포함될 수 있다.
-8. **화면 설명과 코드가 다르다.** 화면은 rate limit을 향후 개선처럼 설명하지만 이미 인메모리 IP 제한이 구현되어 있다.
+5. **사용자별 프록시 주소 식별은 보류했다.** 임의 `X-Forwarded-For`는 신뢰하지 않고 TCP peer 주소를 사용한다. 따라서 우회는 막지만 Cloudflare 뒤의 여러 사용자가 같은 한도를 공유할 수 있다.
+
+### 완료한 보안 보완
+
+- 질문 원문과 provider 오류 body를 로그에서 제거하고 길이·처리 시간·오류 타입만 기록한다.
+- fixed-window limiter의 비활성 bucket을 256회 요청마다 정리해 client key map의 무제한 증가를 막는다.
+- 화면 설명을 현재 peer 주소 기반 제한과 일치시켰다.
 
 ### 권장 목표 구조
 

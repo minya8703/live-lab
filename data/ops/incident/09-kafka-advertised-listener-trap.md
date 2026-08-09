@@ -98,8 +98,10 @@ docker compose restart app
 
 ```yaml
 KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9094,CONTROLLER://0.0.0.0:9093"
-KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9094"
+KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092"
 KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
 ```
 
-이 사이트는 *Spring Boot 만 client* 라 단일 listener 로 충분.
+현재 이 사이트는 컨테이너 앱과 호스트에서 실행하는 로컬 Spring Boot를 모두 지원하므로 두 listener를 사용한다.
+호스트의 `127.0.0.1:9092`를 컨테이너의 HOST listener `9094`로 publish해 외부 네트워크 노출 없이
+기존 로컬 설정을 유지한다.

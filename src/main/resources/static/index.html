@@ -23,8 +23,7 @@
     <section class="hero fade-in">
       <p class="status" data-status>
         <span class="dot" aria-hidden="true"></span>
-        <!-- 정적 fallback은 의도적으로 ASCII만 사용 — 파일 인코딩 사고에 영향받지 않게.
-             실제 한국어 라벨은 /api/status (또는 app.js 의 FALLBACK)에서 textContent 로 주입. -->
+        <!-- 실제 상태 라벨은 /api/status에서 textContent로 주입한다. -->
         <span class="status-label">Loading status&hellip;</span>
         <span class="status-detail">AI-DLC Construction</span>
       </p>
@@ -45,19 +44,19 @@
       <h2 id="proof-h" class="section-title">증명 가능한 3가지</h2>
       <div class="proof-grid">
         <article class="proof-card">
-          <p class="big-number">9.5<span class="unit">년</span></p>
+          <p class="big-number">9<span class="unit">년 6개월</span></p>
           <p class="proof-label">백엔드 경력</p>
-          <p class="proof-detail">일본 SI 6년 6개월 + 한국 3년 · EAI · MSA · 데이터 파이프라인</p>
+          <p class="proof-detail">일본·한국 엔터프라이즈 프로젝트 · EAI · MSA · 데이터 파이프라인</p>
         </article>
         <article class="proof-card">
           <p class="big-number">50<span class="unit">+</span></p>
           <p class="proof-label">표준화한 인터페이스</p>
-          <p class="proof-detail">webMethods · SAP JCo · 무중단 무장애 운영</p>
+          <p class="proof-detail">webMethods · SAP JCo · 인터페이스 표준화와 운영 안정화</p>
         </article>
         <article class="proof-card">
           <p class="big-number">70<span class="unit">%</span></p>
           <p class="proof-label">처리시간 단축</p>
-          <p class="proof-detail">MSA 세금계산서 솔루션 · 5분 → 1.5분 · 중복 발행 0건</p>
+          <p class="proof-detail">MSA 세금계산서 솔루션 · 5분 → 1.5분 · 관찰 기간 중 중복 발행 0건</p>
         </article>
       </div>
     </section>
@@ -106,7 +105,7 @@
             <span class="tag-status" data-tag-status>예정</span>
           </header>
           <h3>Test Automation</h3>
-          <p>Testcontainers로 진짜 Postgres/Redis/Kafka에 통합 테스트. GitHub Actions로 push마다 자동 실행. 코드는 저장소에서 확인 가능.</p>
+          <p>현재 단위·설정·컨트롤러 테스트를 CI에서 실행합니다. Postgres·Redis·Kafka Testcontainers 통합 검증은 다음 개선 항목입니다.</p>
         </article>
         <article class="lab-card" data-unit="10" data-link="/lab/ops.html">
           <header>
@@ -123,7 +122,7 @@
       <h2 class="section-title">전체 경력 상세는</h2>
       <p class="section-sub">
         이 사이트는 라이브 데모와 개발 과정에 집중합니다.<br />
-        프로젝트 8개의 시간순 상세 이력은 전체 이력 페이지에서 보실 수 있습니다.
+        대표 프로젝트 10개의 시간순 상세 이력은 전체 이력 페이지에서 보실 수 있습니다.
       </p>
       <a class="btn btn-primary" href="/career.html">
         전체 이력 보기
@@ -134,7 +133,7 @@
   <footer class="footer">
     <p class="footer-line">
       <span>민야령 · Backend Live Lab</span>
-      <span class="dim">Built with AI-DLC · Vanilla JS · Spring Boot (TBD)</span>
+      <span class="dim">Built with AI-DLC · Vanilla JS · Spring Boot</span>
     </p>
     <p class="footer-line">
       <a href="mailto:minya8703@gmail.com">minya8703@gmail.com</a>

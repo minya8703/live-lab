@@ -48,6 +48,8 @@ docker compose --profile monitoring up -d
 # → http://localhost:8089
 ```
 
+PostgreSQL·Redis·Kafka의 호스트 개발 포트는 `127.0.0.1`에만 열리며, 컨테이너 앱은 Docker network의 서비스 이름으로 통신합니다.
+
 ## 테스트
 
 ```bash

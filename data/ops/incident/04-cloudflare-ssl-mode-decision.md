@@ -1,59 +1,36 @@
 ---
 slug: cloudflare-ssl-mode-decision
-title: Cloudflare SSL 모드 의사결정 — Flexible vs Full vs Full(strict)
+title: Cloudflare SSL 모드 재검토 — 장애 복구와 안전한 운영 기준 분리
 date: 2026-06-04
-tags: [cloudflare, ssl, architecture]
+tags: [cloudflare, ssl, architecture, security]
 ---
 
-## 결정 배경
+## 재검토 배경
 
-이 사이트는 EC2 에 nginx + Let's Encrypt 같은 SSL 스택을 안 깔았습니다. 의도적으로요. Cloudflare 가 무료로 HTTPS 처리하니까 origin 은 HTTP 만 받아도 충분.
+초기 배포에서는 origin(EC2)에 인증서가 없어 Cloudflare의 `Full` 연결이 실패했고, 서비스 복구를 위해 `Flexible`로 전환했다. 당시에는 정적 포트폴리오 중심이라는 이유로 이를 최종 구조처럼 판단했다.
 
-그런데 Cloudflare 의 SSL/TLS 모드를 4개 중 어느 걸로 하느냐가 운영 부담을 결정합니다.
+이후 OAuth 로그인, JWT 인증, 관리자 기능과 챗봇 요청이 추가되면서 전제가 달라졌다. 사용자와 Cloudflare 사이는 HTTPS여도, `Flexible`에서는 Cloudflare와 origin 사이가 HTTP다. 전송 구간을 둘로 나누어 위험을 평가해야 한다.
 
-## 4가지 모드 비교
+## 모드별 판단
 
-| 모드 | 사용자 ↔ Cloudflare | Cloudflare ↔ Origin | EC2 에 인증서 필요? | 운영 부담 |
-|---|---|---|---|---|
-| Off | HTTP | HTTP | ❌ | 최소 — 그러나 HTTPS 자체 없음 |
-| **Flexible** | HTTPS ✅ | HTTP | ❌ | 최소 (✅ 우리 선택) |
-| Full | HTTPS ✅ | HTTPS (자체 서명 OK) | ✅ (자체 서명 가능) | 중간 — 인증서 갱신 필요 |
-| Full (strict) | HTTPS ✅ | HTTPS (신뢰 CA 만) | ✅ (Let's Encrypt 등) | 높음 — 90일 갱신 + 모니터링 |
+| 모드 | 사용자 ↔ Cloudflare | Cloudflare ↔ Origin | 운영 판단 |
+|---|---|---|---|
+| Off | HTTP | HTTP | 사용하지 않음 |
+| Flexible | HTTPS | HTTP | 장애 복구를 위한 임시 선택. 인증 기능이 있는 운영 환경의 목표 상태로는 부적합 |
+| Full | HTTPS | HTTPS, 인증서 검증 없음 | 암호화는 되지만 origin 신원 검증이 부족함 |
+| **Full (strict)** | HTTPS | HTTPS, 유효한 인증서 검증 | **운영 목표 상태** |
 
-## 우리 선택: Flexible
+## 수정된 의사결정
 
-이유:
+`Flexible`은 인증서가 없던 초기 단계의 복구 수단이었으며, 장기 운영 선택으로 정당화하지 않는다. 운영 목표는 다음과 같다.
 
-1. **EC2 손 0** — 인증서 관리 안 함
-2. **Cloudflare ↔ EC2 사이가 AWS 백본 또는 인터넷** — Cloudflare 가 Sydney PoP 에서 우리 ap-southeast-2 EC2 로 가는 경로는 거의 같은 지역. 평문이라도 외부 노출 시간이 극히 짧음
-3. **무료** — Let's Encrypt 자동화는 무료지만, 인증서 갱신 실패 시 사이트 다운 가능성
-4. **Flexible 이 521 안 일으킴** — Full 모드는 origin 인증서 없으면 521
+1. origin에 Cloudflare Origin CA 또는 신뢰 가능한 CA 인증서를 설치한다.
+2. Cloudflare SSL/TLS 모드를 `Full (strict)`로 전환한다.
+3. origin 접근은 Cloudflare 프록시 경로로 제한하고 직접 접근을 차단한다.
+4. 인증서 만료와 HTTPS 연결 실패를 배포 체크리스트 및 모니터링 대상에 포함한다.
 
-## 왜 Full 로 안 가는가
+실제 전환을 검증하기 전까지는 이를 **완료 상태가 아닌 보안 부채**로 기록한다.
 
-이 사이트 트래픽은:
-- 챗봇 질문/응답 (저민감)
-- 정적 페이지 (공개 정보)
-- Live 데모 메트릭 (공개)
+## 배운 점
 
-**API 키·비밀번호·개인정보를 origin 으로 보내는 흐름 없음.** Cloudflare → Origin 간 평문이어도 노출되는 데이터가 본인 공개 포트폴리오뿐.
-
-운영 환경에서 사용자 인증·결제·민감 데이터가 흐르는 경우엔 당연히 Full (strict) 가 정답.
-
-## 언제 Full 또는 Full(strict) 로 올릴까
-
-- EC2 안에 사용자 로그인·세션 처리 추가 시
-- 결제 흐름 추가 시
-- 회사 컴플라이언스 요구 (PCI-DSS, SOC2 등)
-
-업그레이드 절차:
-1. EC2 에 `certbot` 설치 → Let's Encrypt 발급
-2. nginx 또는 docker-compose 로 443 노출
-3. Cloudflare → Full → Full(strict) 점진 전환
-4. 인증서 자동 갱신 cron 모니터링
-
-## 의사결정 한 줄
-
-> *"오버킬을 피하고 trade-off 를 명시한다."*
-
-이 사이트는 *"AWS·운영 학습 콘텐츠"* 이지 *"민감 데이터 처리 SaaS"* 가 아님. 그 컨텍스트에서 Flexible 이 정답.
+아키텍처 의사결정은 최초 전제가 유지되는지 다시 검토해야 한다. 정적 페이지였던 서비스에 인증과 관리 기능이 추가되면, 같은 SSL 설정도 더 이상 같은 위험 수준이 아니다. 장애를 빠르게 복구한 선택과 안전한 운영의 최종 상태를 구분해 기록한다.

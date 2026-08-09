@@ -10,7 +10,7 @@ tags: [aws, ssh, windows, debugging]
 EC2 에 SSH 접속 시도 → `Permission denied (publickey)` 또는 `bad permissions` 경고. icacls 결과가 다음처럼 이상함:
 
 ```
-C:\Users\MINYA\.ssh\livelab MINYA\:(R)
+C:\Users\<USER>\.ssh\<KEY_FILE> <MACHINE>\:(R)
                             ↑ 사용자명이 비어있음
 ```
 
@@ -23,7 +23,7 @@ C:\Users\MINYA\.ssh\livelab MINYA\:(R)
 
 ## 결정적 단서
 
-icacls 출력의 SID `S-1-5-21-1703555909-2164541681-4113425133` 분해:
+icacls 출력의 SID `S-1-5-21-<MACHINE-ID>` 형식을 확인했다.
 - `S-1-5-21-X-Y-Z` 형식 = **머신/도메인 SID** (3 segments after `21`)
 - 사용자 SID 는 `S-1-5-21-X-Y-Z-RID` (4 segments, 끝에 `-1001` 같은 RID 추가)
 
@@ -33,15 +33,15 @@ icacls 출력의 SID `S-1-5-21-1703555909-2164541681-4113425133` 분해:
 
 | 이름 | 값 |
 |---|---|
-| 컴퓨터 이름 | `MINYA` |
-| 사용자 이름 | `minya` |
+| 컴퓨터 이름 | 사용자 이름과 철자 및 대소문자만 다른 이름 |
+| 사용자 이름 | 컴퓨터 이름과 충돌하는 이름 |
 
-Windows 의 이름 해석이 case-insensitive 라 `minya` 를 컴퓨터(`MINYA`) 로 해석. icacls `/grant:r minya:F` 가 머신 SID 에 권한 부여, 사용자에겐 권한 0.
+Windows 의 이름 해석이 대소문자를 구분하지 않아 사용자 이름을 컴퓨터 이름으로 해석했다. 그 결과 `icacls /grant:r <name>:F`가 사용자 대신 머신 SID에 권한을 부여했다.
 
 ## 해결 — SID 직접 grant 로 이름 해석 우회
 
 ```powershell
-$key = "C:\sshkeys\livelab"
+$key = "C:\sshkeys\<KEY_FILE>"
 $userSid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
 icacls $key /reset
 icacls $key /inheritance:r

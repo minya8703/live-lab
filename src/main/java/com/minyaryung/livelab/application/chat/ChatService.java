@@ -19,12 +19,7 @@ public class ChatService {
         long started = System.currentTimeMillis();
         String answer = chatClient.prompt().user(question).call().content();
         long elapsed = System.currentTimeMillis() - started;
-        log.info("chat answered in {}ms — q='{}' (len {})", elapsed, abbreviate(question), question.length());
+        log.info("chat answered — elapsedMs={} questionLength={}", elapsed, question.length());
         return answer;
-    }
-
-    private static String abbreviate(String s) {
-        if (s == null) return "";
-        return s.length() <= 80 ? s : s.substring(0, 77) + "...";
     }
 }

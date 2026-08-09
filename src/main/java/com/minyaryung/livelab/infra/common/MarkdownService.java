@@ -16,7 +16,11 @@ public class MarkdownService {
     public MarkdownService() {
         List<Extension> extensions = List.of(TablesExtension.create());
         this.parser = Parser.builder().extensions(extensions).build();
-        this.renderer = HtmlRenderer.builder().extensions(extensions).build();
+        this.renderer = HtmlRenderer.builder()
+                .extensions(extensions)
+                .escapeHtml(true)
+                .sanitizeUrls(true)
+                .build();
     }
 
     public String render(String markdown) {

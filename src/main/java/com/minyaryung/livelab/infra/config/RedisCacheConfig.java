@@ -49,9 +49,11 @@ public class RedisCacheConfig implements CachingConfigurer {
         }
         @Override public void handleCacheEvictError(RuntimeException ex, Cache cache, Object key) {
             log.warn("cache EVICT fail — cache={} key={}", cache.getName(), key);
+            throw ex;
         }
         @Override public void handleCacheClearError(RuntimeException ex, Cache cache) {
             log.warn("cache CLEAR fail — cache={}", cache.getName());
+            throw ex;
         }
     }
 }

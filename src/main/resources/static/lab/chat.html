@@ -31,10 +31,10 @@
 
       <aside class="tradeoff-box" aria-label="trade-off">
         <h4>⚖ 이 챗봇의 trade-off (의식적 선택)</h4>
-        <p><span class="tradeoff-label">현재</span>단일 LLM (Gemini 2.5 Flash) · 시스템 프롬프트에 경력 마크다운 전체 주입 · 인메모리 IP 기준 시간당 20회 제한.</p>
+        <p><span class="tradeoff-label">현재</span>단일 LLM (Gemini 2.5 Flash) · 시스템 프롬프트에 경력 마크다운 전체 주입 · 서버가 직접 확인한 peer 주소 기준 1시간 fixed window 20회 제한 · 비활성 bucket 정리.</p>
         <p><span class="tradeoff-label">한계 1</span>프롬프트 규칙만으로 사실성을 보장할 수 없고 출처도 선택 사항 — 실제 파일에 근거한 답변인지 서버가 검증하지 않음.</p>
-        <p><span class="tradeoff-label">한계 2</span>토큰·비용·답변 품질 메트릭이 없고, 현재 rate limit은 단일 인스턴스 전용이며 신뢰 프록시 설정도 필요.</p>
-        <p><span class="tradeoff-label">운영급 방향</span>(1) 관련 문서만 선택해 전달. (2) <code>answer/sources/grounded</code> 구조화 응답과 출처 검증. (3) 공격·허위 질문 평가셋을 CI에서 실행. (4) trusted proxy 기반 rate limit과 토큰·지연·실패 메트릭.</p>
+        <p><span class="tradeoff-label">한계 2</span>호출자가 위조할 수 있는 <code>X-Forwarded-For</code>는 신뢰하지 않는다. 그 대신 Cloudflare 뒤에서는 여러 사용자가 같은 peer 한도를 공유할 수 있으며, fixed window 경계에서 요청이 몰릴 수 있고 현재 상태는 단일 인스턴스 전용이다.</p>
+        <p><span class="tradeoff-label">운영급 방향</span>(1) 관련 문서만 선택해 전달. (2) <code>answer/sources/grounded</code> 구조화 응답과 출처 검증. (3) 공격·허위 질문 평가셋을 CI에서 실행. (4) origin을 Cloudflare 대역으로 제한한 뒤 <code>CF-Connecting-IP</code>를 검증해 사용자별 한도 적용. (5) 토큰·지연·실패 메트릭.</p>
         <p><span class="tradeoff-label">현 사이트가 안 가는 이유</span>문서 수가 작아 전체 주입이 아직 단순하고 저렴함. 검색 도입 전 먼저 출처 계약과 평가 기준을 추가할 예정.</p>
       </aside>
     </section>

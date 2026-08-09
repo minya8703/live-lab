@@ -4,8 +4,11 @@
 # 사용법:
 #   1. 이 파일을 application-local.properties 로 복사
 #   2. 본인 키 채우기
-#   3. 실행: mvn spring-boot:run "-Dspring-boot.run.profiles=local"
+#   3. 실행: ./gradlew bootRun --args='--spring.profiles.active=local'
 #
 # application-local.properties 는 .gitignore에 등록되어 절대 커밋되지 않는다.
 
 spring.ai.openai.api-key=여기에-실제-Google-AI-Studio-키-입력
+livelab.auth.jwt-secret=로컬에서만-사용할-32자-이상의-랜덤-문자열
+# 로컬 HTTP에서는 Secure 쿠키를 사용할 수 없으므로 false. 운영 기본값은 true.
+livelab.auth.cookie-secure=false

@@ -12,11 +12,14 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
 
     private final TokenProvider tokenProvider;
     private final String masterEmail;
+    private final AuthCookieService cookies;
 
     public JwtAuthInterceptor(TokenProvider tokenProvider,
-                              @Value("${livelab.auth.master-email}") String masterEmail) {
+                              @Value("${livelab.auth.master-email}") String masterEmail,
+                              AuthCookieService cookies) {
         this.tokenProvider = tokenProvider;
         this.masterEmail = masterEmail;
+        this.cookies = cookies;
     }
 
     @Override
@@ -27,14 +30,20 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             return true;
         }
         String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            sendError(response, HttpServletResponse.SC_UNAUTHORIZED, "Missing Authorization header");
+        boolean bearerRequest = authHeader != null && authHeader.startsWith("Bearer ");
+        String token = bearerRequest ? authHeader.substring(7) : cookies.sessionToken(request);
+        if (token == null || token.isBlank()) {
+            sendError(response, HttpServletResponse.SC_UNAUTHORIZED, "Missing authentication");
             return false;
         }
         try {
-            TokenProvider.TokenClaims claims = tokenProvider.parse(authHeader.substring(7));
+            TokenProvider.TokenClaims claims = tokenProvider.parse(token);
             if (!masterEmail.equalsIgnoreCase(claims.email())) {
                 sendError(response, HttpServletResponse.SC_FORBIDDEN, "Not authorized");
+                return false;
+            }
+            if (!bearerRequest && !isSafeMethod(method) && !cookies.hasValidCsrfToken(request)) {
+                sendError(response, HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token");
                 return false;
             }
             request.setAttribute("auth.email", claims.email());
@@ -43,6 +52,10 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             sendError(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
             return false;
         }
+    }
+
+    private static boolean isSafeMethod(String method) {
+        return "GET".equals(method) || "HEAD".equals(method) || "OPTIONS".equals(method);
     }
 
     private void sendError(HttpServletResponse response, int status, String message) throws Exception {

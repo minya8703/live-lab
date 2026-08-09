@@ -22,6 +22,7 @@
   };
 
   let pollHandle = null;
+  let currentRunId = null;
   let history = []; // { successDelta, dltDelta, throughput }
   let prevSnapshot = { success: 0, dlt: 0 };
 
@@ -68,7 +69,8 @@
 
   async function pollOnce() {
     try {
-      const res = await fetch("/api/kafka-demo/status");
+      if (!currentRunId) return null;
+      const res = await fetch("/api/kafka-demo/status?runId=" + encodeURIComponent(currentRunId));
       const snap = await res.json();
       if (!res.ok) return null;
       const successDelta = snap.success - prevSnapshot.success;
@@ -93,8 +95,8 @@
 
   async function publish() {
     const count = parseInt(countInput.value, 10);
-    if (!count || count < 1 || count > 10000) {
-      alert("발행 메시지 수는 1~10000 사이여야 합니다.");
+    if (!count || count < 1 || count > 2000) {
+      alert("발행 메시지 수는 1~2000 사이여야 합니다.");
       return;
     }
 
@@ -113,6 +115,7 @@
         setStatus("실패", "");
         return;
       }
+      currentRunId = initial.runId;
       renderStats(initial);
 
       // 폴링 시작
@@ -120,14 +123,13 @@
       pollHandle = setInterval(async function () {
         const snap = await pollOnce();
         if (!snap) return;
-        const completed = snap.success + snap.dlt + snap.publishFailed;
-        if (snap.attempted > 0 && completed >= snap.attempted) {
+        if (!snap.active) {
           stableTicks++;
           // 같은 값이 2틱 연속 유지되면 종료
           if (stableTicks >= 2) {
             stopPolling();
             setBusy(false);
-            setStatus("완료", "done");
+            setStatus(snap.completed ? "완료" : "시간 초과", snap.completed ? "done" : "");
           }
         } else {
           stableTicks = 0;
@@ -144,7 +146,17 @@
   async function reset() {
     setBusy(true);
     try {
-      await fetch("/api/kafka-demo/reset", { method: "POST" });
+      if (currentRunId) {
+        const res = await fetch(
+          "/api/kafka-demo/reset?runId=" + encodeURIComponent(currentRunId),
+          { method: "POST" }
+        );
+        if (!res.ok) {
+          alert(res.status === 409 ? "실행 중에는 초기화할 수 없습니다." : "실행 정보 초기화에 실패했습니다.");
+          return;
+        }
+      }
+      currentRunId = null;
       history = [];
       prevSnapshot = { success: 0, dlt: 0 };
       renderStats({ attempted: 0, acknowledged: 0, publishFailed: 0, success: 0, dlt: 0, throughputPerSec: 0, elapsedMs: 0 });

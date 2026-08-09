@@ -5,6 +5,7 @@ import com.minyaryung.livelab.infra.common.MarkdownService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.text.Normalizer;
 import java.util.regex.Pattern;
@@ -36,30 +37,49 @@ public class BlogService {
 
     public BlogDto create(BlogRequest req) {
         var post = new BlogPost();
-        applyRequest(post, req);
-        return toDto(repo.save(post));
+        String newSlug = resolveSlug(req);
+        if (repo.existsBySlug(newSlug)) throw new DuplicateBlogSlugException();
+        applyRequest(post, req, newSlug);
+        return save(post);
     }
 
     public BlogDto update(String slug, BlogRequest req) {
         var post = repo.findBySlug(slug).orElseThrow(() ->
-                new IllegalArgumentException("Post not found: " + slug));
-        applyRequest(post, req);
-        return toDto(repo.save(post));
+                new BlogPostNotFoundException());
+        String newSlug = resolveSlug(req);
+        if (!newSlug.equals(post.getSlug()) && repo.existsBySlug(newSlug))
+            throw new DuplicateBlogSlugException();
+        applyRequest(post, req, newSlug);
+        return save(post);
     }
 
     public void delete(String slug) {
-        repo.findBySlug(slug).ifPresent(repo::delete);
+        var post = repo.findBySlug(slug).orElseThrow(BlogPostNotFoundException::new);
+        repo.delete(post);
     }
 
-    private void applyRequest(BlogPost post, BlogRequest req) {
+    private void applyRequest(BlogPost post, BlogRequest req, String slug) {
         post.setTitle(req.title());
-        post.setSlug(req.slug() != null ? req.slug() : toSlug(req.title()));
+        post.setSlug(slug);
         post.setSummary(req.summary());
         post.setContent(req.content());
         post.setHtmlContent(markdown.render(req.content()));
         post.setThumbnailUrl(req.thumbnailUrl());
         post.setTags(req.tags());
         post.setPublished(req.published());
+    }
+
+    private BlogDto save(BlogPost post) {
+        try {
+            return toDto(repo.save(post));
+        } catch (DataIntegrityViolationException ex) {
+            // exists 확인 이후의 동시 요청 race도 DB unique constraint로 최종 방어한다.
+            throw new DuplicateBlogSlugException();
+        }
+    }
+
+    private static String resolveSlug(BlogRequest req) {
+        return req.slug() != null ? req.slug() : toSlug(req.title());
     }
 
     private BlogDto toDto(BlogPost post) {
@@ -79,6 +99,8 @@ public class BlogService {
         s = NON_SLUG.matcher(s).replaceAll("");
         s = MULTI_DASH.matcher(s).replaceAll("-");
         s = s.replaceAll("^-|-$", "");
+        if (s.isEmpty()) return "post";
+        if (s.length() > 200) s = s.substring(0, 200).replaceAll("-+$", "");
         return s.isEmpty() ? "post" : s;
     }
 }

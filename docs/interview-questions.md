@@ -35,15 +35,20 @@
 
 ### Q4. Rate Limiting은 어떻게 구현했나요?
 
-**A.** `SimpleRateLimiter` — Token Bucket 알고리즘 직접 구현
-- IP당 시간당 20회 제한
-- `ConcurrentHashMap<String, Bucket>`으로 IP별 버킷 관리
+**A.** `SimpleRateLimiter` — 인메모리 Fixed Window 구현
+- TCP peer 주소당 1시간 윈도우에서 20회 제한
+- `ConcurrentHashMap<String, Bucket>`으로 peer별 상태 관리
 - 윈도우 리셋: `now - windowStart >= 3600000ms`이면 카운터 초기화
-- `X-Forwarded-For` 헤더로 프록시 뒤의 실제 클라이언트 IP 추출
+- 호출자가 위조할 수 있는 `X-Forwarded-For`는 사용하지 않고 서버가 확인한 TCP peer 주소를 key로 사용
+- 1시간 이상 접근하지 않은 bucket은 256회 요청마다 정리해 map이 계속 증가하지 않도록 관리
 
 **왜 Redis 기반이 아닌가?**
 - 단일 인스턴스 배포이므로 인메모리로 충분
 - Redis 기반은 다중 인스턴스 시 필요 — 현재 규모에서는 오버엔지니어링
+
+**현재 trade-off는?**
+- Cloudflare 뒤에서는 여러 사용자가 같은 peer 주소 한도를 공유할 수 있음
+- origin 인바운드를 Cloudflare 대역으로 제한한 사실을 검증한 뒤에만 `CF-Connecting-IP` 기반 사용자별 제한으로 확장
 
 ---
 
@@ -80,20 +85,21 @@ infra/         → 설정, 외부 연동, 공통 유틸 (아웃바운드 어댑�
 **A.**
 ```
 1. 프론트에서 Google Sign-In → ID Token 발급
-2. POST /api/auth/login { idToken }
+2. POST /api/auth/google { credential }
 3. AuthService: GoogleOAuthVerifier로 ID Token 검증
 4. 이메일이 마스터(BLOG_MASTER_EMAIL)와 일치하면 JWT 발급
-5. 이후 블로그 CRUD 요청마다 Authorization: Bearer {JWT} 헤더 포함
-6. JwtAuthInterceptor가 HandlerInterceptor로 /api/blog 쓰기 경로만 검증
+5. JWT는 HttpOnly·Secure·SameSite=Strict 쿠키로 전달해 브라우저 JavaScript 접근 차단
+6. 상태 변경 요청은 별도 CSRF 쿠키 값을 X-CSRF-Token 헤더에 담아 이중 검증
+7. JwtAuthInterceptor가 /api/blog 쓰기 경로를 검증하고, 배포 스크립트의 환경변수 Bearer 토큰은 별도 경로로 지원
 ```
 
 ### Q8. Spring Security를 안 쓴 이유는?
 
 **A.**
 - 인증이 필요한 엔드포인트가 블로그 CRUD 4개뿐
-- Spring Security의 FilterChain, SecurityContext, CSRF 등은 이 규모에서 과잉
-- `HandlerInterceptor` + `WebMvcConfigurer`로 경로별 인증을 명시적으로 관리하는 것이 코드량도 적고 디버깅도 간단
-- 확장 시점(예: 관리자 페이지 추가)에 Spring Security 도입하면 됨
+- 현재는 인증 경로가 블로그 관리로 한정돼 `HandlerInterceptor`에서 쿠키/Bearer 인증과 CSRF 검증을 명시적으로 관리
+- 단순히 “Spring Security가 과하다”가 아니라 보호 경로·세션 수명·권한 종류가 늘어나는 시점을 전환 기준으로 둠
+- 관리자 기능이나 역할이 늘면 SecurityFilterChain, SecurityContext, 표준 CSRF 저장소로 전환해 누락 위험을 줄여야 함
 
 ---
 
@@ -167,6 +173,7 @@ main push → CI (빌드+테스트) → 성공 시 Deploy 자동 트리거
 - 목표 건수(10만) 미만이면 `saveAll(batch)`로 배치 삽입
 - `@Cacheable`로 조회 캐싱, `@CacheEvict`로 무효화 데모
 - 카테고리별 통계(`CategoryStats`) 집계 API 제공
+- 공개 실행은 연결 peer 기준 분당 누적 400회, 전체 캐시 초기화 분당 10회로 제한
 
 ### Q15. Kafka 데모 구조는?
 
@@ -176,6 +183,8 @@ main push → CI (빌드+테스트) → 성공 시 Deploy 자동 트리거
 - `OrderConsumer`: 소비 + 실패 시 DLT(Dead Letter Topic) 라우팅
 - `KafkaMetricsService`: 소비/실패 카운트 실시간 메트릭
 - 프론트에서 주문 발행 → 소비 결과를 실시간 확인하는 인터랙티브 데모
+- 요청당 최대 2,000건, 연결 peer 기준 10분 누적 5,000건으로 제한해 공개 인프라의 자원 남용 방지
+- 현재 제한 상태는 단일 JVM 메모리에 있으므로 수평 확장 시 Redis 기반 원자 카운터 등으로 전환 필요
 
 ---
 

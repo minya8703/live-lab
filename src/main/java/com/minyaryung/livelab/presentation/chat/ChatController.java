@@ -36,11 +36,8 @@ public class ChatController {
     }
 
     private String clientKey(HttpServletRequest http) {
-        String forwarded = http.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isBlank()) {
-            int comma = forwarded.indexOf(',');
-            return comma == -1 ? forwarded.strip() : forwarded.substring(0, comma).strip();
-        }
+        // Forwarded headers are caller-controlled unless the direct peer is a verified proxy.
+        // Secure default: use the TCP peer address and accept shared limits behind Cloudflare.
         return http.getRemoteAddr();
     }
 

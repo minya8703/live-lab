@@ -48,7 +48,7 @@ PowerShell> psql -h localhost -U livelab -d livelab
 ```yaml
 # docker-compose.yml
 ports:
-  - "${POSTGRES_HOST_PORT:-5433}:5432"
+  - "127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432"
 ```
 
 ```properties

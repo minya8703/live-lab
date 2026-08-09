@@ -1,61 +1,45 @@
 ---
 slug: encoding-bug-redux
 unit: 7
-title: 교훈을 적고도 다시 같은 실수 — status 라벨 mojibake
+title: 같은 mojibake가 재발한 이유 — 우회보다 경계 검증
 date: 2026-05-23
 tags: [encoding, meta-retrospective]
 ---
 
 ## 증상
-랜딩 페이지 상단 상태 배지에 이렇게 표시:
 
-```
+랜딩 페이지의 상태 배지가 다음과 같은 mojibake로 표시됐다.
+
+```text
 AI-DLC ê°ë° ì¼ì§ íì´ì§ êµ¬ì¶ ì¤ Â· AI-DLC Construction
 ```
 
-명백히 mojibake. `Â·` 는 UTF-8 의 `·`(C2 B7) 가 Latin-1 로 해석된 흔적,
-`ê°ë°` 는 "개발"(EA B0 9C EB B0 9C)이 Latin-1 로 해석되며 9C 가 invisible 처리된 결과.
+`Â·`와 깨진 한글은 UTF-8 바이트가 다른 문자셋으로 해석됐을 때 나타나는 전형적인 신호다.
 
-## 메타 회고
-바로 직전에 작성한 [05-encoding-bug.md](#properties-encoding-bug) 일지의 룰:
+## 잘못된 초기 교훈
 
-> 한국어/일본어 같은 비-ASCII 정적 데이터는 properties 가 아니라 Java 코드에 둔다.
+첫 장애 후 “비 ASCII 문자열은 properties가 아니라 Java 코드에 둔다”는 규칙을 만들었다. 하지만 문자열의 위치만 바꾸는 것은 인코딩 문제를 우회할 뿐, 저장·빌드·응답 경계가 올바른지는 증명하지 못한다.
 
-그런데 정작 같은 시점에 status 라벨은 `application.properties` 에 그대로 박아두고 있었다:
+상태 라벨에서도 같은 현상이 발생하면서 규칙을 다음처럼 수정했다.
 
-```properties
-livelab.status.label=AI-DLC 개발 일지 페이지 구축 중 · AI-DLC Construction
-```
+> 문자열 저장 위치가 아니라 각 경계에서 사용하는 문자셋과 실제 바이트를 검증한다.
 
-Spring Boot 가 properties 를 (특정 조건에서) ISO-8859-1 로 읽어 메모리에 Korean 이 손상된 채 저장,
-Jackson 이 손상된 문자열을 다시 UTF-8 로 인코딩 → 이중 mojibake.
+## 복구와 검증
 
-## 해결
-같은 룰을 status 에도 적용 — `UnitProgress.java` 에 Java 상수로 이동:
+- 손상된 설정 값을 정상 UTF-8 문자열로 교체했다.
+- Java 컴파일 인코딩을 UTF-8로 명시했다.
+- 상태 API가 JSON으로 반환하는 실제 한글 값을 테스트 대상으로 삼았다.
+- 브라우저 문서는 `<meta charset="utf-8">`을 유지하고 DOM에는 `textContent`로 주입했다.
 
-```java
-static final int CURRENT_UNIT = 7;
-static final int TOTAL_UNITS = 10;
-static final String CURRENT_LABEL = "AI-DLC 개발 일지 페이지 구축 중 · AI-DLC Construction";
-```
+응답의 charset 명시는 클라이언트 해석을 명확하게 하지만, 이미 손상된 문자열을 복구하지는 못한다. 원본 값과 API 응답을 함께 검증해야 한다.
 
-추가 안전장치로 응답 Content-Type 에 charset 명시:
+## 재발 방지 교훈
 
-```java
-@RequestMapping(
-    value = "/api/status",
-    produces = MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8")
-```
+회고는 특정 파일 형식을 금지하는 규칙보다 재현 가능한 검증 기준을 남겨야 한다.
 
-## 진짜 교훈
-**룰을 적는 것과 룰을 적용하는 것은 다른 작업이다.**
+1. 원본 파일의 저장 인코딩을 확인한다.
+2. 빌드 후 리소스와 애플리케이션 메모리의 값을 확인한다.
+3. DB 저장 값과 HTTP 응답을 순서대로 확인한다.
+4. 같은 문자를 포함한 회귀 테스트를 추가한다.
 
-회고를 적었어도 *그 룰을 모든 기존 코드에 소급 적용하는 한 사이클* 이 빠지면
-같은 버그가 반복된다.
-
-다음에 새 회고를 적을 때는 항상 두 가지를 같이 한다:
-1. 룰을 글로 적는다 (= 일지)
-2. 룰을 위반하는 기존 코드를 한 번 훑어 같이 고친다 (= 마이그레이션)
-
-이 사건 자체가 "리팩토링 챕터" 의 정당성을 증명한다 —
-새 규칙은 즉시 적용되어야 살아남는다.
+이렇게 해야 문제의 위치가 설정, 컴파일, 영속화, 직렬화 중 어디인지 구분할 수 있다.

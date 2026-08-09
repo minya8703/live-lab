@@ -32,40 +32,40 @@
 
       <div class="blog-field">
         <label for="title">TITLE</label>
-        <input type="text" id="title" placeholder="글 제목" data-title />
+        <input type="text" id="title" maxlength="300" required placeholder="글 제목 (최대 300자)" data-title />
       </div>
 
       <div class="blog-field">
         <label for="slug">SLUG</label>
-        <input type="text" id="slug" placeholder="자동 생성 (비우면 제목 기반)" data-slug />
+        <input type="text" id="slug" maxlength="200" pattern="[a-z0-9가-힣]+(-[a-z0-9가-힣]+)*" placeholder="자동 생성 또는 소문자·숫자·한글·하이픈" data-slug />
       </div>
 
       <div class="blog-field">
         <label for="summary">SUMMARY</label>
-        <input type="text" id="summary" placeholder="한 줄 요약 (목록에 표시)" data-summary />
+        <input type="text" id="summary" maxlength="500" placeholder="한 줄 요약 (최대 500자)" data-summary />
       </div>
 
       <div class="blog-field">
         <label for="tags">TAGS</label>
-        <input type="text" id="tags" placeholder="Spring Boot, Kafka, Redis (쉼표 구분)" data-tags />
+        <input type="text" id="tags" maxlength="500" placeholder="Spring Boot, Kafka, Redis (최대 500자)" data-tags />
       </div>
 
       <div class="blog-field">
         <label for="thumbnail">THUMBNAIL URL</label>
-        <input type="text" id="thumbnail" placeholder="이미지 업로드 후 URL 붙여넣기" data-thumbnail />
+        <input type="url" id="thumbnail" maxlength="500" placeholder="HTTP(S) 이미지 URL" data-thumbnail />
       </div>
 
       <div class="blog-upload-toolbar">
         <button type="button" class="btn btn-ghost blog-upload-btn" data-btn-upload>이미지 추가</button>
-        <input type="file" accept="image/*" multiple hidden data-file-input />
-        <span class="blog-upload-hint">드래그앤드롭 · Ctrl+V · 버튼으로 이미지 업로드 (다중 선택 가능)</span>
+        <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden data-file-input />
+        <span class="blog-upload-hint">PNG·JPEG·GIF·WebP, 파일당 10MB · 연결 peer 기준 시간당 20회</span>
         <span class="blog-upload-status" data-upload-status></span>
       </div>
 
       <div class="blog-editor-content">
         <div class="blog-editor-pane">
           <label>MARKDOWN</label>
-          <textarea class="blog-editor-textarea" data-content placeholder="마크다운으로 작성하세요..."></textarea>
+          <textarea class="blog-editor-textarea" maxlength="100000" required data-content placeholder="마크다운 본문 (최대 100,000자)"></textarea>
         </div>
         <div class="blog-editor-pane">
           <label>PREVIEW</label>

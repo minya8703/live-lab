@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Redis 캐시 라이브 데모 · 민야령 Live Lab</title>
-  <meta name="description" content="DB 직접 조회 vs Redis 캐시 응답 시간을 실시간 측정. CacheErrorHandler fallback 패턴 그대로 재현." />
+  <meta name="description" content="DB 직접 조회와 Redis Cache-Aside 응답 시간을 비교하고 읽기 장애 시 DB fallback과 무효화 실패 정책을 설명합니다." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/assets/css/style.css" />
   <link rel="stylesheet" href="/lab/redis.css" />
@@ -23,20 +23,21 @@
   <main class="redis-main">
     <section class="redis-intro">
       <p class="tag-line">U4 · Redis 캐시 라이브 데모</p>
-      <h1 class="redis-title">Redis 캐시 + Fallback — 캐시 인프라가 죽어도 시스템은 안 죽는 패턴</h1>
+      <h1 class="redis-title">Redis Cache-Aside — 조회 장애를 DB 경로로 격리하는 데모</h1>
       <p class="redis-sub">
         Postgres 100,000건에 대해 카테고리별 집계 쿼리 (GROUP BY · 인덱스 의도적으로 미사용)를
         <strong>캐시 없음 vs Redis 캐시</strong>로 같은 환경에서 실측합니다.
-        Redis 장애 시에는 <code>CacheErrorHandler</code>로 DB 직접 조회 자동 fallback.
+        Redis 조회 장애 시에는 <code>CacheErrorHandler</code>로 오류를 격리하고 DB 조회를 계속합니다.
       </p>
 
       <aside class="tradeoff-box" aria-label="trade-off">
         <h4>⚖ 이 데모의 trade-off (의식적 선택)</h4>
-        <p><span class="tradeoff-label">현재</span><code>GenericJackson2JsonRedisSerializer</code> + 단일 Redis 인스턴스 + TTL 60초.</p>
+        <p><span class="tradeoff-label">현재</span>읽기 전용 Cache-Aside 데모. <code>GenericJackson2JsonRedisSerializer</code> + 단일 Redis 인스턴스 + TTL 60초.</p>
+        <p><span class="tradeoff-label">자원 보호</span>연결 peer 기준 벤치마크는 분당 누적 400회, 전체 캐시 초기화는 분당 10회로 제한하며 초과 요청은 <code>429 Too Many Requests</code>로 거부한다. 현재 인메모리 방식이라 다중 인스턴스에서는 공유 제한기가 필요하다.</p>
         <p><span class="tradeoff-label">한계 1</span>JSON 안에 <code>@class</code> 패키지 경로가 함께 저장됨 → MSA 전환 시 다른 서비스에서 역직렬화하면 <code>ClassCastException</code> 위험.</p>
-        <p><span class="tradeoff-label">한계 2</span><strong>Cache Stampede</strong> 미대응 — Redis 가 진짜 다운되면 동시 요청 수천 개가 Postgres 로 한 번에 쏟아져 DB 자체가 도미노로 무너질 수 있음.</p>
-        <p><span class="tradeoff-label">엔터프라이즈급</span>(1) <code>Jackson2JsonRedisSerializer&lt;DTO&gt;</code> 로 타입 명시 → 패키지 의존성 끊기. (2) Resilience4j <strong>Circuit Breaker + Bulkhead</strong> 로 Fallback 구간 보호 — 일정 비율 실패 시 고정 응답 (Static Fallback) 반환. (3) Redis Sentinel/Cluster 로 고가용성.</p>
-        <p><span class="tradeoff-label">현 사이트가 안 가는 이유</span>(1)(2) 는 즉시 적용 가능 — 별도 Unit 의 *개선 비교 회고* 로 분리 예정. (3) Cluster 는 메모리 4 노드 필요해 t4g.small 무리.</p>
+        <p><span class="tradeoff-label">한계 2</span><strong>Cache Stampede</strong> 미대응 — Redis 장애나 동시 만료가 발생하면 요청이 Postgres로 집중될 수 있다.</p>
+        <p><span class="tradeoff-label">확장 시 검토</span>(1) 명시적 DTO serializer로 서비스 간 계약 분리. (2) Bulkhead·요청 병합·TTL jitter로 fallback 집중 완화. (3) 가용성 요구와 복구 목표가 단일 인스턴스 범위를 넘을 때 Sentinel 또는 Cluster 검토.</p>
+        <p><span class="tradeoff-label">현 사이트가 안 가는 이유</span>(1)(2)는 별도 Unit의 <em>개선 비교 회고</em>로 분리할 예정이다. (3) Cluster는 여러 노드 운영에 필요한 메모리 때문에 현재 t4g.small 환경에 적합하지 않다.</p>
       </aside>
     </section>
 
@@ -55,7 +56,7 @@
         <button id="evict" class="btn-link" type="button">Redis 캐시 비우기</button>
       </div>
       <p class="control-hint">
-        첫 캐시 실행은 미스라 DB로 떨어집니다(첫 막대만 길어요). 두 번째부터 전부 히트.
+        첫 캐시 실행은 미스라 DB로 떨어집니다(첫 막대만 길어요). 두 번째부터 전부 히트. 벤치마크는 연결 peer 기준 분당 누적 400회로 제한됩니다.
         "캐시 비우기"로 다시 콜드 상태에서 시작할 수 있습니다.
       </p>
     </section>
@@ -101,8 +102,9 @@
         <li><strong>현재 자료구조 — String(Key-Value):</strong> <code>category-stats::&lt;카테고리&gt;</code>를 키로, 집계 DTO 전체를 JSON 값으로 저장한다. 한 키로 결과 전체를 함께 읽고 만료시키는 조회 모델이므로 부분 필드 갱신용 Hash보다 단순하고 원자적인 구조가 맞다.</li>
         <li><strong>다른 자료구조의 선택 기준:</strong> 객체 일부를 자주 갱신하면 <strong>Hash</strong>, 중복 없는 소속·권한 판별이면 <strong>Set</strong>, 점수 기반 순위·시간순 조회면 <strong>Sorted Set</strong>, 소비자 그룹이 필요한 이벤트 처리면 <strong>Stream</strong>을 검토한다. 자료구조는 기술 선호가 아니라 접근 패턴으로 결정한다.</li>
         <li><strong>키·TTL:</strong> 도메인과 조회 조건이 드러나는 네임스페이스 키를 사용하고 TTL 60초로 성능과 신선도의 경계를 정했다. 실제 업무에서는 환율·마스터 데이터처럼 변경 주기와 stale 허용 시간에 따라 TTL을 다르게 둔다.</li>
-        <li><strong>무효화·일관성:</strong> 쓰기 성공 뒤 관련 캐시를 <code>@CacheEvict</code>한다. 캐시와 DB의 원자적 동시 갱신보다 DB 정합성을 우선하며, 짧은 eventual consistency가 허용되는 조회에만 캐시를 적용한다.</li>
-        <li><strong>장애 경계:</strong> Redis 오류는 <code>CacheErrorHandler</code>에서 격리해 DB로 fallback한다. 다만 대규모 트래픽에서는 fallback 자체가 DB를 압박하므로 Circuit Breaker·Bulkhead·TTL jitter·요청 병합으로 stampede까지 함께 막아야 한다.</li>
+        <li><strong>현재 무효화 범위:</strong> 이 데모에는 상품 쓰기 API가 없다. 화면의 “캐시 비우기”는 비교 실험을 다시 시작하기 위한 수동 <code>@CacheEvict(allEntries = true)</code>이며, DB 저장 이후의 선택적 무효화를 구현한 것으로 설명하지 않는다.</li>
+        <li><strong>업무 쓰기 추가 시:</strong> DB transaction commit 이후 변경된 category key만 삭제하는 방식을 우선 검토한다. DB rollback인데 캐시만 먼저 지워지는 순서와, 삭제 실패로 stale 값이 남는 경우를 통합 테스트해야 한다.</li>
+        <li><strong>장애 경계:</strong> cache get·put 실패는 DB 조회 결과를 반환하도록 fail-open 처리한다. 반면 evict·clear 실패는 stale 데이터를 정상처럼 제공할 수 있으므로 예외를 호출자에게 전달한다. 대규모 트래픽에서는 Bulkhead·TTL jitter·요청 병합으로 fallback 집중도 함께 제한해야 한다.</li>
       </ul>
     </section>
 
@@ -112,7 +114,8 @@
         <li><code>SELECT sub_category, count, avg(price), min, max FROM product WHERE category = ? GROUP BY sub_category</code> — Postgres 16에서 인덱스 없이 풀스캔.</li>
         <li>응답 시간(ns) → ms 변환 후 통계: 평균·최소·최대.</li>
         <li>캐시 키: <code>category-stats::&lt;카테고리명&gt;</code> · TTL 60s · 직렬화 GenericJackson2JsonRedisSerializer.</li>
-        <li>Redis 장애 시 CacheErrorHandler가 예외를 삼키고 @Cacheable이 캐시 미스로 처리 → DB 직접 조회로 자동 fallback.</li>
+        <li>Redis GET 실패 시 CacheErrorHandler가 조회 오류를 격리하고 <code>@Cacheable</code> 대상 메서드가 DB를 조회한다. PUT 실패도 DB 결과는 반환하지만 캐시는 채워지지 않는다.</li>
+        <li>수동 clear 실패는 성공 응답으로 숨기지 않고 오류로 반환한다.</li>
       </ul>
     </section>
   </main>

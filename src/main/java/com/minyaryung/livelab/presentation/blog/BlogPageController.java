@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 블로그 상세 페이지 — OG 메타 태그를 서버 사이드에서 주입하여
@@ -31,16 +33,15 @@ public class BlogPageController {
 
         BlogDto post = null;
         if (slug != null && !slug.isBlank()) {
-            try {
-                post = service.findBySlug(slug);
-            } catch (Exception ignored) {}
+            post = service.findBySlug(slug);
         }
 
         String title = post != null ? esc(post.title()) + " · 민야령 Backend Live Lab"
                                     : "기술 블로그 · 민야령 Backend Live Lab";
         String description = post != null && post.summary() != null ? esc(post.summary())
                                     : "민야령의 기술 블로그. 백엔드, EAI, MSA, 클라우드 경험과 인사이트.";
-        String url = "https://minya.life/blog/post.html?slug=" + (slug != null ? slug : "");
+        String encodedSlug = slug != null ? URLEncoder.encode(slug, StandardCharsets.UTF_8) : "";
+        String url = "https://minya.life/blog/post.html?slug=" + encodedSlug;
         String image = post != null && post.thumbnailUrl() != null && !post.thumbnailUrl().isBlank()
                        ? esc(post.thumbnailUrl())
                        : "https://minya.life/favicon.svg";

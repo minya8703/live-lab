@@ -40,4 +40,20 @@ class MarkdownServiceTest {
         assertThat(html).contains("<strong>bold</strong>");
         assertThat(html).contains("<em>italic</em>");
     }
+
+    @Test
+    void escapesRawHtml() {
+        String html = service.render("<script>alert('xss')</script>");
+
+        assertThat(html)
+                .doesNotContain("<script>")
+                .contains("&lt;script&gt;");
+    }
+
+    @Test
+    void removesUnsafeLinkProtocols() {
+        String html = service.render("[click](javascript:alert('xss'))");
+
+        assertThat(html).doesNotContain("javascript:");
+    }
 }

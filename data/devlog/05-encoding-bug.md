@@ -1,36 +1,35 @@
 ---
 slug: properties-encoding-bug
 unit: 4
-title: 한국어가 깨진 이유 — properties 가 아니라 Java 코드에 둬야 했다
+title: 한국어가 깨진 이유 — 문자열 위치가 아니라 인코딩 경로 문제
 date: 2026-05-22
 tags: [encoding, debugging]
 ---
 
 ## 증상
-Redis 데모 페이지의 카테고리 select 박스에서 한국어가 mangled 된 글자로 표시:
 
-```
+Redis 데모 페이지의 카테고리 선택 항목과 JSON 응답, DB의 `product.category` 값이 모두 깨진 문자열로 표시됐다.
+
+```text
 "???", "占쏙옙占쏙옙"
 ```
 
-JSON 응답을 직접 봐도 깨져있고, DB의 `product.category` 컬럼도 깨진 채로 저장돼있다.
-
 ## 원인 추적
-`application.properties` 의 `livelab.demo.categories=전자제품,도서,...` 라인이 문제.
 
-Windows 환경에서 편집기/PowerShell이 파일을 **UTF-8이 아닌 인코딩**(CP949 또는 UTF-16)으로
-저장하면 Spring Boot 가 잘못된 바이트로 문자열을 읽는다.
+카테고리 원본은 `application.properties`의 다음 설정이었다.
 
-읽힌 mangled 문자열이 DataSeeder를 통해 DB에 그대로 insert.
-이후 API가 그 mangled 문자열을 그대로 반환.
-프론트엔드 UTF-8 환경에서 디코딩 시도 → 글자 깨짐.
+```properties
+livelab.demo.categories=전자제품,도서,...
+```
 
-## 시도한 해결
-1. application.properties 인코딩 다시 저장 — 편집기마다 동작 다름, 재발 위험.
-2. `spring.banner.charset` 같은 옵션 조정 — 의미 없음.
-3. **Java 코드에 상수로 박기** — 채택.
+파일이 저장·복사되는 과정에서 UTF-8이 아닌 인코딩으로 처리됐고, 이미 손상된 문자열이 설정 로딩과 DataSeeder를 거쳐 DB에 저장됐다. 브라우저나 JSON 응답의 인코딩이 원인이 아니라 **원본 리소스의 바이트가 애플리케이션에 들어오기 전에 손상된 것**이 원인이었다.
 
-## 채택한 패턴
+## 당시 복구
+
+1. 손상된 설정 값을 제거했다.
+2. 카테고리를 Java 상수로 옮겨 컴파일 시 UTF-8 검증을 받도록 했다.
+3. DB 데이터를 초기화하고 정상 문자열로 다시 시드했다.
+4. Gradle의 Java 컴파일 인코딩을 UTF-8로 명시했다.
 
 ```java
 public final class DemoCategories {
@@ -40,13 +39,16 @@ public final class DemoCategories {
 }
 ```
 
-Java 소스 파일은 `maven-compiler-plugin` 이 `project.build.sourceEncoding=UTF-8` 을
-강제하므로 어떤 편집기·터미널에서도 인코딩 사고가 일어나지 않는다.
+Java 상수 이동은 작은 고정 도메인 값에 대한 **복구 및 타입 안전성 선택**이었다. `properties`가 비 ASCII 문자열에 부적합하다는 뜻은 아니다. 설정으로 바뀌어야 하는 값이라면 UTF-8로 관리되는 설정 파일이나 구조화된 리소스에 두고, 저장 인코딩과 로딩 테스트를 고정하는 편이 맞다.
 
-`application.properties` 에서 카테고리 라인 제거. DB는 TRUNCATE 후 재시드.
+## 재발 방지 기준
 
-## 일반화한 룰
-**한국어/일본어 같은 비-ASCII 정적 데이터는 properties 가 아니라 Java 코드에 둔다.**
+- 소스·리소스 파일은 저장소에서 UTF-8로 통일한다.
+- 빌드 설정에 컴파일 및 테스트 인코딩을 명시한다.
+- 다국어 문자열이 포함된 설정은 로딩 테스트로 실제 값을 검증한다.
+- 깨진 데이터가 DB에 저장된 경우 코드 수정만 하지 않고 기존 데이터도 복구한다.
+- 화면에서 깨졌다는 이유만으로 프론트엔드 charset부터 바꾸지 않고, 최초로 바이트가 손상된 경계를 찾는다.
 
-properties 는 *경계 자원* — 편집기·터미널·Maven 리소스 필터링 어디서든 한 번이라도
-잘못된 인코딩으로 거치면 깨진다. Java 소스는 컴파일러가 인코딩을 강제 — 격리됨.
+## 배운 점
+
+문자열을 Java로 옮긴 것 자체가 일반 해법은 아니다. 핵심은 데이터가 **저장 → 빌드 → 설정 로딩 → DB → JSON** 경로 중 어디에서 다른 문자셋으로 해석됐는지 확인하고, 그 경계를 테스트로 고정하는 것이다.

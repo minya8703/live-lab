@@ -1,22 +1,7 @@
 (function () {
   "use strict";
 
-  // Korean 리터럴은 codepoint 빌드로 — JS 파일이 어떤 인코딩으로 저장돼도 동일하게 해석.
-  // 평문(참고): "U10 AWS 운영 페이지 구축 중 · AI-DLC Construction"
-  const FALLBACK_LABEL = String.fromCodePoint(
-    85, 49, 48, 32,                               // U10
-    65, 87, 83, 32,                               // AWS
-    0xC6B4, 0xC601, 32,                           // 운영
-    0xD398, 0xC774, 0xC9C0, 32,                   // 페이지
-    0xAD6C, 0xCD95, 32,                           // 구축
-    0xC911, 32,                                   // 중
-    0x00B7, 32,                                   // ·
-    65, 73, 45, 68, 76, 67, 32,
-    67, 111, 110, 115, 116, 114, 117, 99, 116, 105, 111, 110
-  );
-
-  const KO_PLANNED = String.fromCodePoint(0xC608, 0xC815);                       // 예정
-  const KO_IN_PROGRESS = String.fromCodePoint(0xC791, 0xC5C5, 0x20, 0xC911);     // 작업 중
+  const FALLBACK_LABEL = "U10 AWS 운영 페이지 구축 중 · AI-DLC Construction";
 
   const FALLBACK = {
     currentUnit: 10,
@@ -28,14 +13,14 @@
       5: "live",
       7: "live",
       8: "live",
-      11: "live",
+      11: "planned",
       10: "in-progress",
     },
   };
 
   const STATUS_TEXT = {
-    planned: KO_PLANNED,
-    "in-progress": KO_IN_PROGRESS,
+    planned: "예정",
+    "in-progress": "작업 중",
     live: "Live",
   };
 

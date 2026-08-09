@@ -58,7 +58,7 @@
 
       article.appendChild(header);
 
-      // 서버에서 렌더된 HTML — commonmark-java 의 출력은 안전하다고 가정.
+      // 서버의 MarkdownService가 raw HTML을 escape하고 위험 URL을 제거한 결과만 삽입한다.
       const content = el("div", "devlog-content");
       content.innerHTML = entry.htmlContent || "";
       article.appendChild(content);

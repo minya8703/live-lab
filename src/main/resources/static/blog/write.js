@@ -12,6 +12,13 @@
   var publishBtn = document.querySelector("[data-btn-publish]");
   var editorTitle = document.querySelector("[data-editor-title]");
 
+  function requireJson(res, fallbackMessage) {
+    return res.json().catch(function () { return {}; }).then(function (body) {
+      if (!res.ok) throw new Error(body.error || fallbackMessage);
+      return body;
+    });
+  }
+
   // 수정 모드 감지
   var params = new URLSearchParams(window.location.search);
   var editSlug = params.get("edit");
@@ -74,10 +81,7 @@
       headers: window.BlogAuth.authHeaders(),
       body: formData
     })
-    .then(function (res) {
-      if (!res.ok) throw new Error("Upload failed");
-      return res.json();
-    })
+    .then(function (res) { return requireJson(res, "업로드 요청이 거부되었습니다."); })
     .then(function (data) {
       var pos = contentEl.selectionStart;
       var text = contentEl.value;
@@ -194,10 +198,7 @@
       headers: getHeaders("application/json"),
       body: JSON.stringify(body)
     })
-    .then(function (res) {
-      if (!res.ok) throw new Error("Save failed");
-      return res.json();
-    })
+    .then(function (res) { return requireJson(res, "저장 요청이 거부되었습니다."); })
     .then(function (data) {
       if (published) {
         window.location.href = "/blog.html";
@@ -220,10 +221,7 @@
   if (editSlug) {
     editorTitle.textContent = "글 수정";
     fetch("/api/blog/" + encodeURIComponent(editSlug))
-      .then(function (res) {
-        if (!res.ok) throw new Error("Not found");
-        return res.json();
-      })
+      .then(function (res) { return requireJson(res, "글을 찾을 수 없습니다."); })
       .then(function (post) {
         titleEl.value = post.title || "";
         slugEl.value = post.slug || "";

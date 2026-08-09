@@ -58,20 +58,5 @@
     </p>
   </footer>
 
-  <script>
-    // Spring Boot 의 BasicErrorController 가 status 를 querystring 으로 던지지 않으므로
-    // URL 의 path 또는 referrer 로 추정. 가장 신뢰는 server-side template 이지만
-    // 정적 fallback 만 두는 정책이라 client-side hint 로 보강.
-    (function () {
-      "use strict";
-      var codeEl = document.querySelector("[data-error-code]");
-      if (!codeEl) return;
-      // URL 에 /error/4xx 같은 hint 가 있으면 표시
-      var m = location.pathname.match(/error\/(\d{3})/);
-      if (m) {
-        codeEl.textContent = m[1];
-      }
-    })();
-  </script>
 </body>
 </html>
