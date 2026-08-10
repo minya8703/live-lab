@@ -31,7 +31,8 @@ class SystemPromptBuilderTest {
         assertThat(prompt).contains("민야령");
         assertThat(prompt).contains("AWS 직접 운영 경험은 없습니다");
         assertThat(prompt).contains("FILE:");
-        assertThat(prompt).contains("{\"answer\":\"답변\", \"sources\"");
+        assertThat(prompt).contains("{\"answer\":\"답변\", \"evidence\"");
+        assertThat(prompt).contains("원문에서 그대로 복사한 8~500자의 연속 구절");
         assertThat(prompt).contains("\"grounded\":true");
         assertThat(prompt).contains("JSON 객체 하나만 출력");
         assertThat(prompt).contains("profile.md");

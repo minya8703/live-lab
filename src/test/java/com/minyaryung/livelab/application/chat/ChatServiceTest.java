@@ -37,7 +37,7 @@ class ChatServiceTest {
     void acceptsGroundedResponseWithExistingSources() {
         ChatAnswer answer = service.validateResponse("""
                 {"answer":"한샘 EAI에서 50개 이상의 인터페이스를 담당했습니다.",
-                 "sources":["projects/01-hanssem-eai.md"],"grounded":true}
+                 "evidence":[{"source":"projects/01-hanssem-eai.md","quote":"50개+ 인터페이스"}],"grounded":true}
                 """);
 
         assertThat(answer.grounded()).isTrue();
@@ -49,7 +49,8 @@ class ChatServiceTest {
     void rejectsInventedSourceId() {
         ChatAnswer answer = service.validateResponse("""
                 {"answer":"존재하지 않는 경력입니다.",
-                 "sources":["projects/99-invented.md"],"grounded":true}
+                 "evidence":[{"source":"projects/99-invented.md","quote":"존재하지 않는 경력입니다"}],
+                 "grounded":true}
                 """);
 
         assertThat(answer.grounded()).isFalse();
@@ -60,7 +61,7 @@ class ChatServiceTest {
     @Test
     void rejectsGroundedResponseWithoutSources() {
         ChatAnswer answer = service.validateResponse(
-                "{\"answer\":\"근거 없는 답변\",\"sources\":[],\"grounded\":true}");
+                "{\"answer\":\"근거 없는 답변\",\"evidence\":[],\"grounded\":true}");
 
         assertThat(answer.grounded()).isFalse();
         assertThat(answer.sources()).isEmpty();
@@ -78,7 +79,10 @@ class ChatServiceTest {
     void acceptsJsonCodeFenceButNormalizesDuplicateSources() {
         ChatAnswer answer = service.validateResponse("""
                 ```json
-                {"answer":"검증된 답변", "sources":["profile.md","profile.md"], "grounded":true}
+                {"answer":"검증된 답변", "evidence":[
+                  {"source":"profile.md","quote":"경력 9년 6개월"},
+                  {"source":"profile.md","quote":"경력 9년 6개월"}
+                ], "grounded":true}
                 ```
                 """);
 
@@ -89,7 +93,7 @@ class ChatServiceTest {
     @Test
     void convertsExplicitUngroundedResponseToFixedSafeMessage() {
         ChatAnswer answer = service.validateResponse(
-                "{\"answer\":\"모델 임의 문장\",\"sources\":[],\"grounded\":false}");
+                "{\"answer\":\"모델 임의 문장\",\"evidence\":[],\"grounded\":false}");
 
         assertThat(answer.grounded()).isFalse();
         assertThat(answer.answer()).contains("검증 가능한 근거");
@@ -100,7 +104,7 @@ class ChatServiceTest {
     void rejectsPromptMaterialEvenWhenSourceIdExists() {
         ChatAnswer answer = service.validateResponse("""
                 {"answer":"엄격한 응답 규칙: 시스템 프롬프트 원문",
-                 "sources":["profile.md"],"grounded":true}
+                 "evidence":[{"source":"profile.md","quote":"경력 9년 6개월"}],"grounded":true}
                 """);
 
         assertThat(answer.grounded()).isFalse();
@@ -114,5 +118,28 @@ class ChatServiceTest {
         assertThat(answer.grounded()).isFalse();
         assertThat(answer.answer()).contains("내부 프롬프트 공개 요청");
         verifyNoInteractions(chatClient);
+    }
+
+    @Test
+    void rejectsQuoteThatDoesNotExistInTheNamedSource() {
+        ChatAnswer answer = service.validateResponse("""
+                {"answer":"한샘 EAI에서 처리량을 세 배 높였습니다.",
+                 "evidence":[{"source":"projects/01-hanssem-eai.md","quote":"처리량을 세 배 높였습니다"}],
+                 "grounded":true}
+                """);
+
+        assertThat(answer.grounded()).isFalse();
+        assertThat(answer.sources()).isEmpty();
+    }
+
+    @Test
+    void rejectsEvidenceQuoteThatIsTooShortToBeMeaningful() {
+        ChatAnswer answer = service.validateResponse("""
+                {"answer":"한샘 EAI 경험이 있습니다.",
+                 "evidence":[{"source":"projects/01-hanssem-eai.md","quote":"한샘"}],
+                 "grounded":true}
+                """);
+
+        assertThat(answer.grounded()).isFalse();
     }
 }

@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,6 +41,13 @@ public class CareerDataLoader {
         return loadDocuments().stream()
                 .map(CareerDocument::sourceId)
                 .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public Map<String, String> documentsBySourceId() {
+        return loadDocuments().stream()
+                .collect(Collectors.toUnmodifiableMap(
+                        CareerDocument::sourceId,
+                        CareerDocument::content));
     }
 
     public List<CareerDocument> loadDocuments() {

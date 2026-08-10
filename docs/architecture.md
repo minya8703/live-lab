@@ -143,7 +143,7 @@ POST /api/kafka-demo/reset?runId=...      → 완료된 해당 실행 메트릭 
 
 ### 3.4 AI 챗봇 (경력 Q&A)
 
-경력 데이터 기반 질의응답. 모델 응답을 구조화하고 서버가 source ID를 검증해 자유 형식의 근거 없는 답변을 그대로 노출하지 않는다.
+경력 데이터 기반 질의응답. 모델 응답을 구조화하고 서버가 source와 원문 quote를 검증해 자유 형식의 근거 없는 답변을 그대로 노출하지 않는다.
 
 ```
 POST /api/chat  → 질문 (500자 제한, IP당 20회/시간)
@@ -152,13 +152,14 @@ POST /api/chat  → 질문 (500자 제한, IP당 20회/시간)
 **구현 상세:**
 - Google Gemini 2.5 Flash (Spring AI, OpenAI 호환 엔드포인트)
 - SystemPromptBuilder: 경력 마크다운 전체를 시스템 프롬프트로 주입
-- 응답 계약: `{answer, sources, grounded}` JSON
-- CareerDataLoader: 공개 Markdown의 상대 경로를 제공하고, ChatService는 시작 시 source ID snapshot을 고정해 시스템 프롬프트와 같은 재시작 주기로 검증
-- ChatService: `grounded=true`의 source 존재를 검증하고 형식 오류·빈 출처·허위 파일명은 고정 보류 응답으로 전환
+- 모델 출력 계약: `{answer, evidence:[{source, quote}], grounded}` JSON
+- 공개 API 계약: `{answer, sources, grounded}` JSON
+- CareerDataLoader: 공개 Markdown의 상대 경로와 내용을 제공하고, ChatService는 시작 시 문서 snapshot을 고정해 시스템 프롬프트와 같은 재시작 주기로 검증
+- ChatService: `grounded=true`의 source와 8~500자 원문 연속 quote를 검증하고 형식 오류·빈 근거·허위 파일명·원문에 없는 인용은 고정 보류 응답으로 전환
 - 화면: 서버에서 검증한 source ID만 답변 아래 표시
 - SimpleRateLimiter: peer 주소별 1시간 fixed window (20회), 비활성 bucket 정리, forwarded header 미신뢰
 - 질문 원문과 provider 오류 body는 로그에 남기지 않고 길이·지연·상태·오류 타입만 기록
-- 남은 한계: source 파일의 존재는 검증하지만 source 내용과 답변 주장 간 의미 일치는 아직 자동 검증하지 않음
+- 남은 한계: quote의 원문 존재는 검증하지만 검증된 quote와 답변 주장 간 의미 일치는 아직 자동 판정하지 않음
 - 재시도: 3회, 1s→2s→8s 백오프
 
 ### 3.5 경력 페이지
