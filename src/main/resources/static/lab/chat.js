@@ -20,9 +20,20 @@
     msg.scrollIntoView({ behavior: "smooth", block: "end" });
   }
 
-  function appendBot(text) {
+  function appendBot(text, sources, grounded) {
     const msg = el("article", "msg msg-bot");
-    msg.textContent = text;
+    msg.appendChild(el("div", "msg-answer", text));
+
+    const evidence = el("div", "msg-evidence");
+    if (grounded && Array.isArray(sources) && sources.length > 0) {
+      evidence.appendChild(el("span", "evidence-label", "검증된 근거"));
+      sources.forEach(function (source) {
+        evidence.appendChild(el("code", "evidence-source", source));
+      });
+    } else {
+      evidence.appendChild(el("span", "evidence-label evidence-missing", "근거 확인 불가 · 답변 보류"));
+    }
+    msg.appendChild(evidence);
     conversation.appendChild(msg);
     msg.scrollIntoView({ behavior: "smooth", block: "end" });
   }
@@ -77,7 +88,7 @@
         appendError(body.error || "응답 처리에 실패했습니다.");
         return;
       }
-      appendBot(body.answer || "(빈 응답)");
+      appendBot(body.answer || "(빈 응답)", body.sources, body.grounded === true);
     } catch (e) {
       removeThinking(thinking);
       appendError("네트워크 오류로 응답을 받지 못했습니다.");

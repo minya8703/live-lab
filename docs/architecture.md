@@ -143,7 +143,7 @@ POST /api/kafka-demo/reset?runId=...      → 완료된 해당 실행 메트릭 
 
 ### 3.4 AI 챗봇 (경력 Q&A)
 
-경력 데이터 기반 질의응답. 근거 없는 답변 가능성을 줄이되 프롬프트만으로 사실성을 보장하지 않음을 공개.
+경력 데이터 기반 질의응답. 모델 응답을 구조화하고 서버가 source ID를 검증해 자유 형식의 근거 없는 답변을 그대로 노출하지 않는다.
 
 ```
 POST /api/chat  → 질문 (500자 제한, IP당 20회/시간)
@@ -152,9 +152,13 @@ POST /api/chat  → 질문 (500자 제한, IP당 20회/시간)
 **구현 상세:**
 - Google Gemini 2.5 Flash (Spring AI, OpenAI 호환 엔드포인트)
 - SystemPromptBuilder: 경력 마크다운 전체를 시스템 프롬프트로 주입
-- 규칙: 데이터에 없는 내용은 "해당 정보가 없습니다"로 답변
+- 응답 계약: `{answer, sources, grounded}` JSON
+- CareerDataLoader: 공개 Markdown의 상대 경로를 제공하고, ChatService는 시작 시 source ID snapshot을 고정해 시스템 프롬프트와 같은 재시작 주기로 검증
+- ChatService: `grounded=true`의 source 존재를 검증하고 형식 오류·빈 출처·허위 파일명은 고정 보류 응답으로 전환
+- 화면: 서버에서 검증한 source ID만 답변 아래 표시
 - SimpleRateLimiter: peer 주소별 1시간 fixed window (20회), 비활성 bucket 정리, forwarded header 미신뢰
 - 질문 원문과 provider 오류 body는 로그에 남기지 않고 길이·지연·상태·오류 타입만 기록
+- 남은 한계: source 파일의 존재는 검증하지만 source 내용과 답변 주장 간 의미 일치는 아직 자동 검증하지 않음
 - 재시도: 3회, 1s→2s→8s 백오프
 
 ### 3.5 경력 페이지
@@ -212,7 +216,7 @@ GET /api/ops     → 운영 기록 (incident / runbook)
 | CSRF | 상태 변경 요청에서 Strict CSRF 쿠키와 `X-CSRF-Token` 헤더를 상수 시간 비교. Bearer 자동화 요청은 쿠키 인증과 분리 |
 | 입력 검증 | 채팅 500자, Kafka count 1~2000, Redis iterations 1~200, 블로그 제목 300자·본문 100,000자·slug/URL 패턴 |
 | 공개 데모 자원 제한 | 신뢰하지 않는 전달 헤더 대신 TCP peer 주소 사용. Kafka 5,000건/10분, Redis 실행 400회/분·전체 초기화 10회/분 |
-| 브라우저 보안 헤더 | CSP로 script·frame 출처 제한, framing 차단, MIME sniffing 차단, Referrer/Permissions Policy 적용. 프록시 TLS 종료를 고려해 HSTS 헤더를 항상 전달하며 브라우저는 HTTPS 응답에서만 수용 |
+| 브라우저 보안 헤더 | CSP로 script·frame 출처 제한, framing 차단, MIME sniffing 차단, Referrer/Permissions Policy 적용. Google OAuth와 Cloudflare Web Analytics는 정확한 origin만 허용하고 전체 `https:` script 허용은 금지. 프록시 TLS 종료를 고려해 HSTS 헤더를 항상 전달하며 브라우저는 HTTPS 응답에서만 수용 |
 | 파일 검증 | 10MB 제한, PNG/JPEG/GIF/WebP signature 검사, 서버 결정 MIME·확장자, SVG/HTML 거부 |
 | 비밀 관리 | .env 파일, 코드/git에 미포함 |
 | Rate Limiting | TCP peer 주소 기반 fixed window (채팅 20회/시간, 비활성 bucket 정리, forwarded header 미신뢰) |
@@ -398,7 +402,7 @@ React/Vue/Angular를 사용하지 않는 것은 의도적 설계 판단:
 | GET | `/api/career` | - | 경력 페이지 데이터 |
 | GET | `/api/devlog` | - | 개발 일지 |
 | GET | `/api/ops` | - | 운영 기록 |
-| POST | `/api/chat` | - | AI 챗봇 질문 (Rate Limited) |
+| POST | `/api/chat` | - | AI 챗봇 질문 → `answer/sources/grounded` (Rate Limited) |
 | POST | `/api/kafka-demo/publish` | - | Kafka 이벤트 발행 |
 | GET | `/api/kafka-demo/status?runId=...` | - | 해당 Kafka 실행 처리 현황 |
 | POST | `/api/kafka-demo/reset?runId=...` | - | 완료된 Kafka 실행 초기화 |

@@ -12,6 +12,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -25,33 +29,51 @@ public class CareerDataLoader {
     }
 
     public String loadAllAsContext() {
-        if (!Files.isDirectory(dataDir)) {
-            log.warn("career data dir not found: {}", dataDir);
-            return "";
-        }
         StringBuilder out = new StringBuilder();
-        try (Stream<Path> walk = Files.walk(dataDir)) {
-            walk.filter(Files::isRegularFile)
-                .filter(MarkdownFileParser::isMdFile)
-                .filter(p -> !p.getFileName().toString().equalsIgnoreCase("README.md"))
-                .sorted(Comparator.naturalOrder())
-                .forEach(p -> appendFile(out, p));
-        } catch (IOException e) {
-            log.error("failed to walk career data dir {}", dataDir, e);
-        }
+        loadDocuments().forEach(document -> out.append("\n\n===== FILE: ")
+                .append(document.sourceId()).append(" =====\n\n")
+                .append(document.content()));
         return out.toString();
     }
 
-    private void appendFile(StringBuilder out, Path file) {
+    public Set<String> sourceIds() {
+        return loadDocuments().stream()
+                .map(CareerDocument::sourceId)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public List<CareerDocument> loadDocuments() {
+        if (!Files.isDirectory(dataDir)) {
+            log.warn("career data dir not found: {}", dataDir);
+            return List.of();
+        }
+        try (Stream<Path> walk = Files.walk(dataDir)) {
+            return walk.filter(Files::isRegularFile)
+                    .filter(MarkdownFileParser::isMdFile)
+                    .filter(p -> !p.getFileName().toString().equalsIgnoreCase("README.md"))
+                    .sorted(Comparator.naturalOrder())
+                    .map(this::readDocument)
+                    .flatMap(Optional::stream)
+                    .toList();
+        } catch (IOException e) {
+            log.error("failed to walk career data dir {}", dataDir, e);
+            return List.of();
+        }
+    }
+
+    private Optional<CareerDocument> readDocument(Path file) {
         Path rel = dataDir.relativize(file);
         try {
             ParsedFile pf = MarkdownFileParser.parse(file);
-            if (!pf.isVisible()) return;
+            if (!pf.isVisible()) return Optional.empty();
             String content = Files.readString(file, StandardCharsets.UTF_8);
-            out.append("\n\n===== FILE: ").append(rel.toString().replace('\\', '/'))
-               .append(" =====\n\n").append(content.strip());
+            return Optional.of(new CareerDocument(
+                    rel.toString().replace('\\', '/'), content.strip()));
         } catch (IOException e) {
             log.warn("failed to read {}", file, e);
+            return Optional.empty();
         }
     }
+
+    public record CareerDocument(String sourceId, String content) {}
 }

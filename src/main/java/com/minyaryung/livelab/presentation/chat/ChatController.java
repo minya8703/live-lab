@@ -1,10 +1,13 @@
 package com.minyaryung.livelab.presentation.chat;
 
+import com.minyaryung.livelab.application.chat.ChatAnswer;
 import com.minyaryung.livelab.application.chat.ChatService;
 import com.minyaryung.livelab.infra.common.SimpleRateLimiter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
@@ -32,7 +35,8 @@ public class ChatController {
             throw new ResponseStatusException(BAD_REQUEST, "\uc9c8\ubb38\uc740 " + MAX_LENGTH + "\uc790 \uc774\ub0b4\ub85c \ubd80\ud0c1\ub4dc\ub9bd\ub2c8\ub2e4.");
         if (!rateLimiter.tryAcquire(clientKey(http)))
             throw new ResponseStatusException(TOO_MANY_REQUESTS, "\uc694\uccad\uc774 \ub108\ubb34 \ub9ce\uc2b5\ub2c8\ub2e4. \uc7a0\uc2dc \ud6c4 \ub2e4\uc2dc \uc2dc\ub3c4\ud574 \uc8fc\uc138\uc694.");
-        return new ChatResponse(chatService.ask(trimmed));
+        ChatAnswer result = chatService.ask(trimmed);
+        return new ChatResponse(result.answer(), result.sources(), result.grounded());
     }
 
     private String clientKey(HttpServletRequest http) {
@@ -42,5 +46,5 @@ public class ChatController {
     }
 
     public record ChatRequest(String message) {}
-    public record ChatResponse(String answer) {}
+    public record ChatResponse(String answer, List<String> sources, boolean grounded) {}
 }

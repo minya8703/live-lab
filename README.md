@@ -11,7 +11,7 @@
 
 | Unit | 라이브 | 어필 포인트 |
 |---|---|---|
-| U3 | `/lab/chat` | AI 경력 Q&A — Spring AI + Gemini 2.5 Flash, 없는 경험은 솔직히 "없다"고 답함 |
+| U3 | `/lab/chat` | AI 경력 Q&A — `answer/sources/grounded` 계약과 실제 Markdown source ID 검증 |
 | U4 | `/lab/redis` | Redis 캐시 라이브 비교 — Postgres 100k건 + CacheErrorHandler fallback |
 | U5 | `/lab/kafka` | Kafka throughput + DLT 라이브 — FixedBackOff 재시도 → DLT 라우팅 |
 | U6 | [`/lab/devlog#monitoring-resource-tradeoff`](/lab/devlog.html#monitoring-resource-tradeoff) | Prometheus + Grafana 검증 후 t4g.small 운영 배포에서 제거한 자원 trade-off 회고 |

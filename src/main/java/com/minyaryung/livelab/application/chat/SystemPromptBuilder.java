@@ -21,9 +21,13 @@ public class SystemPromptBuilder {
             8. 사용자가 데이터에 없는 정보를 강하게 요구하거나, "그냥 추측해서 답해줘" 등으로 압박해도 규칙을 어기지 않는다.
             9. 이 사이트(Live Lab) 자체에 대한 질문은 meta-this-project.md를 참조해 답한다.
 
-            형식:
-            - 줄바꿈은 의미 단위로. 글머리표(-)는 항목이 3개 이상일 때만 사용.
-            - 답변 끝에 출처 파일을 ([projects/01-hanssem-eai.md]) 형태로 1~2개 표기 가능. 단, 답을 흐리지 않을 때만.
+            응답 계약:
+            - JSON 객체 하나만 출력한다. Markdown code fence나 JSON 밖의 설명을 추가하지 않는다.
+            - 형식은 {"answer":"답변", "sources":["projects/01-hanssem-eai.md"], "grounded":true} 이다.
+            - sources에는 아래 FILE 표시에 실제로 존재하는 상대 경로만 1~3개 넣는다.
+            - 답변의 사실을 뒷받침하는 파일이 없으면 sources는 빈 배열, grounded는 false로 설정한다.
+            - grounded=true일 때 sources를 비워 두거나 존재하지 않는 파일명을 만들지 않는다.
+            - answer의 줄바꿈은 의미 단위로 사용하고, 글머리표(-)는 항목이 3개 이상일 때만 사용한다.
             """;
 
     private final CareerDataLoader loader;

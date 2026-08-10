@@ -64,6 +64,40 @@
   border: 1px solid var(--border);
 }
 
+.msg-answer {
+  white-space: pre-wrap;
+}
+
+.msg-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 11px;
+  white-space: normal;
+}
+
+.evidence-label {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.evidence-label.evidence-missing {
+  color: var(--fg-dim);
+}
+
+.evidence-source {
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--fg-soft);
+}
+
 .msg-user {
   align-self: flex-end;
   background: var(--fg);

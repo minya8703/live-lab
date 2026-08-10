@@ -19,8 +19,13 @@ class SecurityHeadersFilterTest {
 
         filter.doFilter(request, response, new MockFilterChain());
 
-        assertThat(response.getHeader("Content-Security-Policy"))
-                .contains("default-src 'self'", "object-src 'none'", "frame-ancestors 'none'");
+        String csp = response.getHeader("Content-Security-Policy");
+        assertThat(csp)
+                .contains("default-src 'self'", "object-src 'none'", "frame-ancestors 'none'",
+                        "script-src 'self' https://accounts.google.com https://static.cloudflareinsights.com",
+                        "connect-src 'self' https://accounts.google.com https://cloudflareinsights.com");
+        assertThat(csp.split("; "))
+                .doesNotContain("script-src 'self' https:", "connect-src 'self' https:");
         assertThat(response.getHeader("X-Content-Type-Options")).isEqualTo("nosniff");
         assertThat(response.getHeader("X-Frame-Options")).isEqualTo("DENY");
         assertThat(response.getHeader("Referrer-Policy")).isEqualTo("strict-origin-when-cross-origin");

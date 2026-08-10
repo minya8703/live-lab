@@ -14,10 +14,10 @@ public class SecurityHeadersFilter extends OncePerRequestFilter {
 
     static final String CONTENT_SECURITY_POLICY = String.join("; ",
             "default-src 'self'",
-            "script-src 'self' https://accounts.google.com",
+            "script-src 'self' https://accounts.google.com https://static.cloudflareinsights.com",
             "style-src 'self' 'unsafe-inline' https://accounts.google.com",
             "img-src 'self' data: https:",
-            "connect-src 'self' https://accounts.google.com",
+            "connect-src 'self' https://accounts.google.com https://cloudflareinsights.com",
             "frame-src https://accounts.google.com",
             "font-src 'self'",
             "object-src 'none'",

@@ -31,11 +31,13 @@
 
       <aside class="tradeoff-box" aria-label="trade-off">
         <h4>⚖ 이 챗봇의 trade-off (의식적 선택)</h4>
-        <p><span class="tradeoff-label">현재</span>단일 LLM (Gemini 2.5 Flash) · 시스템 프롬프트에 경력 마크다운 전체 주입 · 서버가 직접 확인한 peer 주소 기준 1시간 fixed window 20회 제한 · 비활성 bucket 정리.</p>
-        <p><span class="tradeoff-label">한계 1</span>프롬프트 규칙만으로 사실성을 보장할 수 없고 출처도 선택 사항 — 실제 파일에 근거한 답변인지 서버가 검증하지 않음.</p>
+        <p><span class="tradeoff-label">현재</span>단일 LLM (Gemini 2.5 Flash) · 경력 마크다운 전체 주입 · <code>answer/sources/grounded</code> JSON 계약 · source ID 존재 검증 · prompt attack 입력/출력 정책 · peer 주소 기준 1시간 fixed window 20회 제한.</p>
+        <p><span class="tradeoff-label">근거 검증</span><code>grounded=true</code> 답변은 실제 경력 Markdown 파일을 1개 이상 제시해야 한다. JSON 형식 오류·빈 출처·존재하지 않는 파일명은 사용자에게 노출하지 않고 보류 응답으로 전환한다.</p>
+        <p><span class="tradeoff-label">공격 회귀</span>지시 무시·프롬프트 탈취·허위 경력 생성·민감 의견 요청을 LLM 호출 전에 거부하고, 내부 프롬프트 조각이 응답에 포함되면 source가 유효해도 폐기한다. 정상적인 보안 설계 질문은 허용 사례로 함께 테스트한다.</p>
+        <p><span class="tradeoff-label">한계 1</span>서버는 파일의 존재 여부까지 검증한다. 해당 파일 내용이 답변의 모든 문장을 의미적으로 뒷받침하는지는 아직 자동 판정하지 않는다. 정규식 입력 정책도 알려진 명시적 공격을 줄이는 1차 방어이지 완전한 탐지기가 아니다.</p>
         <p><span class="tradeoff-label">한계 2</span>호출자가 위조할 수 있는 <code>X-Forwarded-For</code>는 신뢰하지 않는다. 그 대신 Cloudflare 뒤에서는 여러 사용자가 같은 peer 한도를 공유할 수 있으며, fixed window 경계에서 요청이 몰릴 수 있고 현재 상태는 단일 인스턴스 전용이다.</p>
-        <p><span class="tradeoff-label">운영급 방향</span>(1) 관련 문서만 선택해 전달. (2) <code>answer/sources/grounded</code> 구조화 응답과 출처 검증. (3) 공격·허위 질문 평가셋을 CI에서 실행. (4) origin을 Cloudflare 대역으로 제한한 뒤 <code>CF-Connecting-IP</code>를 검증해 사용자별 한도 적용. (5) 토큰·지연·실패 메트릭.</p>
-        <p><span class="tradeoff-label">현 사이트가 안 가는 이유</span>문서 수가 작아 전체 주입이 아직 단순하고 저렴함. 검색 도입 전 먼저 출처 계약과 평가 기준을 추가할 예정.</p>
+        <p><span class="tradeoff-label">운영급 방향</span>(1) 질문과 관련된 문서만 선택. (2) 인용 문장과 원문 구간의 의미 일치 검증. (3) 실제 모델을 사용하는 선택적 품질 평가. (4) 신뢰한 프록시의 실제 사용자 주소로 공유 한도 개선. (5) 토큰·지연·grounded 비율 메트릭.</p>
+        <p><span class="tradeoff-label">현재 범위</span>문서 수가 작아 전체 주입을 유지한다. 검색이나 embedding은 문서 증가로 비용·정확도 문제가 측정될 때 도입한다.</p>
       </aside>
     </section>
 
