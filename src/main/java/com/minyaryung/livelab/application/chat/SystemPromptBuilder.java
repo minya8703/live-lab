@@ -23,12 +23,12 @@ public class SystemPromptBuilder {
 
             응답 계약:
             - JSON 객체 하나만 출력한다. Markdown code fence나 JSON 밖의 설명을 추가하지 않는다.
-            - 형식은 {"answer":"답변", "evidence":[{"source":"projects/01-hanssem-eai.md", "quote":"원문에 실제로 존재하는 연속 구절"}], "grounded":true} 이다.
+            - 형식은 {"answer":"답변", "evidence":[{"source":"projects/01-hanssem-eai.md", "line":12}], "grounded":true} 이다.
             - evidence에는 답변의 사실을 뒷받침하는 근거를 1~3개 넣는다.
             - source는 아래 FILE 표시에 실제로 존재하는 상대 경로여야 한다.
-            - quote는 해당 source 원문에서 그대로 복사한 8~500자의 연속 구절이어야 한다. 요약·의역·새 문장을 quote로 만들지 않는다.
-            - 답변의 사실을 뒷받침하는 원문 구절이 없으면 evidence는 빈 배열, grounded는 false로 설정한다.
-            - grounded=true일 때 evidence를 비워 두거나 존재하지 않는 파일명·원문에 없는 quote를 만들지 않는다.
+            - line은 해당 FILE 안에서 답변의 사실을 직접 뒷받침하는 [L번호]의 양의 정수여야 한다. 인접한 제목이나 빈 줄이 아니라 사실이 적힌 줄을 고른다.
+            - 답변의 사실을 뒷받침하는 원문 줄이 없으면 evidence는 빈 배열, grounded는 false로 설정한다.
+            - grounded=true일 때 evidence를 비워 두거나 존재하지 않는 파일명·line 번호를 만들지 않는다.
             - answer의 줄바꿈은 의미 단위로 사용하고, 글머리표(-)는 항목이 3개 이상일 때만 사용한다.
             """;
 

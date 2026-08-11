@@ -31,10 +31,10 @@
 
       <aside class="tradeoff-box" aria-label="trade-off">
         <h4>⚖ 이 챗봇의 trade-off (의식적 선택)</h4>
-        <p><span class="tradeoff-label">현재</span>단일 LLM (Gemini 2.5 Flash) · 경력 마크다운 전체 주입 · 모델의 <code>answer/evidence/grounded</code> 계약 · source와 원문 quote 검증 · prompt attack 입력/출력 정책 · peer 주소 기준 1시간 fixed window 20회 제한.</p>
-        <p><span class="tradeoff-label">근거 검증</span><code>grounded=true</code> 답변은 실제 경력 Markdown의 source와 8~500자 원문 연속 구절을 제출해야 한다. 서버 검증을 통과한 source만 공개 API의 <code>answer/sources/grounded</code>로 반환한다.</p>
+        <p><span class="tradeoff-label">현재</span>단일 LLM (Gemini 2.5 Flash) · 경력 마크다운 전체 주입 · 모델의 <code>answer/evidence/grounded</code> 계약 · source와 원문 line 위치 검증 · prompt attack 입력/출력 정책 · peer 주소 기준 1시간 fixed window 20회 제한.</p>
+        <p><span class="tradeoff-label">근거 검증</span>시스템 프롬프트의 원문 각 줄에 안정적인 <code>[L번호]</code>를 붙인다. <code>grounded=true</code> 답변은 실제 source와 사실이 적힌 line을 제출해야 하며, 서버 검증을 통과한 source만 공개 API로 반환한다.</p>
         <p><span class="tradeoff-label">공격 회귀</span>지시 무시·프롬프트 탈취·허위 경력 생성·민감 의견 요청을 LLM 호출 전에 거부하고, 내부 프롬프트 조각이 응답에 포함되면 source가 유효해도 폐기한다. 정상적인 보안 설계 질문은 허용 사례로 함께 테스트한다.</p>
-        <p><span class="tradeoff-label">한계 1</span>서버는 인용 구절이 source 원문에 실제 존재하는지까지 검증한다. 그 인용이 답변의 모든 문장을 의미적으로 뒷받침하는지는 아직 자동 판정하지 않는다. 정규식 입력 정책도 알려진 명시적 공격을 줄이는 1차 방어이지 완전한 탐지기가 아니다.</p>
+        <p><span class="tradeoff-label">한계 1</span>서버는 source와 line 위치가 원문에 실제 존재하는지까지 검증한다. 그 줄이 답변의 모든 문장을 의미적으로 뒷받침하는지는 아직 자동 판정하지 않는다. 정규식 입력 정책도 알려진 명시적 공격을 줄이는 1차 방어이지 완전한 탐지기가 아니다.</p>
         <p><span class="tradeoff-label">한계 2</span>호출자가 위조할 수 있는 <code>X-Forwarded-For</code>는 신뢰하지 않는다. 그 대신 Cloudflare 뒤에서는 여러 사용자가 같은 peer 한도를 공유할 수 있으며, fixed window 경계에서 요청이 몰릴 수 있고 현재 상태는 단일 인스턴스 전용이다.</p>
         <p><span class="tradeoff-label">운영급 방향</span>(1) 질문과 관련된 문서만 선택. (2) 답변 주장과 검증된 인용의 의미 일치 평가. (3) 실제 모델을 사용하는 선택적 품질 평가. (4) 신뢰한 프록시의 실제 사용자 주소로 공유 한도 개선. (5) 토큰·지연·grounded 비율 메트릭.</p>
         <p><span class="tradeoff-label">현재 범위</span>문서 수가 작아 전체 주입을 유지한다. 검색이나 embedding은 문서 증가로 비용·정확도 문제가 측정될 때 도입한다.</p>

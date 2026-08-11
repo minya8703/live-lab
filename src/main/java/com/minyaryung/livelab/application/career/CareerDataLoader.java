@@ -33,7 +33,7 @@ public class CareerDataLoader {
         StringBuilder out = new StringBuilder();
         loadDocuments().forEach(document -> out.append("\n\n===== FILE: ")
                 .append(document.sourceId()).append(" =====\n\n")
-                .append(document.content()));
+                .append(document.numberedContent()));
         return out.toString();
     }
 
@@ -43,11 +43,11 @@ public class CareerDataLoader {
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    public Map<String, String> documentsBySourceId() {
+    public Map<String, List<String>> documentLinesBySourceId() {
         return loadDocuments().stream()
                 .collect(Collectors.toUnmodifiableMap(
                         CareerDocument::sourceId,
-                        CareerDocument::content));
+                        CareerDocument::lines));
     }
 
     public List<CareerDocument> loadDocuments() {
@@ -83,5 +83,20 @@ public class CareerDataLoader {
         }
     }
 
-    public record CareerDocument(String sourceId, String content) {}
+    public record CareerDocument(String sourceId, String content) {
+
+        public List<String> lines() {
+            return content.lines().toList();
+        }
+
+        public String numberedContent() {
+            StringBuilder numbered = new StringBuilder();
+            List<String> lines = lines();
+            for (int i = 0; i < lines.size(); i++) {
+                numbered.append("[L").append(i + 1).append("] ")
+                        .append(lines.get(i)).append('\n');
+            }
+            return numbered.toString().stripTrailing();
+        }
+    }
 }

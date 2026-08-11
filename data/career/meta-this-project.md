@@ -15,7 +15,7 @@ Inception → Construction → Operations 사이클로, 기능을 Unit 단위로
 
 - U1: Inception 산출물 문서화 (완료)
 - U2: 랜딩 페이지 (완료)
-- U3: AI 경력 Q&A 챗봇 — 모델의 source·원문 quote 검증 후 `answer/sources/grounded` 응답 공개
+- U3: AI 경력 Q&A 챗봇 — 모델의 source·원문 line 위치 검증 후 `answer/sources/grounded` 응답 공개
 - U4: Redis 캐시 라이브 데모
 - U5: Kafka 처리량 데모
 - U6: Prometheus·Grafana 로컬 검증 후 t4g.small 운영 배포 제외 — 자원 trade-off 회고 공개
@@ -29,7 +29,7 @@ Inception → Construction → Operations 사이클로, 기능을 Unit 단위로
   - 의도: Spring AI의 프로바이더 추상화 활용 + 무료 티어
   - swap: Claude → Gemini 마이그레이션을 Java 코드 변경 0줄로 진행 (의존성·properties만 교체)
 - 프론트: Vanilla JS + HTML/CSS (의도적 단순화 — 백엔드 스포트라이트)
-- 데이터: 이 디렉토리(`data/career/`)의 마크다운 파일 + 시스템 프롬프트 전체 컨텍스트 주입 + 응답 source·원문 연속 인용 검증
+- 데이터: 이 디렉토리(`data/career/`)의 마크다운 파일 + 줄 번호를 부여한 전체 컨텍스트 주입 + 응답 source·line 위치 검증
 - 인프라: AWS EC2 t4g.small + Docker Compose + Cloudflare, AWS Budget 월 $15 가드레일
 - 운영 모니터링: Actuator·Micrometer 계측 유지. Prometheus·Grafana는 자원 제약으로 AWS 운영에서 제외하고 로컬 `monitoring` 프로필로 분리
 
@@ -37,7 +37,7 @@ Inception → Construction → Operations 사이클로, 기능을 Unit 단위로
 - **RAG 임베딩 안 씀**: 경력 데이터가 ~12K 토큰으로 작아 컨텍스트 주입 + 프롬프트 캐싱이 더 단순하고 저렴.
 - **프론트 프레임워크 안 씀**: 백엔드 어필이 목적이라 진열대(프론트)를 더 단단하게 만드는 데 자원 안 쓴다.
 - **챗봇 모델은 Gemini 2.5 Flash**: 무료 티어 + 경력 Q&A 정확도엔 충분.
-- **근거 응답은 fail-closed**: JSON 형식 오류, 빈 근거, 존재하지 않는 source ID, 원문에 없는 quote는 모델 답변을 노출하지 않고 보류 응답으로 전환. 인용이 답변의 모든 주장을 의미적으로 뒷받침하는지 판정하는 평가는 별도 단계.
+- **근거 응답은 fail-closed**: JSON 형식 오류, 빈 근거, 존재하지 않는 source ID, 범위를 벗어나거나 빈 line은 모델 답변을 노출하지 않고 보류 응답으로 전환. 선택한 원문 줄이 답변의 모든 주장을 의미적으로 뒷받침하는지 판정하는 평가는 별도 단계.
 - **프롬프트 공격은 입력·출력 이중 방어**: 명시적인 지시 무시·내부 프롬프트 탈취·허위 경력 생성 요청은 LLM 호출 전에 차단하고, 내부 규칙 조각이 출력되면 폐기. 정규식 우회 가능성과 실제 모델 품질 평가는 남은 한계.
 
 ## 면접관이 자주 묻는 메타 질문 예시

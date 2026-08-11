@@ -12,30 +12,24 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
 
     private static final Logger log = LoggerFactory.getLogger(ChatService.class);
     private static final int MAX_ANSWER_LENGTH = 4_000;
-    private static final int MIN_EVIDENCE_QUOTE_LENGTH = 8;
-    private static final int MAX_EVIDENCE_QUOTE_LENGTH = 500;
     private static final String UNGROUNDED_MESSAGE =
             "경력 데이터에서 검증 가능한 근거를 확인하지 못해 답변을 보류합니다.";
     private final ChatClient chatClient;
     private final ObjectMapper objectMapper;
-    private final Map<String, String> sourceDocuments;
+    private final Map<String, List<String>> sourceDocumentLines;
     private final ChatInputPolicy inputPolicy;
 
     public ChatService(ChatClient chatClient, ObjectMapper objectMapper,
                        CareerDataLoader careerDataLoader, ChatInputPolicy inputPolicy) {
         this.chatClient = chatClient;
         this.objectMapper = objectMapper;
-        this.sourceDocuments = careerDataLoader.documentsBySourceId().entrySet().stream()
-                .collect(Collectors.toUnmodifiableMap(
-                        Map.Entry::getKey,
-                        entry -> normalizeWhitespace(entry.getValue())));
+        this.sourceDocumentLines = Map.copyOf(careerDataLoader.documentLinesBySourceId());
         this.inputPolicy = inputPolicy;
     }
 
@@ -95,16 +89,14 @@ public class ChatService {
         }
 
         for (Evidence item : evidence) {
-            if (item == null || item.source() == null || item.quote() == null) {
+            if (item == null || item.source() == null || item.line() == null) {
                 return Optional.empty();
             }
             String source = item.source().strip();
-            String quote = normalizeWhitespace(item.quote());
-            String document = sourceDocuments.get(source);
-            if (document == null
-                    || quote.length() < MIN_EVIDENCE_QUOTE_LENGTH
-                    || quote.length() > MAX_EVIDENCE_QUOTE_LENGTH
-                    || !document.contains(quote)) {
+            List<String> lines = sourceDocumentLines.get(source);
+            int line = item.line();
+            if (lines == null || line < 1 || line > lines.size()
+                    || lines.get(line - 1).isBlank()) {
                 return Optional.empty();
             }
         }
@@ -113,10 +105,6 @@ public class ChatService {
                 .map(item -> item.source().strip())
                 .distinct()
                 .toList());
-    }
-
-    private static String normalizeWhitespace(String value) {
-        return value.strip().replaceAll("\\s+", " ");
     }
 
     private static String extractJson(String rawResponse) {
@@ -145,5 +133,5 @@ public class ChatService {
 
     private record ModelResponse(String answer, List<Evidence> evidence, boolean grounded) {}
 
-    private record Evidence(String source, String quote) {}
+    private record Evidence(String source, Integer line) {}
 }

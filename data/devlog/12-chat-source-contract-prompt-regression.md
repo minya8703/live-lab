@@ -28,7 +28,7 @@ tags: [llm, security, testing, architecture]
   "evidence": [
     {
       "source": "projects/01-hanssem-eai.md",
-      "quote": "원문에 실제로 존재하는 8자 이상의 연속 구절"
+      "line": 12
     }
   ],
   "grounded": true
@@ -42,11 +42,11 @@ tags: [llm, security, testing, architecture]
 
 1. JSON 형식과 answer 길이가 유효하다.
 2. evidence가 1개 이상, 최대 3개다.
-3. 모든 source가 실제 문서에 존재하고 quote가 8~500자다.
-4. 공백 정규화 후 quote가 해당 source 원문에 연속 구절로 실제 포함된다.
+3. 모든 source가 실제 문서에 존재한다.
+4. line이 해당 source의 실제 범위에 있고 비어 있지 않은 원문 줄을 가리킨다.
 5. answer에 내부 프롬프트 구분자나 규칙 원문이 포함되지 않는다.
 
-하나라도 실패하면 모델의 원문을 노출하지 않고 고정된 보류 응답으로 전환한다. 외부 API에는 quote를 그대로
+하나라도 실패하면 모델의 원문을 노출하지 않고 고정된 보류 응답으로 전환한다. 외부 API에는 원문 line을 그대로
 노출하지 않고 검증된 source만 `answer/sources/grounded` 계약으로 반환한다.
 
 ## 프롬프트 공격 이중 방어
@@ -69,14 +69,14 @@ CI에서 네트워크 없이 다음 데이터셋을 실행한다.
 - 지시 무시·프롬프트 탈취·허위 경력 생성 공격 6건
 - 정치·종교 의견 요청 3건
 - 차단하면 안 되는 정상 경력·아키텍처 질문 5건
-- 정상 evidence, 허위 source, 빈 evidence, 원문에 없는 quote, 너무 짧은 quote, 잘못된 JSON, code fence JSON, 내부 규칙 출력
+- 정상 evidence, 허위 source, 빈 evidence, 범위 밖 line, 빈 line, 잘못된 JSON, code fence JSON, 내부 규칙 출력
 
 차단 사례만 늘리면 정상 질문까지 거부하는 규칙이 되기 쉽다. 따라서 "프롬프트 인젝션 대응은 어떻게
 했나요?"처럼 보안 경험을 묻는 정상 질문도 허용 회귀 사례로 함께 유지한다.
 
 ## 남은 한계
 
-source와 quote 검증은 인용 구절의 원문 존재를 보장하지, 그 인용이 답변의 모든 수치와 주장을 의미적으로
+source와 line 검증은 근거 위치의 원문 존재를 보장하지, 그 줄이 답변의 모든 수치와 주장을 의미적으로
 뒷받침한다는 것까지 보장하지 않는다. 정규식 입력 정책도 알려진 명시적 패턴을 빠르게 차단하는 1차 방어라서 변형된
 표현은 우회할 수 있다.
 

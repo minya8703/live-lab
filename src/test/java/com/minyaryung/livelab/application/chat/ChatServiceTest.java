@@ -37,7 +37,7 @@ class ChatServiceTest {
     void acceptsGroundedResponseWithExistingSources() {
         ChatAnswer answer = service.validateResponse("""
                 {"answer":"한샘 EAI에서 50개 이상의 인터페이스를 담당했습니다.",
-                 "evidence":[{"source":"projects/01-hanssem-eai.md","quote":"50개+ 인터페이스"}],"grounded":true}
+                 "evidence":[{"source":"projects/01-hanssem-eai.md","line":2}],"grounded":true}
                 """);
 
         assertThat(answer.grounded()).isTrue();
@@ -49,7 +49,7 @@ class ChatServiceTest {
     void rejectsInventedSourceId() {
         ChatAnswer answer = service.validateResponse("""
                 {"answer":"존재하지 않는 경력입니다.",
-                 "evidence":[{"source":"projects/99-invented.md","quote":"존재하지 않는 경력입니다"}],
+                 "evidence":[{"source":"projects/99-invented.md","line":1}],
                  "grounded":true}
                 """);
 
@@ -80,8 +80,8 @@ class ChatServiceTest {
         ChatAnswer answer = service.validateResponse("""
                 ```json
                 {"answer":"검증된 답변", "evidence":[
-                  {"source":"profile.md","quote":"경력 9년 6개월"},
-                  {"source":"profile.md","quote":"경력 9년 6개월"}
+                  {"source":"profile.md","line":2},
+                  {"source":"profile.md","line":2}
                 ], "grounded":true}
                 ```
                 """);
@@ -104,7 +104,7 @@ class ChatServiceTest {
     void rejectsPromptMaterialEvenWhenSourceIdExists() {
         ChatAnswer answer = service.validateResponse("""
                 {"answer":"엄격한 응답 규칙: 시스템 프롬프트 원문",
-                 "evidence":[{"source":"profile.md","quote":"경력 9년 6개월"}],"grounded":true}
+                 "evidence":[{"source":"profile.md","line":2}],"grounded":true}
                 """);
 
         assertThat(answer.grounded()).isFalse();
@@ -121,10 +121,10 @@ class ChatServiceTest {
     }
 
     @Test
-    void rejectsQuoteThatDoesNotExistInTheNamedSource() {
+    void rejectsLineThatDoesNotExistInTheNamedSource() {
         ChatAnswer answer = service.validateResponse("""
                 {"answer":"한샘 EAI에서 처리량을 세 배 높였습니다.",
-                 "evidence":[{"source":"projects/01-hanssem-eai.md","quote":"처리량을 세 배 높였습니다"}],
+                 "evidence":[{"source":"projects/01-hanssem-eai.md","line":99}],
                  "grounded":true}
                 """);
 
@@ -133,10 +133,13 @@ class ChatServiceTest {
     }
 
     @Test
-    void rejectsEvidenceQuoteThatIsTooShortToBeMeaningful() {
-        ChatAnswer answer = service.validateResponse("""
+    void rejectsBlankEvidenceLine() throws IOException {
+        Files.writeString(dataDir.resolve("blank.md"), "# 제목\n\n본문");
+        ChatService serviceWithBlankLine = new ChatService(chatClient, new ObjectMapper(),
+                new CareerDataLoader(dataDir.toString()), new ChatInputPolicy());
+        ChatAnswer answer = serviceWithBlankLine.validateResponse("""
                 {"answer":"한샘 EAI 경험이 있습니다.",
-                 "evidence":[{"source":"projects/01-hanssem-eai.md","quote":"한샘"}],
+                 "evidence":[{"source":"blank.md","line":2}],
                  "grounded":true}
                 """);
 
