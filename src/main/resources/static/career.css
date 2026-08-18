@@ -313,6 +313,76 @@
 }
 .c-stack-row { display: flex; flex-wrap: wrap; gap: 5px; }
 
+/* ===== PERSONAL PROJECTS ===== */
+#c-personal { padding: 80px 0; background: var(--c-bg2); }
+.c-cloud-scope {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(74,158,255,0.25);
+  border-radius: 8px;
+  background: rgba(74,158,255,0.06);
+}
+.c-cloud-scope-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--c-blue);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.c-cloud-scope p { margin: 0; font-size: 12px; color: var(--c-text2); line-height: 1.65; }
+.c-cloud-achievement {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-left: 2px solid var(--c-blue);
+  background: rgba(255,255,255,0.55);
+}
+.c-cloud-achievement-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.c-cloud-achievement-head strong { font-size: 13px; color: var(--c-text); }
+.c-cloud-achievement-meta { margin-top: 4px; font-family: var(--mono); font-size: 10px; color: var(--c-text3); }
+.c-cloud-achievement-metrics { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 9px; font-size: 11px; color: var(--c-text2); }
+.c-cloud-achievement-metrics strong { color: var(--c-blue); font-family: var(--mono); font-size: 14px; }
+.c-cloud-profile-link {
+  display: inline-flex;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--c-blue);
+  text-decoration: none;
+  border: none;
+}
+.c-cloud-profile-link:hover { color: var(--c-text); border: none; }
+.c-personal-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.c-personal-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1.5rem;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  background: var(--c-bg2);
+  transition: border-color 0.2s, transform 0.2s;
+}
+.c-personal-card:hover { border-color: var(--c-border2); transform: translateY(-2px); }
+.c-personal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.c-personal-index { font-family: var(--mono); font-size: 11px; color: var(--c-text3); }
+.c-personal-card h3 { margin: 0 0 5px; font-size: 16px; color: var(--c-text); }
+.c-personal-meta { margin: 0 0 12px; font-family: var(--mono); font-size: 10px; color: var(--c-text3); }
+.c-personal-desc { margin: 0 0 12px; font-size: 13px; color: var(--c-text2); line-height: 1.65; }
+.c-personal-points { margin: 0 0 16px; padding: 0; list-style: none; }
+.c-personal-points li {
+  position: relative;
+  padding: 3px 0 3px 13px;
+  font-size: 12px;
+  color: var(--c-text2);
+  line-height: 1.55;
+}
+.c-personal-points li::before { content: '\2014'; position: absolute; left: 0; color: var(--c-text3); }
+.c-personal-card .c-stack-row { margin-top: auto; }
+.c-personal-links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-soft); }
+
 /* ===== CAREER ===== */
 #c-career { padding: 80px 0; }
 .c-career-grid {
@@ -503,6 +573,8 @@
 /* ===== RESPONSIVE ===== */
 @media (max-width: 640px) {
   .c-timeline { display: none; }
+  .c-personal-grid { grid-template-columns: 1fr; }
+  .c-cloud-scope { grid-template-columns: 1fr; gap: 6px; }
   .c-career-grid { grid-template-columns: 1fr; }
   .c-career-period { border-bottom: none; padding-bottom: 2px; }
   .c-career-content { border-left: 2px solid var(--border-soft); border-bottom: 1px solid var(--border-soft); }

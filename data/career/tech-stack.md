@@ -40,3 +40,4 @@
 ## 클라우드 / AI
 - AWS 🔵 (Live Lab을 EC2 t4g.small에 직접 배포·운영한 소규모 경험 — 기업 운영 환경 책임 경험은 없음)
 - Google Gemini 2.5 Flash · Spring AI 🔵 (현재 학습·적용 중 — 이 사이트의 챗봇이 첫 실습)
+- Google Cloud AI Study Jam 2026 🔵 (2026.04.01~06.01 · 스킬 배지 9개 · 수료폼 제출 완료)

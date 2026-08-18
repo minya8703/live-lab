@@ -5,7 +5,7 @@
 ## 자기소개 / 개요
 
 **Q. 자기소개 부탁드립니다.**
-A. 9년 6개월 경력 Backend / EAI Engineer 민야령입니다. 일본 SI에서 6년 6개월간 금융 결제(Credit Saison·MONEX), 항공 발권(ANA), 전력 청구(규슈전력) 등 데이터 정합성이 중요한 시스템을 담당했고, 한국에서는 한샘 EAI 운영과 자체 SaaS BeTAX 백엔드 + SAP↔BeTAX MSA 통합 솔루션을 Spring Boot 3·Kafka·Redis·Kubernetes로 설계·구축했습니다. 무중단·무장애 운영과 자습→실무 즉시 적용이 강점입니다.
+A. 9년 6개월 경력 Backend / EAI Engineer 민야령입니다. 일본 SI에서 6년 6개월간 금융 결제(Credit Saison·MONEX), 항공 발권(ANA), 전력 청구(규슈전력) 등 데이터 무결성이 중요한 시스템을 담당했고, 한국에서는 한샘 EAI 운영과 자체 SaaS BeTAX 백엔드 + SAP↔BeTAX MSA 통합 솔루션을 Spring Boot 3·Kafka·Redis·Kubernetes로 설계·구축했습니다. 무중단·무장애 운영과 자습→실무 즉시 적용이 강점입니다.
 
 **Q. 가장 강한 경험 하나만 꼽아주세요.**
 A. 한샘 webMethods EAI에서 50개 이상의 인터페이스를 11종 패턴으로 표준화하고 3년간 서버 다운 0건으로 운영한 경험입니다. 3개월 주기로 반복되던 장애 리스크를 Shell 기반 JVM 메모리 모니터링(80% 임계값 알람)으로 사전 차단한 게 핵심이었습니다.
@@ -26,7 +26,7 @@ A. 기업 운영 환경에서 AWS를 책임진 경험은 없습니다. 다만 �
 이전 경력에서는 Kubernetes 오케스트레이션(HPA, Rolling Update, Liveness/Readiness Probe)과 폐쇄망 환경 Jenkins 원격 기동 구조 등 온프레미스·하이브리드 인프라 운영 경험이 있습니다.
 
 **Q. 대용량 트래픽 운영해봤어요?**
-A. B2C 수만 RPS급 트래픽 운영 경험은 없습니다. 다만 엔터프라이즈 영역에서 Credit Saison 신용카드 데이터 2,500만 건을 정합성 이슈 0건으로 처리한 ETL 이관, BeTAX의 Kafka 7개 토픽 비동기 처리, 한샘 EAI 50개 이상 인터페이스 3년간 무장애 운영 경험이 있습니다.
+A. B2C 수만 RPS급 트래픽 운영 경험은 없습니다. 다만 엔터프라이즈 영역에서 Credit Saison 신용카드 데이터 2,500만 건을 데이터 무결성 이슈 0건으로 처리한 ETL 이관, BeTAX의 Kafka 7개 토픽 비동기 처리, 한샘 EAI 50개 이상 인터페이스 3년간 무장애 운영 경험이 있습니다.
 
 ## 가용성 / 조건
 
