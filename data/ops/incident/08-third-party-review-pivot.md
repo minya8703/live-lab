@@ -63,8 +63,8 @@ C 의 논리: **주니어 = "내 코드 완벽" → 비판받으면 무너짐. �
 ### 2. 랜딩 카피 변경
 
 ```
-Before: "Kafka · Redis · MSA를 실제로 돌려보고, AI-DLC로 만들어가는 백엔드 진열대."
-After:  "Kafka · Redis · MSA 를 t4g.small 2GB 안에서 다루고,
+Before: "Kafka · Redis를 실제로 돌려보고, AI-DLC로 만들어가는 백엔드 진열대."
+After:  "Kafka · Redis를 t4g.small 2GB 안에서 다루고,
         그 환경의 trade-off 와 다음 방향까지 가감없이 노출합니다."
 ```
 
