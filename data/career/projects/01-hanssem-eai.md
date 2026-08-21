@@ -9,7 +9,7 @@
 webMethods EAI, SAP JCo, RFC, DB, WS, HTTP, FTP, Socket, Shell Script, Jenkins(폐쇄망), Git, MySQL, Tomcat
 
 ## 핵심 기여
-- SAP JCo 기반 RFC ↔ DB / WS / HTTP / FTP / Socket 등 **11종 인터페이스 패턴 표준화**
+- 시스템 간 데이터 정합성을 위해 SAP JCo 기반 RFC ↔ DB / WS / HTTP / FTP / Socket 등 **11종 인터페이스 패턴 표준화**
 - Shell script 메모리 모니터링(80% 임계값 알람) → 선제 재기동으로 **3개월 주기 장애 리스크 제거**
 - 폐쇄망 환경에서 신규 JCo 시스템 재기동 필요 시 Jenkins 원격 기동 구조 구축 (현장 방문 없이 대응)
 - 인터페이스 개발 가이드·배포 운영 매뉴얼 작성 → 퇴직 시 인수인계 완료

@@ -12,6 +12,7 @@ Spring Boot 3.x, Kafka (7토픽 · DLT · FixedBackOff), Redis (32메서드 캐�
 - Kafka 7토픽을 업무 이벤트별로 분리하고, DLT(Dead Letter Topic) 에러 처리와 FixedBackOff 재시도 패턴 적용
 - Redis Key-Value 캐시를 32개 메서드에 적용. 환율·분석키 TTL 24시간, 회사·거래처 마스터 TTL 12시간으로 차등 설계
 - DB를 원본으로 유지하는 Cache-Aside와 @CacheEvict 무효화 적용, CacheErrorHandler로 Redis 장애 시 DB fallback 자동화
+- 세금계산서 업무 키에 DB Unique Constraint를 적용해 엔터티 무결성 확보
 - Prometheus + Grafana 대시보드 (캐시 히트율, Kafka Consumer Lag)
 - Kubernetes HPA, Rolling Update, Liveness/Readiness Probe 적용
 

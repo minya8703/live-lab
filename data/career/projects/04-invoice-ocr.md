@@ -9,6 +9,7 @@
 Python, FastAPI, PyMuPDF, PaddleOCR, EasyOCR, MariaDB, React + Konva.js
 
 ## 핵심 기여
+- 타사 OCR의 금액값 무결성 문제를 발견해 자체 개발로 전환
 - PyMuPDF 텍스트 추출 → 회사명·금액 표기 정규화 → 회사별 추출 규칙 매핑 **3단계 파이프라인** 설계
 - 스캔 PDF(텍스트 레이어 없음) 감지 시 **PaddleOCR → EasyOCR 자동 폴백** 구조
 - EXTRACTOR_REGISTRY 패턴으로 회사별 추출기를 단일 관리

@@ -29,7 +29,7 @@
 | K-03 | P0 | 완료 | 실행 단위 격리 | runId별 통계를 유지하거나 동시에 하나의 실행만 허용한다. 이전 실행의 소비 결과가 새 실행에 섞이지 않는다. |
 | K-04 | P0 | 대기 | Kafka 통합 테스트 | 세 원본 partition의 실패 레코드가 실제 DLT에 도착하고 retry 횟수와 DLT header를 검증한다. |
 | K-05 | P1 | 완료 | 로컬/컨테이너 listener 분리 | 컨테이너 앱은 `kafka:9092`, 호스트 앱은 loopback 전용 `localhost:9092` listener를 사용한다. |
-| K-06 | P1 | 대기 | 업무 정합성 시나리오 | Transactional Outbox와 eventId 기반 멱등 consumer를 장애/중복 테스트로 증명한다. |
+| K-06 | P1 | 대기 | 업무 이벤트 정합성·무결성 시나리오 | Transactional Outbox와 eventId 기반 멱등 consumer를 장애/중복 테스트로 증명한다. |
 | K-07 | P0 | 완료 | 공개 발행 자원 보호 | 요청당 2,000건, 연결 peer당 10분 5,000건의 가중 제한을 두고 초과 시 발행 전에 429를 반환한다. |
 | R-01 | P0 | 완료 | CacheErrorHandler 의미 분리 | 읽기 실패는 fail-open, clear/evict 실패는 호출자 또는 메트릭에 실패로 드러난다. |
 | R-02 | P0 | 대기 | Redis 통합 테스트 | miss→DB→hit, TTL, 직렬화, Redis 중단 시 fallback을 Testcontainers로 검증한다. |
@@ -50,7 +50,7 @@
 | S-02 | P0 | 완료 | 브라우저 JWT 저장 보호 | localStorage JWT를 제거하고 HttpOnly·Secure·SameSite 쿠키와 double-submit CSRF 검증을 적용한다. 자동화 Bearer 인증은 환경변수 사용으로 분리한다. |
 | S-03 | P0 | 완료 | 로그인 남용·감사 로그 최소화 | Google 검증 전 peer당 10회/10분 제한을 적용하고 관리자 성공 작업은 민감 정보 없이 action만 기록한다. |
 | S-04 | P0 | 완료 | 관리 API 입력·자원 경계 | 블로그 필드·slug·URL·페이지 범위와 JSON 파서 상한을 검증하고 이미지 업로드를 peer당 20회/시간으로 제한한다. |
-| S-05 | P0 | 완료 | 블로그 정합성·HTTP 의미 | slug 중복과 동시 race는 DB unique까지 방어해 409로, 없는 수정·삭제는 404로 반환하고 성공 시에만 감사 로그를 남긴다. |
+| S-05 | P0 | 완료 | 블로그 엔터티 무결성·HTTP 의미 | slug 중복과 동시 race는 DB unique까지 방어해 409로, 없는 수정·삭제는 404로 반환하고 성공 시에만 감사 로그를 남긴다. |
 | S-06 | P0 | 완료 | 데이터 서비스 호스트 노출 차단 | PostgreSQL·Redis·Kafka·Prometheus·Grafana의 publish 주소를 `127.0.0.1`로 제한하고 앱 간 통신은 Docker network로 유지한다. |
 
 ## 4. 개선 기록

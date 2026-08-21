@@ -33,7 +33,7 @@
       </h1>
       <p class="career-hero-desc">
         EAI · MSA · 데이터 파이프라인 9년 6개월.<br>
-        금융·항공·전력 도메인 데이터 무결성이 중요한 시스템 실전 경험과<br>
+        금융·항공·전력 도메인 데이터 정합성과 무결성이 중요한 시스템 실전 경험과<br>
         Java 17 · Spring Boot 3 · Kafka · Redis · Kubernetes 기반 현대 아키텍처를 연결합니다.
       </p>
 
@@ -48,7 +48,7 @@
         </div>
         <div class="stat-item">
           <div class="c-stat-num">2.5<span class="c-stat-unit">천만</span></div>
-          <div class="c-stat-label">데이터 이관 무결성 100%</div>
+          <div class="c-stat-label">데이터 이관 정합성 이슈 0건</div>
         </div>
         <div class="stat-item">
           <div class="c-stat-num">13</div>
@@ -59,7 +59,7 @@
       <div class="career-hero-links">
         <a id="career-hero-email" href="#" class="c-btn c-btn-primary">이메일 문의</a>
         <a href="https://github.com/minya8703" target="_blank" rel="noopener" class="c-btn c-btn-outline">GitHub</a>
-        <a href="https://www.skills.google/public_profiles/58876272-e765-4d7b-8d60-b7fea3158491" target="_blank" rel="noopener" class="c-btn c-btn-outline">Google Skills</a>
+        <a href="https://www.credly.com/users/yaryung-min/badges/credly" target="_blank" rel="noopener" class="c-btn c-btn-outline">Credly</a>
         <a href="https://www.linkedin.com/in/minya8703" target="_blank" rel="noopener" class="c-btn c-btn-outline">LinkedIn</a>
         <a href="https://difud1106.tistory.com/" target="_blank" rel="noopener" class="c-btn c-btn-outline">Blog</a>
       </div>
@@ -201,7 +201,7 @@
           <div class="c-detail-section">
             <div class="c-detail-label">핵심 기여</div>
             <ul class="c-detail-list">
-              <li>SAP JCo 기반 RFC↔DB/WS/HTTP/FTP/Socket 등 11종 인터페이스 패턴 표준화 및 운영</li>
+              <li>시스템 간 데이터 정합성을 위해 SAP JCo 기반 RFC↔DB/WS/HTTP/FTP/Socket 등 11종 인터페이스 패턴 표준화 및 운영</li>
               <li>Shell script 메모리 모니터링(80% 임계값 알람) → 선제 재기동으로 3개월 주기 장애 리스크 제거</li>
               <li>폐쇄망 환경에서 신규 JCo 시스템 등 재기동 필요 시 Jenkins 서버를 통한 원격 기동 구조 구축 (현장 방문 없이 대응 가능)</li>
               <li>인터페이스 개발 가이드·배포 운영 매뉴얼 작성 → 퇴직 시 인수인계 완료</li>
@@ -314,6 +314,7 @@
             <div class="c-detail-label">핵심 기여</div>
             <ul class="c-detail-list">
               <li>SAP JCo Server ↔ 중계서버 ↔ 회계솔루션(=02 Betax SaaS) MSA 아키텍처 전체 설계</li>
+              <li>멱등성 키와 DB Unique Constraint로 엔터티 무결성을 보장해 중복 발행 차단</li>
               <li>SAP 직접 연동과 BeTAX 양쪽이 하나의 중계서버를 공유하도록 표준화 → 발행처 인터페이스 변경 시 중계서버 한 곳만 수정</li>
               <li>서비스별 독립 포트·DB 설계, RESTful API 기반 JSON 통신으로 결합도 최소화</li>
               <li>Git repository 분리 및 독립 배포 파이프라인 구축</li>
@@ -345,7 +346,7 @@
               <span class="c-tag c-tag-default">참여 종료 (2026.02)</span>
             </div>
             <div class="c-project-meta">NARINER · 2025.07 ~ 2026.02 · EAI 운영 병행 1인 개발</div>
-            <div class="c-project-desc">타사 OCR 추출 정확도 문제를 스스로 발견해 자체 개발 전환. 본업(EAI 운영)과 병행하며 CPU 환경에서 중국·동남아 12개 거래처 다국어 인보이스 PDF 18개 필드 자동 추출. PyMuPDF 텍스트 추출 → 정규화 → 회사별 추출 규칙 매핑의 3단계 파이프라인 자체 설계.</div>
+            <div class="c-project-desc">타사 OCR의 금액값 무결성 문제를 스스로 발견해 자체 개발 전환. 본업(EAI 운영)과 병행하며 CPU 환경에서 중국·동남아 12개 거래처 다국어 인보이스 PDF 18개 필드 자동 추출. PyMuPDF 텍스트 추출 → 정규화 → 회사별 추출 규칙 매핑의 3단계 파이프라인 자체 설계.</div>
             <div class="c-project-metrics">
               <div class="c-metric"><span class="c-metric-val">12개</span><span class="c-metric-label">거래처 대응</span></div>
               <div class="c-metric"><span class="c-metric-val">5분→수초</span><span class="c-metric-label">처리 시간</span></div>
@@ -492,7 +493,7 @@
             <div class="c-project-desc">2,500만 명 규모 지급·연체 데이터 ETL 이관. 1차 무장애 완료 후 고품질 평가로 2차 재투입.</div>
             <div class="c-project-metrics">
               <div class="c-metric"><span class="c-metric-val">2,500만</span><span class="c-metric-label">회원 데이터</span></div>
-              <div class="c-metric"><span class="c-metric-val">0건</span><span class="c-metric-label">데이터 무결성 이슈</span></div>
+              <div class="c-metric"><span class="c-metric-val">0건</span><span class="c-metric-label">데이터 정합성 이슈</span></div>
               <div class="c-metric"><span class="c-metric-val">2차 재투입</span><span class="c-metric-label">성과 인정</span></div>
             </div>
           </div>
@@ -505,7 +506,7 @@
               <li>Informatica PowerCenter 매뉴얼 자습으로 실무 즉시 적용</li>
               <li>1차: CARD 대금 지불 데이터 통합 설계·수정 및 PowerCenter 매핑</li>
               <li>2차(재투입): CARD 연체자 분류 데이터 통합 설계</li>
-              <li>ETL 매핑 과정에서 기본설계·상세설계 불일치 발견 → 매번 조율하며 데이터 무결성 확보</li>
+              <li>ETL 매핑 과정에서 기본설계·상세설계 불일치 발견 → 매번 조율하며 데이터 정합성 확보</li>
               <li>일본어 한자·히라가나 기반 마스킹 테스트 데이터 직접 생성 (실데이터 의존 없이 검증)</li>
               <li>팀 단위 3단계 검증 구조 참여 (레코드 수·체크섬·샘플링)</li>
             </ul>
@@ -683,7 +684,7 @@
               <span>공개 프로필로 학습 이력 검증</span>
             </div>
           </div>
-          <a href="https://www.skills.google/public_profiles/58876272-e765-4d7b-8d60-b7fea3158491" target="_blank" rel="noopener" class="c-cloud-profile-link">Google Skills 학습 프로필 확인 ↗</a>
+          <a href="https://www.credly.com/users/yaryung-min/badges/credly" target="_blank" rel="noopener" class="c-cloud-profile-link">Credly 학습 프로필 확인 ↗</a>
         </div>
       </div>
 
@@ -771,7 +772,7 @@
       <div class="c-section-header c-fade-in">
         <div class="c-section-label">도메인 전문성</div>
         <h2>Industry Experience</h2>
-        <p class="c-section-sub">일본 SI 6년 6개월(금융 결제·항공 발권·전력 청구 등 데이터 무결성이 중요한 시스템) + 한국 2년 10개월 — 엔터프라이즈 시스템 일관 담당</p>
+        <p class="c-section-sub">일본 SI 6년 6개월(금융 결제·항공 발권·전력 청구 등 데이터 정합성과 무결성이 중요한 시스템) + 한국 2년 10개월 — 엔터프라이즈 시스템 일관 담당</p>
       </div>
       <div class="c-industry-grid c-fade-in">
         <div class="c-industry-item">
@@ -795,7 +796,7 @@
           <div class="c-industry-companies">Betax 회계·세무<br>(NARINER 자체)</div>
         </div>
       </div>
-      <p class="c-industry-closing c-fade-in">엔터프라이즈 시스템을 연결하고 안정화한다 — 데이터 무결성 이슈 0건의 무게로.</p>
+      <p class="c-industry-closing c-fade-in">엔터프라이즈 시스템을 연결하고 안정화한다 — 2,500만 건 데이터 정합성 이슈 0건의 무게로.</p>
     </div>
   </section>
 

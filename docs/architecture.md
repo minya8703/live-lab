@@ -224,7 +224,7 @@ GET /api/ops     → 운영 기록 (incident / runbook)
 | 인증 시도 제한 | Google credential 검증 전에 TCP peer 기준 10분 10회로 제한하고 초과 요청은 429 반환 |
 | 관리자 감사 로그 | 성공한 작성·수정·삭제·업로드의 작업 종류만 기록. 이메일·JWT·slug·본문·원본 파일명 제외 |
 | 관리 API 자원 경계 | JSON 256KB·단일 문자열 120,000자·중첩 20단계, 페이지 0~1000·size 1~50, 이미지 업로드 peer당 20회/시간 |
-| 블로그 정합성 | 애플리케이션 중복 확인 + DB unique constraint로 slug race 방어, 중복 409·없는 수정/삭제 404, 감사 로그는 성공 후 기록 |
+| 블로그 엔터티 무결성 | 애플리케이션 중복 확인 + DB unique constraint로 slug race 방어, 중복 409·없는 수정/삭제 404, 감사 로그는 성공 후 기록 |
 
 HttpOnly 쿠키는 JavaScript를 통한 JWT 직접 탈취 가능성을 줄이지만 XSS 자체를 해결하지는 않는다. 따라서 CSP와 출력 인코딩을 함께 유지하며, 인증 범위가 확장되면 커스텀 interceptor에서 Spring Security의 표준 필터·CSRF 저장소로 전환한다.
 
