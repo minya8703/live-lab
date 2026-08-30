@@ -307,7 +307,7 @@ main {
 
 .lab-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -478,6 +478,10 @@ main, .topbar, .footer { position: relative; z-index: 1; }
   .nav {
     gap: 14px;
     font-size: 13px;
+  }
+
+  .lab-grid {
+    grid-template-columns: 1fr;
   }
   main {
     padding: 0 16px;

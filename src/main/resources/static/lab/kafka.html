@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kafka 처리량 라이브 데모 · 민야령 Live Lab</title>
-  <meta name="description" content="Kafka 발행/소비 throughput · DLT 라우팅 · FixedBackOff 재시도 라이브 측정." />
+  <title>Kafka 재시도와 DLT 장애 격리 · 민야령 Live Lab</title>
+  <meta name="description" content="Kafka 주문 이벤트의 발행·소비, FixedBackOff 재시도와 DLT 장애 격리 흐름을 직접 확인하는 라이브 데모." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/assets/css/style.css" />
   <link rel="stylesheet" href="/lab/redis.css" />
@@ -23,22 +23,12 @@
 
   <main class="redis-main">
     <section class="redis-intro">
-      <p class="tag-line">U5 · Kafka 처리량 라이브 데모</p>
-      <h1 class="redis-title">Kafka 메시지 처리 + DLT — t4g.small 안에서 다뤄봅니다</h1>
+      <p class="tag-line">MESSAGING · Kafka 장애 처리 라이브 데모</p>
+      <h1 class="redis-title">실패한 메시지를 재시도하고 DLT로 격리합니다</h1>
       <p class="redis-sub">
         Kafka 3.7 KRaft 모드 · 3 파티션. Producer가 주문 이벤트를 발행하면 Consumer가 소비하고,
         <strong>17의 배수 orderId</strong>는 의도적으로 실패시켜 <strong>FixedBackOff 500ms × 3회 재시도 → DLT 라우팅</strong>까지 흐름을 봅니다.
       </p>
-
-      <aside class="tradeoff-box" aria-label="trade-off">
-        <h4>⚖ 이 데모의 trade-off (의식적 선택)</h4>
-        <p><span class="tradeoff-label">현재</span>Spring Kafka 표준 — <code>DefaultErrorHandler</code> + <code>FixedBackOff(500ms × 3)</code> 의 <strong>레코드 단위 블로킹 재시도</strong>.</p>
-        <p><span class="tradeoff-label">실행 격리</span>각 실행에 UUID <code>runId</code>를 부여해 producer callback과 consumer 결과를 구분한다. 제한된 데모 자원을 보호하기 위해 동시에 한 실행만 허용하며, 중복 실행과 실행 중 reset은 <code>409 Conflict</code>로 거부한다.</p>
-        <p><span class="tradeoff-label">자원 보호</span>한 번에 최대 2,000건, 연결 peer 기준 10분에 누적 5,000건으로 제한하며 초과 요청은 <code>429 Too Many Requests</code>로 거부한다. 현재 인메모리 방식이라 다중 인스턴스에서는 Redis 등 공유 저장소가 필요하다.</p>
-        <p><span class="tradeoff-label">한계</span>17의 배수 메시지가 걸리면 해당 파티션 컨슈머 스레드가 <strong>1.5초 stall</strong> → throughput 그래프가 계단식으로 낙하. 3 파티션 비대칭으로 성공 카운트는 spike, DLT 는 점진 증가하는 비대칭이 보입니다.</p>
-        <p><span class="tradeoff-label">고처리량 운영급</span>메인 토픽을 막지 않는 <strong>Non-blocking Retry Topic</strong> 패턴 — <code>order.retry.500ms</code> → <code>order.retry.5s</code> → <code>order.DLT</code> 의 단계 분리. Spring Kafka 의 <code>@RetryableTopic</code> 또는 <code>RetryTopicConfigurer</code>.</p>
-        <p><span class="tradeoff-label">현 사이트가 안 가는 이유</span>t4g.small 2GB 안에서 토픽 4개 추가는 메모리 부담이 크다. 코드 변경 자체는 가능하나 별도 Unit(U12 후보)으로 분리해 <em>개선 비교 회고</em>로 노출할 예정이다.</p>
-      </aside>
     </section>
 
     <section class="controls" aria-label="실행 컨트롤">
@@ -99,6 +89,16 @@
       </header>
       <div class="chart" id="throughputChart"></div>
     </section>
+
+    <aside class="tradeoff-box" aria-label="설계 판단과 한계">
+      <h4>설계 판단과 운영 환경의 차이</h4>
+      <p><span class="tradeoff-label">현재</span>Spring Kafka 표준 — <code>DefaultErrorHandler</code> + <code>FixedBackOff(500ms × 3)</code> 의 <strong>레코드 단위 블로킹 재시도</strong>.</p>
+      <p><span class="tradeoff-label">실행 격리</span>각 실행에 UUID <code>runId</code>를 부여해 producer callback과 consumer 결과를 구분한다. 제한된 데모 자원을 보호하기 위해 동시에 한 실행만 허용하며, 중복 실행과 실행 중 reset은 <code>409 Conflict</code>로 거부한다.</p>
+      <p><span class="tradeoff-label">자원 보호</span>한 번에 최대 2,000건, 연결 peer 기준 10분에 누적 5,000건으로 제한하며 초과 요청은 <code>429 Too Many Requests</code>로 거부한다. 현재 인메모리 방식이라 다중 인스턴스에서는 Redis 등 공유 저장소가 필요하다.</p>
+      <p><span class="tradeoff-label">관찰 결과</span>17의 배수 메시지가 걸리면 해당 파티션 컨슈머 스레드가 <strong>1.5초 지연</strong>되어 처리량 그래프가 계단식으로 낮아진다. 3개 파티션에 실패 메시지가 고르게 배치되지 않아 성공 카운트는 순간적으로 증가하고 DLT는 점진적으로 늘어난다.</p>
+      <p><span class="tradeoff-label">운영 확장</span>처리량이 중요한 환경에서는 메인 토픽을 막지 않는 <strong>Non-blocking Retry Topic</strong> 패턴으로 <code>order.retry.500ms</code> → <code>order.retry.5s</code> → <code>order.DLT</code> 단계를 분리할 수 있다.</p>
+      <p><span class="tradeoff-label">적용 경계</span>이 공개 데모는 t4g.small 2GB의 단일 브로커 환경이므로 고가용성이나 대용량 성능을 증명하지 않는다. 운영 환경에서는 다중 브로커·복제 계수·Consumer Lag과 함께 검증해야 한다.</p>
+    </aside>
 
     <section class="redis-meta">
       <h3>아키텍처 결정 — Kafka를 왜, 어떻게 경계로 두는가</h3>

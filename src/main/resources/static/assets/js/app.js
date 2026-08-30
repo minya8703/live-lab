@@ -1,20 +1,12 @@
 (function () {
   "use strict";
 
-  const FALLBACK_LABEL = "U10 AWS 운영 페이지 구축 중 · AI-DLC Construction";
-
   const FALLBACK = {
-    currentUnit: 10,
-    totalUnits: 11,
-    currentLabel: FALLBACK_LABEL,
     units: {
       3: "live",
       4: "live",
       5: "live",
       7: "live",
-      8: "live",
-      11: "planned",
-      10: "in-progress",
     },
   };
 
@@ -30,10 +22,9 @@
       const label = statusEl.querySelector(".status-label");
       const detail = statusEl.querySelector(".status-detail");
       if (label) {
-        label.textContent =
-          "Building · Unit " + status.currentUnit + " / " + status.totalUnits;
+        label.textContent = "Live · 4 demos available";
       }
-      if (detail) detail.textContent = status.currentLabel;
+      if (detail) detail.textContent = "Kafka · Redis · AI Q&A · 운영 회고";
     }
 
     document.querySelectorAll("[data-unit]").forEach(function (card) {
