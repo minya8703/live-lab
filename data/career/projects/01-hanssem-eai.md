@@ -16,4 +16,4 @@ webMethods EAI, SAP JCo, RFC, DB, WS, HTTP, FTP, Socket, Shell Script, Jenkins(�
 
 ## 결과
 - 인터페이스 **50개+** 주 담당
-- 운영 기간 **3년간 서버 다운 0건**
+- 재직 기간 **서버 다운 0건**

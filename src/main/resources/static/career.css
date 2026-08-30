@@ -179,6 +179,15 @@
   text-transform: uppercase;
   margin-bottom: 1rem;
 }
+.c-learning-loop {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border-left: 3px solid var(--c-accent);
+  border-radius: 0 8px 8px 0;
+  background: rgba(16, 185, 129, 0.06);
+}
+.c-learning-loop strong { font-size: 13px; color: var(--c-text); }
+.c-learning-loop p { margin: 7px 0 0; font-size: 13px; color: var(--c-text2); line-height: 1.7; }
 .c-stack-items { display: flex; flex-wrap: wrap; gap: 6px; }
 
 .c-badge {
@@ -199,6 +208,8 @@
 
 /* ===== PROJECTS ===== */
 #c-projects { padding: 80px 0; }
+#c-all-projects { padding: 80px 0; background: var(--c-bg2); }
+#c-all-projects .c-project-card { background: var(--c-bg); }
 .c-project-card {
   background: var(--c-bg2);
   border: 1px solid var(--c-border);

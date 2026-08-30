@@ -2,7 +2,7 @@
 
 ## 2026 Google Cloud AI Study Jam
 - 학습 기간: 2026.04.01 ~ 2026.06.01
-- 수료폼 제출: 완료
+- 수료: 완료
 - 획득한 스킬 배지: 9개
 - 공개 프로필: https://www.credly.com/users/yaryung-min/badges/credly
 - Google Cloud를 실습 중심으로 학습하고 공개 프로필을 통해 배지 이력을 관리했다.
